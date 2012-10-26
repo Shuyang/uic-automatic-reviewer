@@ -1,0 +1,1441 @@
+<?xml version="1.0" encoding="UTF-8"?><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta name="xmpTPg:NPages" content="24"/>
+<meta name="Creation-Date" content="2012-09-19T17:09:26Z"/>
+<meta name="meta:creation-date" content="2012-09-19T17:09:26Z"/>
+<meta name="created" content="Wed Sep 19 12:09:26 CDT 2012"/>
+<meta name="dcterms:created" content="2012-09-19T17:09:26Z"/>
+<meta name="producer" content="MiKTeX-dvipdfmx (20090708 svn texlive 14695)"/>
+<meta name="date" content="2012-09-19T17:09:26Z"/>
+<meta name="xmp:CreatorTool" content=" TeX output 2012.09.19:1209"/>
+<meta name="Content-Type" content="application/pdf"/>
+<title/>
+</head>
+<body><div class="page"><p/>
+<p>A Comprehensive Solution for Polarity
+Consistency Checking for Domain
+Independent Sentiment Dictionaries∗
+</p>
+<p>Eduard Constantin Dragut
+Purdue University
+</p>
+<p>Hong Wang
+University of Illinois at Chicago
+</p>
+<p>Prasad Sistla
+University of Illinois at Chicago
+</p>
+<p>Clement Yu
+University of Illinois at Chicago
+</p>
+<p>Weiyi Meng
+Binghamton University
+</p>
+<p>Polarity classification of words is important for applications such as Opinion Mining and
+Sentiment Analysis. A number of sentiment word/sense dictionaries have been manually or
+(semi)automatically constructed. We notice that these sentiment dictionaries have numerous
+inaccuracies. Besides obvious instances, where the same word appears with different polarities
+in different dictionaries, the dictionaries exhibit complex cases of polarity inconsistency, which
+cannot be detected by mere manual inspection. We introduce the concept of polarity consistency
+of words/senses in sentiment dictionaries in this paper. We show that the consistency problem is
+NP-complete. We reduce the polarity consistency problem to the satisfiability problem and utilize
+a fast SAT solver to detect inconsistencies in a sentiment dictionary. We perform experiments on
+four sentiment dictionaries and WordNet.
+</p>
+<p>1. Introduction
+</p>
+<p>The opinions expressed in various Web and media outlets (e.g., blogs, newspapers) are
+an important yardstick for the success of a product or a government policy. For instance,
+a product with consistently good reviews is likely to sell well. The general approach is
+to summarize the semantic polarity (i.e., positive or negative) of sentences/documents by
+analysis of the orientations of the individual words (Pang and Lee 2004; Danescu-N.-M.
+et al. 2009; Kim and Hovy 2004; Takamura, Inui, and Okumura 2005). Sentiment dictio-
+naries are utilized to facilitate the summarization. There are numerousworks that, given
+a sentiment lexicon, analyze the structure of a sentence/document to infer its orienta-
+tion, the holder of an opinion, the sentiment of the opinion, etc. (Breck, Choi, and Cardie
+2007; Ding and Liu 2010; Kim and Hovy 2004). Several domain independent sentiment
+dictionaries have been manually or (semi)-automatically created, e.g., General Inquirer
+(GI) (Stone et al. 1996), Opinion Finder (OF) (Wilson, Wiebe, and Hoffmann 2005),
+Appraisal Lexicon (AL) (Taboada and Grieve 2004), SentiWordNet (Baccianella, Esuli,
+and Sebastiani 2010) and Q-WordNet (Agerri and García-Serrano 2010). Q-WordNet
+</p>
+<p>∗ A portion of this manuscript has appeared in the proceedings of the ACL 2012 conference. Please see the
+end of Introduction section for more details.
+</p>
+<p>© 2011 Association for Computational Linguistics</p>
+<p/>
+</div>
+<div class="page"><p/>
+<p>Computational Linguistics Volume 1, Number 1
+</p>
+<p>and SentiWordNet are lexical resources which classify the synsets(senses) in WordNet
+according to their polarities. We call them sentiment sense dictionaries (SSD). OF, GI
+and AL are called sentiment word dictionaries (SWD). They consist of words manually
+annotated with their corresponding polarities. We have noticed the following problems
+with the sentiment dictionaries have:r They exhibit substantial (intra-dictionary) inaccuracies. For example, the
+</p>
+<p>synset
+{Indo-European, Indo-Aryan, Aryan} (of or relating to the former Indo-European
+people),
+has a negative polarity in Q-WordNet, while most people would agree that
+this synset has a neutral polarity instead.r They have (inter-dictionary) inconsistencies. For example, the adjective
+cheap is positive in AL and negative in OF.r These dictionaries do not address the concept of polarity (in)consistency of
+words/synsets.
+</p>
+<p>We concentrate on the concept of (in)consistency in this paper. We define consis-
+tency among the polarities of words/synsets in a dictionary and give methods to check
+it. We provide a couple of examples to illustrate the problem we address in this paper.
+</p>
+<p>The first example is the verbs confute and disprove, which have positive and
+negative polarities, respectively, in OF. According to WordNet, both words have a
+unique sense, which they share: disprove, confute (prove to be false) "The physicist disproved
+his colleagues’ theories"
+</p>
+<p>Assuming that WordNet has complete information about the two words, it is rather
+strange that the words have distinct polarities. By manually checking two authoritative
+English dictionaries, Oxford1 and Cambridge2, we note that the information about
+confute and disprove in WordNet is the same as that in these dictionaries. So, the
+problem seems to originate in OF.
+</p>
+<p>The second example is the verbs tantalize and taunt, which have positive and
+negative polarities, respectively, in OF. They also have a unique sense in WordNet,
+which they share. Again, there is a contradiction. In this case Oxford dictionary men-
+tions a sense of tantalize that is missing from WordNet: “excite the senses or desires
+of (someone)". This sense conveys a positive polarity. Hence, tantalize conveys a
+positive sentiment when used with this sense.
+</p>
+<p>In summary, these dictionaries have conflicting information. Manual checking of
+sentiment dictionaries for inconsistency is a difficult endeavor. We deem words such
+as confute and disprove inconsistent. We aim to unearth these inconsistencies in
+sentiment dictionaries. Note that the presence of inconsistencies found via polarity
+analysis is not exclusively attributed to one party, i.e., either the sentiment dictionary
+or WordNet. Instead, as emphasized by the above examples, some of them lie in the
+sentiment dictionaries, while others lie in WordNet. Therefore, a by-product of our
+polarity consistency analysis is that it can also locate likely places whereWordNet needs
+linguists’ attention.
+</p>
+<p>1 http://oxforddictionaries.com/
+2 http://dictionary.cambridge.org/
+</p>
+<p>2</p>
+<p/>
+</div>
+<div class="page"><p/>
+<p>E. C. DragutAComprehensive Solution for Polarity Consistency Checking for Domain Independent Sentiment Dictionaries
+</p>
+<p>We will show that the problem of checking whether the polarities of a set of words
+are consistent is NP-complete. Fortunately, the consistency problem can be reduced to
+the satisfiability problem (SAT).We utilize two fast SAT solvers to detect inconsistencies.
+It is known such solvers can in practice determine consistency or detect inconsistencies.
+Our experimental study show that substantial inconsistencies are discovered among
+words with polarities within and across sentiment dictionaries. This suggests that some
+remedial work needs to be performed on these sentiment dictionaries as well as on
+WordNet.
+</p>
+<p>The contributions of this paper are:r address the consistency of polarities of words/senses. The problem has
+not been addressed before;r show that the consistency problem is NP-complete;r reduce the polarity consistency problem to the satisfiability problem and
+utilize a fast SAT solver to detect inconsistencies;r give experimental results to demonstrate that our technique identifies
+considerable inconsistencies in various sentiment lexicons as well as
+discrepancies between these lexicons and WordNet.
+</p>
+<p>Our initial solution to the problem of polarity consistency checking (PCC) was pub-
+lished in (Dragut et al. 2012). For completeness, this solution is described in this paper
+in Section 5, in particular in Section 5.2. This solution has an important shortcoming: it
+generates boolean formulas that have exponential lengths when converting the polarity
+consistency problem into the satisfiability problem. We experimentally show that this
+solution cannot handle words such as give and make which have large numbers of
+synsets/senses. For example, we left the implementation of this solution running on
+a quad-core computer with 12GB of memory for a week without ever terminating. In
+this paper, we present a new solution that is proven to generate boolean formulas of
+polynomial length. The new solution can handle all the words in WordNet and it takes
+only 24minutes to complete its computations. This solution has one small disadvantage
+though: it introduces a large number (thousands) of variables in the boolean formula
+obtained by converting the polarity consistency problem into the satisfiability problem.
+Consequently, we propose a hybrid solution that attempts to capitalize on the strengths
+of the the two solutions. The hybrid solution has fewer variables and can solve the
+problem faster than either of the previous solutions: it takes only about 10 minutes to
+complete. This solution is presented in Section 7 after we give the complexity analysis of
+the previous two solutions.We believe that while our contribution in (Dragut et al. 2012)
+is that we formalize and give a first “non-optimal" solution to the problem of polarity
+consistency checking, the main contribution of this paper is that it provides linguists
+with real practical solutions for polarity oriented lexicon exploration.
+</p>
+<p>2. Problem Definition
+</p>
+<p>As argued above, the polarities of the words in a sentiment dictionary may not nec-
+essarily be consistent (or correct). In this paper, we focus on the detection of polarity
+assignment inconsistency for the words and synsets within and across dictionaries (e.g.,
+OF vs. GI). We attempt to pinpoint the words with polarity inconsistencies and classify
+them (Section 3).
+</p>
+<p>3</p>
+<p/>
+</div>
+<div class="page"><p/>
+<p>Computational Linguistics Volume 1, Number 1
+</p>
+<p>2.1 WordNet
+</p>
+<p>We give a formal characterization of WordNet. This consists of words, synsets and
+frequency counts. A word-synset network N is quadruple (W,S, E , f) where W is a
+finite set of words, S is a finite set of synsets, E is a set of undirected edges between
+elements inW and S, i.e., E ⊆ W × S and f is a function assigning a positive integer to
+each element in E . For an edge (w, s), f(w, s) is called the frequency of use of w in the
+sense given by s. For any wordw and synset s, we say that s is a synset ofw if (w, s) ∈ E .
+Also, for any word w, we let freq(w) denote the sum of all f(w, s) such that (w, s) ∈ E .
+If a synset has a 0 frequency of use then we add a small constant � to the frequencies
+of use of all the synsets of the word. In the current implementation the � = 0.1. This
+is a standard smoothing technique (Han 2005). For instance, the word cheap has four
+senses. The frequencies of occurrence of the word in the four senses are f1 = 9, f2 = 1, f3
+= 1 and f4 = 0, respectively. By smoothing, they become f1 = 9.1, f2 = 1.1, f3 = 1.1 and
+f4 = 0.1. Hence, freq(cheap) = f1 + f2 + f3 + f4 = 11.4. The relative frequency of the
+synset in the first sense of cheap, which denotes the probability that the word is used
+in the first sense, is f1freq(cheap) =
+</p>
+<p>9
+11.4 = 0.79.
+</p>
+<p>2.2 Consistent Polarity Assignment
+</p>
+<p>We assume that each synset has a unique polarity. We define the polarity of a word
+to be a discrete probability distribution: P+, P−, P0 with P+ + P− + P0 = 1, where they
+represent the "likelihoods“ that the word is positive, negative or neutral, respectively.
+We call this distribution a polarity distribution. For instance, the word cheap has the
+polarity distribution P+ = 0.79, P− = 0.21 and P0 = 0. The polarity distribution of a
+word is estimated using the polarities of its underlying synsets. For instance cheap has
+four senses, with the first sense being positive and the last three senses being negative.
+The probability that the word expresses a negative sentiment is P− = f2+f3+f4freq(cheap) = 0.21,
+</p>
+<p>while the probability that the word expresses a positive sentiment is P+ = f1freq(cheap) =
+0.79. P0 = 1− P+ − P− = 0.
+</p>
+<p>Our view of characterizing the polarity of a word using a polarity distribution is
+shared with other previous works (Kim and Hovy 2006; Andreevskaia and Bergler
+2006). Nonetheless, we depart from these works in the following key aspect. We say
+that a word has a (mostly) positive (negative) polarity if the majority sense of the word
+is positive (negative). That is, a word has a mostly positive polarity if P+ &gt; P− + P0
+and it has a mostly negative polarity if P− &gt; P+ + P0. Or, equivalently, if P+ &gt; 12 or
+P− &gt; 12 , respectively. For example, on majority, cheap conveys positive polarity since
+P+ = 0.79 &gt;
+</p>
+<p>1
+2 , i.e., the majority sense of the word cheap has positive connotation. We
+</p>
+<p>conducted empirical studies using Micro-WN(Op)3 and GI, and empirically showed
+that the majority sense property is the underlying property of domain independent
+SWD and captures the “collective behavior" of human annotators (TechRep 2012).
+</p>
+<p>Based on this study, we contend that GI, OF and AL tacitly assume this property.
+For example, the verb steal is assigned only negative polarity in GI. This word has
+two other less frequently occurring senses, which have positive polarities. The polarity
+of steal according to these two senses is not mentioned in GI. This is the case for the
+overwhelming majority of the entries in the three dictionaries: only 112 out of a total
+</p>
+<p>3 http://www-3.unipv.it/wnop/
+</p>
+<p>4</p>
+<p/>
+</div>
+<div class="page"><p/>
+<p>E. C. DragutAComprehensive Solution for Polarity Consistency Checking for Domain Independent Sentiment Dictionaries
+</p>
+<p>of 14,105 entries in the three dictionaries regard words with multiple polarities. For
+example, the verb arrest is mentionedwith both negative and positive polarities in GI.
+We regard an entry 〈w, pos, p〉 in an SWD as saying that the majority sense of the wordw
+with the part of speech pos has polarity p, although the word may carry other polarities.
+For instance, the adjective cheap has positive polarity in GI. The only assumption we
+make about the word is that it has a polarity distribution such that P+ &gt; P− + P0. This
+interpretation is consistent with the senses of the word. In this work we show that this
+property allows the polarities of words in input sentiment dictionaries to be checked.
+We formally state this property.
+</p>
+<p>Definition 1
+Let w be a word and Sw its set of synsets. Each synset in Sw has an associated polarity
+and a frequency of use with respect to w. w has polarity p, p ∈ {positive, negative} if
+there is a subset of synsets S ′ ⊆ Sw such that each synset s ∈ S′ has polarity p and∑
+s∈S′
+</p>
+<p>f(w, s)
+</p>
+<p>freq(w)
+&gt; 0.5. S′ is called a polarity dominant subset. If there is no such subset
+</p>
+<p>then w has a neutral polarity.
+</p>
+<p>S′ ⊆ Sw is a minimally dominant subset of synsets (MDSs) if
+∑
+s∈S′
+</p>
+<p>f(w, s)
+</p>
+<p>freq(w)
+&gt; 0.5
+</p>
+<p>and
+∑
+s∈S′′
+</p>
+<p>f(w, s)
+</p>
+<p>freq(w)
+≤ 0.5 for S′′ = S′ − {s},∀s ∈ S ′.
+</p>
+<p>The definition does not preclude a word from having a polarity with a majority
+sense and a different polarity with a minority sense. For example, the definition does not
+prevent a word from having both positive and negative senses, but it prevents a word
+from concomitantly having a majority sense of being positive and a majority sense of
+being negative.
+</p>
+<p>Despite using a “hard-coded" constant in the definition, our approach is generic
+and does not depend on the constant 0.5. This constant is just a lower bound for
+decidingwhether aword has amajority sensewith a certain polarity. It also is intuitively
+appealing. The constant can be replaced with an arbitrary threshold τ ∈ [0.5, 1].
+</p>
+<p>We need a formal description of polarity assignments to the words and synsets in
+WordNet.We assign polarities from the setP = {positive, negative, neutral} to elements
+inW ∪ S. Formally, a polarity assignment γ for a networkN is a function fromW ∪ S to
+the set P . Let γ be a polarity assignment for N . We say that γ is consistent if it satisfies
+the following condition for each w ∈ W :
+</p>
+<p>For p ∈ {positive, negative}, γ(w) = p iff the sum of all f(w, s) such that (w, s) ∈ E
+and γ(s) = p, is greater than
+</p>
+<p>freq(w)
+</p>
+<p>2
+. Note that, for any w ∈ W , γ(w) = neutral iff the
+</p>
+<p>above inequality is not satisfied for both values of p in {positive, negative}.
+We contend that our approach is applicable to domain dependent sentiment dic-
+</p>
+<p>tionaries, too. We can employ WordNet Domains (Bentivogli et al. 2004). WordNet
+Domains augments WordNet with domain labels such as art, sport, religion and
+history. Hence, we can project the words/synsets in WordNet according to a domain
+label and then apply our methodology to the projection.
+</p>
+<p>5</p>
+<p/>
+</div>
+<div class="page"><p/>
+<p>Computational Linguistics Volume 1, Number 1
+</p>
+<p>Table 1
+Disagreement between dictionaries.
+</p>
+<p>Pairs of Word Polarity Disagreement
+Dictionaries Inconsistency Overlap
+OF &amp; GI 90 2,924
+OF &amp; AL 73 1,150
+GI &amp; AL 18 712
+</p>
+<p>3. Inconsistency Classification
+</p>
+<p>In this section, we attempt to give a thorough classification with examples of the possi-
+ble types of polarity inconsistencies occurring within and across sentiment dictionaries.
+Polarity inconsistencies are of two types: input and complex. We discuss them in turn.
+</p>
+<p>3.1 Input Dictionaries Polarity Inconsistency
+</p>
+<p>Input polarity inconsistencies are of two types: intra-dictionary and inter-dictionary
+inconsistencies. The latter are obtained by comparing (1) two SWDs, (2) an SWD with
+an SSD and (3) two SSDs.
+</p>
+<p>3.1.1 Intra-dictionary inconsistency. An SWD may have triplets of the form (w, pos, p)
+and (w, pos, p′), where p 6= p′. For instance, the verb brag has both positive and neg-
+ative polarities in OF. For these cases, we look up WordNet and apply Definition 1 to
+determine the polarity of word w with part of speech pos. The verb brag has negative
+polarity according to Definition 1. Such cases simply say that the team who constructs
+the dictionary believes the word has multiple polarities as they do not adopt our dom-
+inant sense principle. There are 58 occurrences of this type of inconsistency in GI, OF
+and AL. Q-WordNet, a sentiment sense dictionary, does not have intra-inconsistencies
+as it does do not have a synset with multiple polarities.
+</p>
+<p>3.1.2 Inter-dictionary inconsistency. A word belongs to this category if it appears
+with different polarities in different SWDs. For instance, the adjective joyless has
+positive polarity in OF and negative polarity in GI. Table 1 depicts the overlapping
+relationships between the three SWDs: e.g., OF has 2,933 words in common with GI.
+The three dictionaries largely agree on the polarities of the words they pairwise share.
+For instance, out of 2,924 words shared by OF and GI, 2,834 have the same polarities.
+However, there are also a significant number of words which have different polarities
+across dictionaries. Case in point, OF and GI disagree on the polarities of 90 words.
+Among the three dictionaries there are 181 polarity inconsistent words. These words
+are manually corrected using Definition 1 before the polarity consistency checking is
+applied to the union of the three dictionaries. This union is called disagreement-free union.
+</p>
+<p>3.2 Complex Polarity Inconsistency
+</p>
+<p>This kind of inconsistency is more subtle and cannot be detected by direct comparison
+of words/synsets. They consist of sets of words and/or synsets whose polarities cannot
+concomitantly be satisfied. Recall the example of the verbs confute and disprove in
+OF given in Section 1. Recall our argument that by assuming that WordNet is correct, it
+</p>
+<p>6</p>
+<p/>
+</div>
+<div class="page"><p/>
+<p>E. C. DragutAComprehensive Solution for Polarity Consistency Checking for Domain Independent Sentiment Dictionaries
+</p>
+<p>is not possible for the two words to have different polarities: the sole synset, which they
+share, would have two different polarities, which is a contradiction.
+</p>
+<p>The occurrence of an inconsistency points out the presence of incorrect input data:
+</p>
+<p>r the information given in WordNet is incorrect, orr the information in the given sentiment dictionary is incorrect, or both.
+RegardingWordNet, the errors may be due to (1) a word has senses that are missing
+</p>
+<p>from WordNet or (2) the frequency counts of some synsets are inaccurate. A compre-
+hensive analysis of every synset/word with inconsistency is a tantalizing endeavor
+requiring not only a careful study of multiple sources (e.g., dictionaries such as Oxford
+and Cambridge) but also linguistic expertise. It is beyond the scope of this paper to
+enlist all potentially inconsistent words/synsets and the possible remedies. Instead, we
+limit ourselves to drawing attention to the occurrence of these issues through examples,
+welcoming experts in the area to join the corrective efforts. We give more examples
+of inconsistencies in order to illustrate additional discrepancies between the input
+dictionaries.
+</p>
+<p>3.2.1 WordNet vs. Sentiment Dictionaries. The adjective bully is an example of a
+discrepancy between WordNet and a sentiment dictionary. The word has negative
+polarity in OF and has a single sense in WordNet. The sense is shared with the word
+nifty, which has positive polarity in OF. By applying Definition 1 to nifty we obtain
+that the sense is positive, which in turn, by Definition 1, implies that bully is positive.
+This contradicts the polarity of bully in OF. According to the Webster dictionary, the
+word has a sense (i.e., resembling or characteristic of a bully) which has a negative polarity,
+but it is not present in WordNet. The example shows the presence of a discrepancy
+between WordNet and OF, namely, OF seems to assign polarity to a word according to
+a sense that is not in WordNet.
+</p>
+<p>3.2.2 Across Sentiment Dictionaries. We provide examples of inconsistencies across
+sentiment dictionaries here. Our first example is obtained by comparing SWDs. The
+adjective comic has negative polarity in AL and the adjective laughable has positive
+polarity in OF. Through deduction (i.e., by successive applications of Definition 1), the
+word risible, which is not present in either of the dictionaries, is assigned negative
+polarity because of comic and is assigned positive polarity because of laughable.
+</p>
+<p>The second example illustrates that an SWD and an SSD may have contradicting
+information. The verb intoxicate has three synsets in WordNet, each with the same
+frequency. Hence, their relative frequencies with respect to intoxicate are 13 . On one
+hand, intoxicate has a negative polarity in GI. This means that P− &gt; 12 . On the other
+hand, two of its three synsets have positive polarity in Q-WordNet. So, P+ = 23 &gt;
+</p>
+<p>1
+2 ,
+</p>
+<p>which means that P− &lt; 12 . This is a contradiction. This example can also be used to
+illustrate the presence of a discrepancy between WordNet and sentiment dictionaries.
+Note that all the frequencies of use of the senses of intoxicate in WordNet are 0. The
+problem is that when all the senses of a word have a 0 frequency of use, wrong polarity
+inference may be produced.
+</p>
+<p>7</p>
+<p/>
+</div>
+<div class="page"><p/>
+<p>Computational Linguistics Volume 1, Number 1
+</p>
+<p>4. Consistent Polarity Assignment
+</p>
+<p>Given the above discussion, it clearly is important to find all occurrences of inconsistent
+words. This in turn boils down to finding those words with the property that there
+does not exist any polarity assignment to their synsets, which is consistent with their
+polarities. It turns out that the complexity of the problem of assigning polarities to
+the synsets such that the assignment is consistent with the polarities of the input
+words, called Consistent Polarity Assignment problem, is a “hard" problem,
+as described below. The problem is stated as follows:
+</p>
+<p>Consider two sets of nodes of type synsets and type words, in which each synset of
+a word has a relative frequency with respect to the word. Each synset can be assigned a
+positive, negative or neutral polarity. A word has polarity p if it satisfies the hypothesis
+of Definition 1. The question to be answered is: Given an assignment of polarities to the
+words, does there exist an assignment of polarities to the synsets that agrees with the
+assignment of the polarities of the words?
+</p>
+<p>In other words, given the polarities of a subset of words (e.g., that given by one
+of the three SWDs) the problem of determining whether there exists an assignment of
+polarities to the synsets that agree with this assignment is a "hard" problem.
+</p>
+<p>Theorem 1
+The Consistent Polarity Assignment problem is NP-complete.
+</p>
+<p>Proof 1
+It is easy to see that this problem is in NP. Let N be a word-synset network. Let ϕ :
+W → {positive, negative, neutral} be an assignment of polarities to the words inN and
+let ψ : S → {positive, negative, neutral} be an assignment of polarities to the synsets in
+N . ϕ,ψ are total functions. Verifying whether ψ is consistent with ϕ is as follows. For
+each word w we compute P+, P− and P0 as illustrated above for the adjective cheap. ψ
+is consistent with ϕ iff ∀w ∈W :r ϕ(w) = positive if P+ &gt; 0.5,r ϕ(w) = negative if P− &gt; 0.5, andr ϕ(w) = neutral if P0 ≥ 0.5 or P+, P ≥ 0.5.
+</p>
+<p>The computations of P+, P− and P0 are linear in the number of synsets of w. Thus,
+verifying if ψ is consistent with ϕ is linear in |W | and |S|. Hence, the problem is in NP.
+</p>
+<p>We now prove the NP-hardness. We give a reduction from 3-SAT to the consistent
+polarity assignment problem. A 3-CNF formula is a boolean formula which is a con-
+junction of k clauses C1, ..., Ck, where each Ci is a disjunction of exactly three literals.
+An example of a 3-CNF formula is:
+</p>
+<p>Φ = (a ∨ b ∨ c) ∧ (b ∨ c ∨ d) ∧ (a ∨ c ∨ d) ∧ (a ∨ b ∨ d) (1)
+</p>
+<p>In 3-SAT, we are asked whether a given boolean formula Φ is satisfiable. 3-SAT is a
+well-known NP-complete problem (Cook 1971).
+</p>
+<p>The reduction begins with an instance of 3-SAT. Let Φ = C1 ∧ C2 ∧ ... ∧ Ck be a
+boolean formula in 3-CNF with k clauses. We construct an instance of the consistent
+polarity assignment problem as follows. For 1 ≤ i ≤ n, let Ci = (li,1 ∨ li,2 ∨ li,3) where
+each li,j is a literal, i.e., variable or negation of a variable. We let a1, ..., am be the boolean
+</p>
+<p>8</p>
+<p/>
+</div>
+<div class="page"><p/>
+<p>E. C. DragutAComprehensive Solution for Polarity Consistency Checking for Domain Independent Sentiment Dictionaries
+</p>
+<p>Figure 1
+The network corresponding to the 3-CNF Equation 1.
+</p>
+<p>variables appearing in Φ. We represent the negation of ai by ai. We give a network N
+and a partial polarity assignment γ′ constructed as follows. γ′ is a partial assignment
+because only a subset of the elements in the network N are assigned polarities. The
+frequencies of all edges in the network are one unless otherwise stated.
+</p>
+<p>We have two special words P,N and two special synsets p, n. There is an edge from
+P to p, from N to n. γ′ assigns positive polarities to P, p and negative polarities to N,n.
+</p>
+<p>For each variable ai, we have two synsets ai and ai representing the variable and
+its negation and two words wi and wi. Both these words have edges to both ai and ai.
+The word wi also has an edge to p, and wi has an edge to n. Thus, both wi, wi have three
+edges from them. γ′ assigns positive and negative polarities to wi and wi, respectively
+and does not assign any polarities to ai, ai.
+</p>
+<p>For each clause Cj , we have a word, denoted byWj . For k = 1, 2, 3, there is an edge
+fromWj to each of the synsets lj,k for k = 1, 2, 3.Wj also has an edge to the synset p and
+the frequency of this edge is two. The wordWj is given positive polarity by γ′.
+</p>
+<p>Figure 1 shows the network produced for Φ (Equation 1). There are four variables
+in Φ. Thus, there will be 8 synsets in the network. For each variable, we introduce two
+words (shown in the top part of the figure). There are 4 more words in the bottom of the
+figure. These correspond to the 4 clauses in Φ. (We place them below the nodes denoting
+the synsets and separate from the other words in order to avoid cluttering the figure.)
+The dashed lines represent edges whose frequencies of use are 2, while solid represent
+edges whose frequencies of use are 1.
+</p>
+<p>Observe that γ′ assigns polarities to all elements in the network except to the
+synsets ai, ai, for each i = 1, ...,m. Notice that in any consistent polarity assignment
+γ to all words and synsets in N , ai and ai have to be given opposite polarities from
+{positive, negative}. This can be more easily illustrated on the running example. Con-
+sider the synsets a and a in Figure 1. If they both have polarity positive then by Defi-
+nition 1 the polarity of wa is neutral, which is a contradiction because wa has positive
+</p>
+<p>9</p>
+<p/>
+</div>
+<div class="page"><p/>
+<p>Computational Linguistics Volume 1, Number 1
+</p>
+<p>polarity. Similarly, if a and a would have negative polarities then the positive polarity
+assigned to wa would be contradicted.
+</p>
+<p>γ can be regarded as an extension of γ′, where γ(y) = γ′(y) for every y ∈ W ∪ S
+where γ′ is defined. Since each Wj is assigned positive polarity, it is not difficult to see
+that in any consistent polarity assignment γ, at least one of the synsets lj,k has to be
+assigned positive polarity. Thus, there is a consistent polarity assignment γ to all the
+synsets and words in N iff Φ is satisfiable. �
+</p>
+<p>It is worth pointing out that the following related problem is solvable in polynomial
+time. The polarities of all the synsets in the word-synset networkN are given. The ques-
+tion whether there exist a polarity assignment to words such that the two assignments
+are consistent is always yes. All we have to do is to compute P+, P− and P0 for each
+word w ∈W and then apply Definition 1 in order to find a polarity assignment to the
+words consistent to that of the synsets.
+</p>
+<p>5. Polarity Consistency Checking
+</p>
+<p>To “exhaustively" solve the problem of finding all polarity inconsistencies in a sentiment
+word dictionary, we propose a solution that reduces an instance of the problem to an
+instance of CNF-SAT. We can then apply one of the fast SAT solvers (e.g., (Xu et al. 2008;
+Babic, Bingham, and Hu 2006)) to solve our problem. CNF-SAT is a decision problem
+of determining if there is an assignment of True and False to the variables of a Boolean
+formula Φ in conjunctive normal form (CNF) such that Φ evaluates to True. A formula
+is in CNF if it is a conjunction of one or more clauses, each of which is a disjunction.
+CNF-SAT is a classic NP-complete problem (Cook 1971), but, modern SAT solvers are
+capable of solving many practical instances of the problem. Since, in general, there is
+no easy way to tell the difficulty of a problem without trying it, SAT solvers have the
+following termination outputs. A SAT solver terminates and returns "satisfiable" or "not
+satisfiable"; it can also terminate with a time-out without indicating anything about
+satisfiability. So, a SAT solver terminates even if it cannot find a solution.
+</p>
+<p>In this section we describe two methods of converting an instance of the PCC
+problem into an instance of CNF-SAT. The first method, called EEM, was first described
+in (Dragut et al. 2012) and is given here for completeness, while the second method,
+called FSM, is new and has never been published.
+</p>
+<p>5.1 Conversion to CNF-SAT
+</p>
+<p>The input consists of a sentiment word dictionary D and the word-synset network N .
+We partition N into connected components and we consider only those components
+that have a word in D. For each synset s we define three Boolean variables s−, s+ and
+s0, corresponding to the negative, positive and neutral polarities, respectively. In this
+section we use −,+, 0 to denote negative, positive and neutral polarities, respectively.
+</p>
+<p>Let Φ be the Boolean formula for a connected component M of the word-synset
+network N . We introduce its clauses. First, for each synset s we need a clause C(s) that
+expresses that the synset can have only one of the three polarities:
+</p>
+<p>C(s) = (s+ ∧ ¬s− ∧ ¬s0) ∨ (s− ∧ ¬s+ ∧ ¬s0) ∨ (s0 ∧ ¬s− ∧ ¬s+)
+</p>
+<p>Since a word has a neutral polarity if it has neither positive nor negative polarities,
+we have that s0 = ¬s+ ∧ ¬s−. Replacing this expression in the equation above and
+applying standard Boolean algebra laws, we can reduce it to
+</p>
+<p>10</p>
+<p/>
+</div>
+<div class="page"><p/>
+<p>E. C. DragutAComprehensive Solution for Polarity Consistency Checking for Domain Independent Sentiment Dictionaries
+</p>
+<p>C(s) = ¬s+ ∨ ¬s− (2)
+</p>
+<p>For each word w with polarity p ∈ {−,+, 0} in D and M we need a clause C(w, p)
+that states that w has polarity p. So, the Boolean formula for a connected componentM
+of the word-synset network N is:
+</p>
+<p>Φ =
+∧
+s∈M
+</p>
+<p>C(s) ∧
+∧
+</p>
+<p>(w,p)∈D,w∈M
+C(w, p). (3)
+</p>
+<p>FromDefinition 1,w is neutral if it is neither positive nor negative. Hence,C(w, 0) =
+¬C(w,−) ∧ ¬C(w,+). So, we need to define only the clauses C(w,−) and C(w,+),
+which correspond to w having polarity negative and positive, respectively. So, herein
+p ∈ {−,+}, unless otherwise specified.
+</p>
+<p>The two methods differ in the way they express C(w, p). The first method is based
+on the following statement in Definition 1: w has polarity p if there exists a polarity
+dominant subset among its synsets. Thus, in this method, C(w, p) is defined by enu-
+merating all the minimally dominant subsets of synsets (MDS) of w. If at least one of
+them is a polarity dominant subset thenC(w, p) evaluates to True. The advantage of this
+approach is that is easy to implement. Its disadvantage is that it generates formulas that
+have exponential lengths. For example, the word give has 627,527 minimally dominant
+subsets of synsets and it cannot be handledwith this approach. Although less than 3% of
+the words inWordNet have large sets of minimally dominant subsets of synsets, we still
+need a solution that accounts for these words as well. We give another transformation
+that generates a Boolean formula of polynomial length. This transformation is based
+on the following observation. An equivalent way of expressing that w has polarity
+p ∈ {−,+} is
+</p>
+<p>∑
+s∈Sw
+</p>
+<p>f(w, s) pol(s, p) &gt;
+1
+</p>
+<p>2
+</p>
+<p>∑
+s∈Sw
+</p>
+<p>f(w, s) =
+1
+</p>
+<p>2
+freq(w), (4)
+</p>
+<p>where pol(s, p) = 1, if s has polarity p and pol(s, p) = 0, otherwise. Note that
+1
+2freq(w) is a constant, which is known for eachword. For example, for the word cheap
+this is 11.42 .
+</p>
+<p>The idea is to construct a Boolean formula for C(w, p) such that C(w, p) = True
+if this inequality is satisfied and C(w, p) = False when it is not. The disadvantages of
+this solution is that it introduces a large number of variables and is more difficult to
+implement. We describe the two methods in the rest of the section.
+</p>
+<p>5.2 Exhaustive Enumeration of MDS Method (EEM)
+</p>
+<p>We now elaborate the construction of C(w, p) for our first solution. In this method, we
+enumerate all the MDS of w and for each of them we introduce a clause. The clauses are
+then concatenated by OR in the Boolean formula. Let C(w, p, T ) denote the clause for
+an MDS T of w, when w has polarity p ∈ {−,+}. Hence,
+</p>
+<p>11</p>
+<p/>
+</div>
+<div class="page"><p/>
+<p>Computational Linguistics Volume 1, Number 1
+</p>
+<p>C(w, p) =
+∨
+</p>
+<p>T∈MDS(w)
+C(w, p, T ), (5)
+</p>
+<p>whereMDS(w) is the set of all minimally dominant subsets of synsets of w.
+For each MDS T of w, the clause C(w, p, T ) is the AND of the variables correspond-
+</p>
+<p>ing to polarity p of the synsets in T . That is,
+</p>
+<p>C(w, p, T ) =
+∧
+s∈T
+</p>
+<p>sp, p ∈ {−,+}. (6)
+</p>
+<p>The formula Φ is not in CNF after this construction and it needs to be converted.
+The conversion to CNF is a standard procedure and we omit it throughout the paper. Φ
+in CNF is input to a SAT solver.
+</p>
+<p>Example 1
+Consider a connected component consisting of the words w =cheap,
+v =inexpensive and u =sleazy. cheap has a positive polarity, whereas
+inexpensive and sleazy have negative polarities. The synsets of these words
+are: {s1, s2, s3, s4}, {s1} and {s3, s4, s5}, respectively (refer to WordNet). The relative
+frequencies of s3, s4 and s5 w.r.t. sleazy are all equal to 1/3. We have 15 binary
+variables, 3 per synset, si−, si+, si0, 1 ≤ i ≤ 5. The only minimally dominant subset
+of synsets of cheap is {s1}, which coincides with that of inexpensive. Those of
+sleazy are {s3, s4}, {s3, s5} and {s4, s5}. For each si we need a clause C(si). Hence,
+C(w,+) = s1+, C(v,−) = s1− and C(u,−) = (s3− ∧ s4−) ∨ (s3− ∧ s5−) ∨ (s4− ∧ s5−). Thus,
+Φ =
+</p>
+<p>∧
+i
+</p>
+<p>C(si) ∧ [s1+ ∧ s1− ∧ ((s3− ∧ s4−) ∨ (s3− ∧ s5−) ∨ (s4− ∧ s5−))]. Φ is not in CNF and
+</p>
+<p>needs to be converted. For Φ to be True, the clauses C(w,+) = s1+ and C(v,−) = s1−
+must be True. But, this makes C(s1) False. Hence, Φ is not satisfiable. The clauses
+C(w,+) = s1+ and C(v,−) = s1− are unsatisfiable and thus the polarities of cheap and
+inexpensive are inconsistent.
+</p>
+<p>5.3 Frequency Summation Method (FSM)
+</p>
+<p>In this sectionwe describe our newmethod for reducing an instance of the PCC problem
+into an instance of CNF-SAT, which gives a polynomial length formula for C(w, p). We
+start by giving the intuition of the solution and then present the formal derivation.
+</p>
+<p>The idea is to simulate a logic circuit that evaluates Inequality 4 and outputs 1
+when this inequality is satisfied and 0 when it is not. Then, we derive the Boolean ex-
+pression associated with the circuit. A careful analysis of the inequality reveals that we
+need three main circuit components: a SUM component that computes the summation∑
+s∈Sw
+</p>
+<p>f(w, s)pol(s, p), an Instantiation component that evaluates each term f(w, s)pol(s, p)
+</p>
+<p>before it is input to the SUM component and aDigital Comparator component that asserts
+the inequality. Bottom up, the logic circuit is constructed as follows:
+</p>
+<p>12</p>
+<p/>
+</div>
+<div class="page"><p/>
+<p>E. C. DragutAComprehensive Solution for Polarity Consistency Checking for Domain Independent Sentiment Dictionaries
+</p>
+<p>1. For each s ∈ Sw, we need an Instantiation component Is. The inputs of Is
+are f(w, s) and sp. Is outputs f(w, s) if sp = True (i.e., the synset s has
+polarity p) and outputs 0 if sp = False (i.e., s does not have polarity p).
+</p>
+<p>2. The SUM component adds the outputs of Is’s pairwise; then, it adds their
+results pairwise; so on. This scheme can be captured as a full binary tree
+whose leaf nodes denote the frequencies of the synsets and whose internal
+nodes represent the sum of values of the frequencies.
+</p>
+<p>3. The output of SUM is input together with the constant 12freq(w) to the
+Digital Comparator.
+</p>
+<p>Notice that SUM may alternatively be designed to perform the summation by
+linear scan of the frequencies of a word. That is, if the word w has the set of synset
+{s1, s2, ..., sm}, first it computes the sum of Is1 and Is2 , then add their sum to Is3 , etc.
+This approach still generates a polynomial length formula, but it is of order O(m2)
+instead of O(mlogm). A tree arrangement of adders is in fact used in practice to
+minimize adder propagation delays (Nelson et al. 1995).
+</p>
+<p>We now give the formal derivation of the Boolean formula of C(w, p) for a word w
+and p ∈ {−,+}, according to the above logic circuit. The logic circuit operates on binary
+numbers. We therefore need to express all the terms in Inequality 4 into binary numbers:
+that is, the frequencies of synsets f(w, s) and freq(w)2 . In general, it is a lot easier to
+manipulate binary representations for integers than binary representations for rational
+numbers. All the terms in Inequality 4 are integers, except for freq(w)2 and when we ap-
+ply smoothing. The former can be easily addressed by replacing freq(w)2 with b freq(w)2 c
+in Inequality 4 without altering the “meaning" of the inequality. If a synset s of w is such
+that f(w, s) = 0 then we first add � = 0.1 to all f(w, s′), (w, s) ∈ E . Then, we multiply
+by 10 all the frequencies of the synsets of w, i.e., f(w, s′)← 10f(w, s),∀(w, s′) ∈ E . After
+these two operations Inequality 4 will be of the form:
+</p>
+<p>∑
+s∈Sw
+</p>
+<p>f(w, s) pol(s, p) &gt;
+⌊freq(w)
+</p>
+<p>2
+</p>
+<p>⌋
+, (7)
+</p>
+<p>with all the terms being integers. For example, for the word cheap the frequen-
+cies of its four synsets initially are f1 = 9, f2 = 1, f3 = 1 and f4 = 0. After we per-
+form the above steps they will become f1 = 91, f2 = 11, f3 = 11 and f4 = 1, while
+freq(cheap) = 114. For each synset s of a word w we assign ks binary variables to
+represent the frequency f(w, s). Since each frequency is smaller than freq(w), then
+ks ≤ dlog2(freq(w) + 1)e. For ease of exposition, we assign the same number of vari-
+ables to each s of w, ks = k = dlog2(freq(w) + 1)e. In our running example, each of the
+four synsets is assigned dlog2(114 + 1)e = 7 binary variables. We denote by bf(w, s) the
+binary representation of f(w, s). For instance, 1011011 is the binary representation of
+f1 = 91. It is sometimes easier to work with a vector notation for the binary variables
+associated with a synset. We denote by xs the vector of binary variables associated with
+the synset s. In addition, ¬xs is a vector of binary variables ys such that yis = ¬xis,∀i ∈
+[1..k].
+</p>
+<p>Instantiation. We need to capture the semantics of the expression f(w, s) pol(s, p) in a
+CNF expression. That is, if sp = True then the binary variables corresponding to the
+</p>
+<p>13</p>
+<p/>
+</div>
+<div class="page"><p/>
+<p>Computational Linguistics Volume 1, Number 1
+</p>
+<p>Figure 2
+The binary tree summation of the frequencies of the synsets of the word cheap.
+</p>
+<p>synset s are set to bf(w, s), otherwise they are set to 0. This is captured in the following
+formula:
+</p>
+<p>I(s, p) = (sp → (xs = bf(w, s)) ∧ (¬sp → (xs = 0))⇔
+(¬sp ∨ (xs = bf(w, s)) ∧ (sp ∨ (xs = 0)))
+</p>
+<p>(8)
+</p>
+<p>Applying regular Boolean algebra laws, we obtain:
+</p>
+<p>I(s, p) =
+k∧
+</p>
+<p>i=1
+</p>
+<p>(
+(¬sp ∨ yis) ∧ (sp ∨ ¬xis)
+</p>
+<p>)
+(9)
+</p>
+<p>where yis = xis if ith bit of bf(w, s) is 1 and yis = ¬xis if ith bit of bf(w, s) is 0. The last
+expression is in CNF.
+</p>
+<p>Example 2
+The word cheap has a positive polarity. We exemplify the above formula for its first
+synset, i.e., I(s1,+) . Recall that f(cheap, s1) = 91 and bf(cheap, s1) = 1011011. We
+assign a vector x of 7 binary variables. We have:
+</p>
+<p>I(s1,+) = (s1+ → (x = 1011011)) ∧ (¬s1+ → (x = 0)) ≡(
+(¬s1+ ∨ x6) ∧ (¬s1+ ∨ ¬x5) ∧ (¬s1+ ∨ x4) ∧ (¬s1+ ∨ x3)∧
+</p>
+<p>(¬s1+ ∨ ¬x2) ∧ (¬s1+ ∨ x1) ∧ (¬s1+ ∨ x0)
+) ∧ 6∧
+</p>
+<p>i=0
+</p>
+<p>(s1+ ∨ ¬xis)
+(10)
+</p>
+<p>SUM. Now that the binary variables for the frequencies are initialized, we have to
+add them up. As mentioned previously, we add them pairwise. Figure 2 illustrates the
+addition process for the frequencies of the four synsets of the word cheap. Namely, we
+first compute S1 = I(s1,+) + I(s2,+) and S2 = I(s3,+) + I(s4,+). We then compute
+</p>
+<p>14</p>
+<p/>
+</div>
+<div class="page"><p/>
+<p>E. C. DragutAComprehensive Solution for Polarity Consistency Checking for Domain Independent Sentiment Dictionaries
+</p>
+<p>Algorithm 1: GenerateComparatorFormula
+Input : binary numbers x and b
+Output: DC(x,b) formula in CNF
+</p>
+<p>1 DC(x,b) = () ; // Initialize with the empty clause.
+2 Escape all 1’s until a 0 is met.
+3 if b has no 0’s then
+4 return DC(x,b) = (xk);
+</p>
+<p>5 Suppose we are at the ith bit in b
+6 for j = i to k do
+7 if bj = 0 then
+8 Append “∨xj" to each of the clauses in DC(x,b);
+9 else
+</p>
+<p>10 Introduce the clause (xj) to DC(x,b) ;
+</p>
+<p>11 Append “∨(xk+1)" to each of the clauses in DC(x,b);
+</p>
+<p>S3 = S1 + S2, which is the desired sum. These additions are represented as a full binary
+tree whose leaf nodes denote the frequencies of the synsets. Corresponding to each
+internal node, we have k summation variables and k carry variables.
+</p>
+<p>In effect, at each internal node we simulate a ripple carry adder circuit (Nelson et al.
+1995). This circuit adds two k-bit numbers. The circuit consists of k one-bit full adders
+(Nelson et al. 1995). A one-bit full adder adds three one-bit numbers, X , Y , and Cin,
+where X and Y are the operands, and Cin is a bit carried in from a past addition. The
+circuit produces a two-bit output represented by S (summation) andCout (carry), where
+</p>
+<p>S = (¬X ∧ ¬Y ∧ Cin) ∨ (¬X ∧ Y ∧ ¬Cin) ∨ (X ∧ ¬Y ∧ ¬Cin) ∨ (X ∧ Y ∧ Cin) (11)
+</p>
+<p>Cout = (X ∧ Y ) ∨ (X ∧ Cin) ∨ (Y ∧ Cin). (12)
+</p>
+<p>These two formulas are not in CNF and they need to be converted into CNF
+formulas. We omit this step.
+</p>
+<p>For each internal node we have a CNF Boolean formula that consists of 2k clauses:
+k clauses defining the values of the k summation variables and k clauses defining the
+values of the k carry variables in terms of the values of the variables of their children.
+The Boolean formula for the SUM component, denoted S(w, p), is the conjunction of the
+Boolean formulas at internal nodes.
+</p>
+<p>Digital Comparator. A digital comparator takes two numbers as input in binary form
+and determines whether one number is greater than, less than or equal to the other
+number (Nelson et al. 1995). We are interested in a specialized comparator that tells
+only if a number is greater than another number. Our comparator is further specialized
+because its inputs are an arbitrary binary number x and a constant binary number b. b
+corresponds to b freq(w)2 c. Suppose that b has k bits, then x has up to k + 1 bits (because
+the number represented by x is no larger than twice that represented by b). The formula
+that asserts that x = xk−1...x0 is larger than b,DC(x,b), is derived by Algorithm 1. For
+example, for b = 101001 the formula is (x5 ∨ x4 ∨ x2 ∨ x0) ∧ (x3 ∨ x2 ∨ x0) ∧ (x1 ∨ x0).
+</p>
+<p>15</p>
+<p/>
+</div>
+<div class="page"><p/>
+<p>Computational Linguistics Volume 1, Number 1
+</p>
+<p>6. Word-Sense Polarity Consistency
+</p>
+<p>We present here a methodology for polarity consistency checking between a sentiment
+word dictionary (e.g., OF) SWD and a sentiment sense dictionary (e.g., Q-WordNet)
+SSD. It consists of the following steps: (1) instantiation of binary variables, (2) formula
+reduction and (3) satisfiability test. We assume that the set of inconsistent words in
+SWD was already identified (using one of the methods described above) and discarded
+from SWD. These words are inconsistent regardless of the polarity assignments to their
+underlying synsets in SSD.
+</p>
+<p>Instantiation of binary variables: Let Φ be a Boolean formula obtained with either
+of the methods described above for a connected component. Φ represents only the
+polarities of the words in the word sentiment dictionary. Consequently, we first need
+to reflect the polarities assigned to synsets in SSD in Φ. Recall that for each synset there
+are three binary variables, corresponding to the three possible polarity assignments. If a
+synset s has polarity p, p ∈ {+,−, 0}, in SSD, then each occurrence of the binary variable
+sp in Φ is replaced with the Boolean value True. The clause C(s) (Equation 2) evaluates
+to True.
+</p>
+<p>For illustration, we use the formula derived in Example 1:
+</p>
+<p>Φ =
+∧
+</p>
+<p>i∈{1..5}
+C(si) ∧ [s1+ ∧ s1− ∧ ((s3− ∧ s4−) ∨ (s3− ∧ s5−) ∨ (s4− ∧ s5−))]
+</p>
+<p>Suppose that the synset s5 has polarity positive in SSD. Then, s5+ =True, s5− =
+s50 =False. C(s5) =True. The formula becomes:
+</p>
+<p>Φ =
+∧
+</p>
+<p>i∈{1..5}
+C(si) ∧ [s1+ ∧ s1− ∧ ((s3− ∧ s4−) ∨ (s3− ∧ False) ∨ (s4− ∧ False))]
+</p>
+<p>Formula reduction: The new formula contains both variables and constants (i.e,
+True and False). We need to reduce it to a constant-free formula. We reduce Φ to a
+constant-free formula using well known Boolean logic laws: True ∧ C = C; True ∨ C =
+True; False ∨ C = C; and False ∧ C = False. We apply them repeatedly until Φ has no
+constants or the entire formal reduces to a constant. The above formula becomes,
+</p>
+<p>Φ =
+∧
+</p>
+<p>i∈{1..4}
+C(si) ∧ [s1+ ∧ s1− ∧ (s3− ∧ s4−)]
+</p>
+<p>If the new formula does not reduce to a constant then it is input to the SAT solver.
+If it reduces to a constant, there is no need to use the SAT solver, because if the formula
+reduces to True then the formula is satisfied and if it reduces to False then the formula is
+not satisfied. In the latter case, the synsets of SSD and the words in SWD present in the
+formula are reported as inconsistent. For example, Φ evaluates to False if the polarity of
+the synset s1 is set to positive.
+</p>
+<p>Notice that we do not consider the formulas that have only variables (i.e., they have
+no constants). These formulas are left unchanged. These formulas have the property
+that none of the synsets represented in them appear in the SSD.
+</p>
+<p>16</p>
+<p/>
+</div>
+<div class="page"><p/>
+<p>E. C. DragutAComprehensive Solution for Polarity Consistency Checking for Domain Independent Sentiment Dictionaries
+</p>
+<p>7. Complexity Analysis of the Conversion Methods
+</p>
+<p>In this section, we analyze the complexity of the Boolean formulas generated with the
+two methods. We start with the analysis of EEM.
+</p>
+<p>7.1 Complexity Analysis of the Exhaustive Enumeration of MDS Method
+</p>
+<p>This method generates a formula, which has exponential length in the worst case for a
+word. The reason is that we first generate a SAT formula that has exponential length in
+the number of clauses (see Equation 5). This formula however is not in CNF and it needs
+to be converted to CNF. This in general can cause another exponential blow up. Thus,
+the overall blow up can be double exponential in the worst case. We nonetheless argue
+that WordNet possesses nice properties, which allows this reduction to run efficiently in
+many practical instances. First, 97.2% of its word-part-of-speech pairs have 4 or fewer
+synsets, hence, these words add very few clauses to a CNF formula (see Equation 5).
+Second, WordNet can be partitioned into 73,092 connected components, each of which
+corresponds to a Boolean formula and they all can be handled independently. Third, the
+connected components can be further categorized into trivial and non-trivial. A trivial
+connected component has exactly one word; it may however have multiple synsets,
+namely all the synsets of the word. For example, the adjective express is in a trivial
+connected component along with its two synsets. Trivial components are ignored when
+we performed intra-dictionary consistency analysis as a component must have at least
+two words in order to perform meaningful inference. The non-trivial connected com-
+ponents have at least two words. There are 33,015 non-trivial connected components.
+Finally, in practice, not all connected components need to be considered for polarity
+consistency analysis. When the consistency analysis is run for SWDs we only consider
+those connected components having at least two words in SWDs. When consistency
+analysis is conducted for a SWD and a SSD then we only consider those connected
+components with at least one word and one synset. In our experiments the largest
+number of components that needed to be processed was 1,581, for the disagreement-
+free union dictionary.
+</p>
+<p>7.2 Complexity Analysis of the Frequency Summation Method
+</p>
+<p>We now show that the formula generated by FSM is of polynomial length. Suppose
+that we have a word withm synsets. Corresponding to each internal node in the binary
+tree, we have k = blog2(freq(w) + 1)c variables representing the binary representation
+of the number associated with the node. For each such node we have a set of clauses
+that defines the values of these variables in terms of the values of the variables corre-
+sponding to its children; we also use k additional auxiliary variables that denote the
+carry bits when the numbers of the children are added. Length of each such formula
+corresponding to an internal node is linear in k. Since there are at mostm such internal
+nodes, the overall length of the formula is O(mk). The formula for the digital comparator
+and that for the instantiation component are linear in k. Thus, the overall length of the
+translation is O(mk + k).
+</p>
+<p>7.3 A Hybrid Approach to Polarity Consistency Checking
+</p>
+<p>One drawback we noticed with FSM is that it may generate boolean formulas with a
+large number of variables (thousands). This is particularly the case for words with large
+</p>
+<p>17</p>
+<p/>
+</div>
+<div class="page"><p/>
+<p>Computational Linguistics Volume 1, Number 1
+</p>
+<p>number of synsets whose frequencies of use are large decimal numbers. For example,
+the formula derived for the verb make has over 1,800 binary variables. The reason is that
+the word has 49 synsets, the largest frequency of use among its synsets is 508 and has
+synsets with frequency of use 0 (before smoothing). While for the verb makewe have to
+accept this large number of variables because EEM cannot handle it, for words such the
+adjective cheap, which requires 70 variables, we can do better.
+</p>
+<p>We explain first why the adjective cheap requires 70 binary variables. The adjective
+cheap has 4 synsets and 9 is the largest frequency of use among its synsets. Cheap also
+has a synset whose frequency of use is 0, before smoothing. Because of this synset, we
+need to first add 0.1 to the frequencies of use of all the synsets of cheap and second, to
+multiply the frequencies of use by 10. Hence, 9 becomes 91 and 91 = 10110112. Thus, we
+need 7 binary variables for each of the 4 synsets. In total, for the four synsets of cheap
+we need 4× 7 = 28 binary variables. This is also illustrated in Example 2. Recall that we
+need to sum up the frequencies of the synsets using a binary tree scheme (see Figure
+2). For cheap, the tree has 3 internal nodes. At each internal node we need 2× 7 =
+14 binary variables. Hence, the internal nodes introduce 3× 14 = 42 binary variables.
+So, in total we need 28 + 42 = 70 variables to represent cheap and its synsets in the
+boolean formula constructed with FSM. In contrast, the formula derived with EEM for
+the adjective cheap is very simple. EEM uses only 8 binary variables (2 per each of the
+4 synsets). In addition, because the synset whose frequency of use is 9 is a dominant
+synset, Equation 5, has only one clause. In general, the formulas generated by EEM for
+the words with "small” number of synsets is significantly simpler and shorter than the
+ones generated by FSM. Because, about 97% of the words in WordNet have at most
+4 synsets, in the hybrid approach we propose to utilize EEM to construct the boolean
+formulas corresponding to these words and FSM for the rest of the words, i.e., the words
+having at least 5 synsets.
+</p>
+<p>More specifically, for a connected component M whose set of words is W , we
+proceed as follows to construct the formula Φ (Equation 3) with the hybrid approach:
+</p>
+<p>1. partitionW into two sets:W4, the subset of words inW with at most 4
+synsets, andW5, the subset of words inW with at least 5 synsets. Φ is
+re-written as:
+</p>
+<p>Φ =
+∧
+s∈M
+</p>
+<p>C(s) ∧
+∧
+</p>
+<p>(w,p)∈D,w∈W4
+C(w, p) ∧
+</p>
+<p>∧
+(w,p)∈D,w∈W5
+</p>
+<p>C(w, p). (13)
+</p>
+<p>2. The expression of each C(w, p) in the term
+∧
+</p>
+<p>(w,p)∈D,w∈W4
+C(w, p) is defined
+</p>
+<p>using EEM, i.e., based on Formulas 5 and 6.
+</p>
+<p>3. The expression of each C(w, p) in the term
+∧
+</p>
+<p>(w,p)∈D,w∈W5
+C(w, p) is defined
+</p>
+<p>using FSM, i.e., based on Formulas 9, 11, 12 and the one generate by
+Algorithm 1.
+</p>
+<p>The hybrid approach generates significantly shorter formulas then either FSM and
+EEM, and can handle all the words in WordNet.
+</p>
+<p>18</p>
+<p/>
+</div>
+<div class="page"><p/>
+<p>E. C. DragutAComprehensive Solution for Polarity Consistency Checking for Domain Independent Sentiment Dictionaries
+</p>
+<p>Table 2
+Distribution of words and synsets
+</p>
+<p>POS WordsSynsets OF GI AL QWN
+Noun 117,798 82,115 1,907 1,444 2 7,403
+Verb 11,529 13,767 1,501 1,041 0 4006
+</p>
+<p>Adjective 21,479 18,156 2,608 1,188 1,440 4050
+Adverb 4,481 3,621 775 51 317 40
+Total 155,287 117,659 6,791 3,961 1,759 15,499
+</p>
+<p>8. Detecting Inconsistencies
+</p>
+<p>In this section we describe the general procedure for detecting the words with polarity
+inconsistencies using the output of a SAT solver. When a formula is unsatisfiable, a
+modern SAT solver returns a minimal unsatisfiable core (MUC) from the original formula.
+A MUC is a small unsatisfiable subset of the formula’s clauses with the property that
+it becomes satisfiable whenever any one of its clauses is removed. There are no known
+practical algorithms for computing the minimum core (Dershowitz, Hanna, and Nadel
+2006). In our problem a MUC corresponds to a set of polarity inconsistent words. The
+argument is as follows. Consider W the set of words in a connected component and Φ
+the CNF formula generated with one of the above methods. During the transformation
+we keep track of the clauses introduced in Φ by each word. Suppose Φ is inconsistent.
+Then, the SAT solver returns a MUC. Each clause in a MUC is mapped back to its
+corresponding word(s). We obtain the corresponding subset of words W ′,W ′ ⊆W .
+Suppose that Φ′ is the Boolean CNF formula for the words in W ′. The set of clauses
+in Φ′ is a subset of those in Φ. Also, the clauses in the MUC appear in Φ′. Thus, Φ′ is
+unsatisfiable and the words inW ′ are inconsistent.
+</p>
+<p>Notice that a SAT solver cannot pinpoint which are the clauses, and consequently
+the words, that need to be changed to make a MUC satisfiable. This is to some extend a
+subjective issue. The output of the SAT solver needs to be viewed as saying that the set
+of words W ′ cannot all have the specified polarity in the input SWD in the same time;
+the polarities of some words inW ′ are wrong in the SWD.
+</p>
+<p>In order to find all inconsistent sets of words we ought to generate all MUCs.
+Unfortunately, this is a "hard" problem (Dershowitz, Hanna, and Nadel 2006) and no
+open source SAT solver possesses this functionality. In our experimental study (next
+section) we report the sets of inconsistent words produced after running two different
+SAT solvers once each on the input sentiment dictionaries. We use the SAT solvers SAT4j
+and PicoSAT (?).
+</p>
+<p>9. Experiments
+</p>
+<p>The chief goal of the experimental study is to show that our techniques can identify
+considerable inconsistencies in various sentiment dictionaries.
+</p>
+<p>9.1 Data sets
+</p>
+<p>In our experimental study, we use WordNet 3.0, the sentiment word dictionaries GI, OF
+and AL; and the sentiment sense dictionary Q-WordNet. The statistics about the data
+</p>
+<p>19</p>
+<p/>
+</div>
+<div class="page"><p/>
+<p>Computational Linguistics Volume 1, Number 1
+</p>
+<p>Table 3
+Intra- and inter-dictionaries inconsistency
+</p>
+<p>EEM FSM
+POS OF QW GI QW AL QW UF QW OF GI AL UF
+Noun 23 119 4 61 0 42 90 140 23 4 0 27
+Verb 66 113 2 67 0 0 63 137 62 2 0 66
+Adj. 90 170 8 48 0 0 27 177 88 8 0 81
+Adv. 61 1 0 0 2 0 69 1 60 0 2 62
+Total 240 403 14 176 2 42 249 455 233 14 2 236
+</p>
+<p>sets are given in Table 2. The table shows the distribution of the words and synsets
+per part of speech. Columns 2 and 3 pertain to WordNet. For example, there are 21,479
+adjective words, which have 18,156 synsets. In total WordNet 3.0 has 155,287 words and
+117,659 synsets.
+</p>
+<p>Data cleaning
+The three sentimental word dictionaries are organized in triplets of
+</p>
+<p>the form 〈word, pos, polarity〉 (where pos stands for part of speech), e.g.,
+〈bland,Adjective, negative〉. General Inquirer has 3,994 distinct triplets,
+Appraisal Lexicon as 1,888 distinct triplets and Opinion Finder has 8,223
+distinct triplets. But not all their original entries are useable in our setting. The main
+reason is that a triplet 〈w, pos, p〉 from a sentimental word dictionary, may be such that
+(1) the word w does not appear in WordNet (regardless of pos) or (2) w with pos is not
+present in WordNet. For example, 〈wise, adverb, positive〉 is a triple in GI, but the
+word wise does not appear in WordNet with the part of speech adverb.
+</p>
+<p>After cleaning, as shown in Table 2, there are 3,724 entries in General Inquirer,
+1,759 entries in Appraisal Lexicon and 6,791 entries in Opinion Finder which
+appear in WordNet. Herein, whenever we refer to theses dictionaries we refer to their
+cleaned versions.
+</p>
+<p>9.2 Inconsistency Detection
+</p>
+<p>We used both methods in our experiments. We applied them to (1) each of AL, GI and
+OF; (2) the disagreement-free union; (3) each of AL, GI andOF togetherwithQ-WordNet
+and (4) the disagreement-free union and Q-WordNet. Table 3 summarizes the outcome
+of this experimental study. EEM finds 240, 14 and 2 polarity inconsistent words in OF,
+GI and AL, respectively. The ratio between the number of inconsistent words and the
+number of input words used for deduction is the highest for OF and the lowest for AL.
+</p>
+<p>The union dictionary has 7,794 words and 247 out of them are found to be polarity
+inconsistent words. Recall that we manually corrected the polarities of 159 words, to
+the best of our understanding. So, in effect the three dictionaries have 247 + 159 = 406
+polarity inconsistent words. FSM discovers 236 inconsistencies in the union dictionary.
+In all four experimental scenarios, the sets of inconsistencies discovered using FSM are
+subsets of those discovered using EEM. Whenever FSM was used the set of inconsistent
+words was given by the MUCs. In general, to find all inconsistencies we need to
+generate all MUCs. However, generating all MUCs is an “overkill" and the SAT solvers
+</p>
+<p>20</p>
+<p/>
+</div>
+<div class="page"><p/>
+<p>E. C. DragutAComprehensive Solution for Polarity Consistency Checking for Domain Independent Sentiment Dictionaries
+</p>
+<p>Figure 3
+Human classification of (in)consistent words.
+</p>
+<p>we utilized do not implement such a functionality. In addition, the intention of SAT
+solver designers is to use MUCs in a interactive manner. That is, the errors pointed out
+by a MUC are corrected and then the new improved formula is re-evaluated by the SAT
+solver. If an error is still present a new MUC is reported, and the process repeats until
+the formula has no errors. Or, in our problem, until a dictionary is consistent.
+</p>
+<p>We also paired Q-WordNet (QW) with each of the sentiment word dictionaries.
+Table 3 presents only the results for EEM. FSM produces similar numbers. Observe
+that polarities assigned to the words in AL and GI largely agree with the polarities
+assigned to the synsets in QW. This is expected for AL because it has only two nouns
+and no verb, while QW has only 40 adverbs. Consequently, these two dictionaries have
+limited “overlapping". Besides, the adjectives in AL and the adjective synsets in QW are
+distributed over 612 and 351 connected components, respectively, in WordNet. Hence,
+many of the words in AL cannot be checked against the synsets in QW. This is true for
+OF, GI and the union dictionaries, too. The union dictionary and QW have nonetheless
+substantial inconsistencies: the polarity of 455 words in the union dictionary disagrees
+with the polarities of their underlying synsets in Q-WordNet.
+</p>
+<p>9.3 Sentence Level Evaluation
+</p>
+<p>We took 10 pairs of inconsistent words per part of speech; in total, we collected a set IW
+of 80 inconsistent words. Let 〈w, pos, p〉 ∈ IW , p is the polarity of w. We collected 5 sen-
+tences for 〈w, pos〉 from the set of snippets returned by Google for query w. We parsed
+the snippets and identified the first 5 occurrences of w with the part of speech pos.
+Then two graduate students with English background analyzed the polarities of 〈w, pos〉
+in the 5 sentences. We counted the number of times 〈w, pos〉 appears with polarity p
+and polarities different from p. We defined an agreement scale: total agreement (5/5),
+most agreement (4/5), majority agreement (3/5), majority disagreement (2/5), most
+disagreement (1/5), total disagreement (0/5). We computed the percentage of words
+per agreement category. We repeated the experiment for 40 randomly drawn words
+(10 per part of speech) from the set of consistent words. In total 600 sentences were
+manually analyzed. Figure 3 shows the distribution of the (in)consistent words. For
+example, the annotators totally agree with the polarities of 55% of the consistent words,
+whereas they only totally agree with 16% of the polarities of the inconsistent words.
+The graph suggests that the annotators disagree to some extent (total disagreement +
+most disagreement + major disagreement) with 40% of the polarities of the inconsistent
+</p>
+<p>21</p>
+<p/>
+</div>
+<div class="page"><p/>
+<p>Computational Linguistics Volume 1, Number 1
+</p>
+<p>words, whereas they disagree to some extent with only 5% of the consistent words. We
+also manually investigated the senses of these words in WordNet. We noted that 36 of
+the 80 inconsistent words (45%) have missing senses according to one of these English
+dictionaries: Oxford and Cambridge.
+</p>
+<p>9.4 Computational Issues
+</p>
+<p>The experiments were run on a server with 12GB of memory and a 4 core CPU. The
+Boolean formulas constructed with both FSM and EEM presented challenges to the SAT
+solvers. EEM requires almost 10GB of memory, while FSM requires about 5GB. EEM
+cannot handle words with more than 200,000 MDSes: for the union dictionary we left
+the SAT solver running for a week without ever terminating. In contrast, it takes about
+4 hours if we limit the set of words to those that have up to 200,000 synsets. Words such
+as make, give and break could not be handled with EEM. FSM can handle all the
+words in WordNet and it takes about 5 hours to finish. Recall however that we did not
+generate all MUCs. We do not know how long would that might have taken.
+</p>
+<p>10. Related Work
+</p>
+<p>There are two lines of work on sentiment polarity lexicon induction: corpora-based and
+WordNet-based. Our approach falls into the latter. We cover only this category of work.
+</p>
+<p>WordNet-based approaches use lexical relations defined in WordNet to derive sen-
+timent lexicons. For example, (Kamps et al. 2004) determines sentiments of adjectives
+in WordNet by measuring the relative distance of a term from exemplars, such as
+“good" and “bad". The work reports results for adjectives alone. Other approaches use
+synonyms and antonyms to expand the sets of seeds (Esuli and Sebastiani 2006). Yet
+another technique is to add all synonyms of a polar word with the same polarity and its
+antonymswith reverse polarity (Kim andHovy 2006). It was shown (Rao and Ravichan-
+dran 2009) that the method suffers from low recall and is unsuitable in situations when
+the seed polar words are too few – not uncommon in low resource languages. Moreover,
+we have encountered instances of antonym pairs where the polarity is not necessarily
+reversed (e.g., the adjective advance has a positive polarity while one of its antonyms,
+middle, has neutral polarity). Q-WordNet (Agerri and García-Serrano 2010) aims to
+automatically annotate the synsets (senses) in WordNet. It starts from 6 synsets with
+known polarities: “positive", “negative", “good", “bad", “inferior" and “superior". These
+are precisely the synsets that are related to the noun “quality" through the attribute
+relation in WordNet. It navigates WordNet along the relations defined in WordNet and
+assigns polarities to synsets. If two synsets are assigned conflicting polarities they are
+discarded. Q-WordNet does not trace down inconsistencies as we do. Also, they do not
+assign polarities to words. Finally, the relations in WordNet do not have well-defined
+behavior with respect to preserving/reversing polarity.
+</p>
+<p>Unlike SentiWordNet, our view is that each synset does not have a degree associ-
+ated with each polarity. Instead, each synset is 100% positive, 100% negative or 100%
+neutral.
+</p>
+<p>Machine learning algorithms (Esuli and Sebastiani 2005) as well as stochastic al-
+gorithms (Hassan and Radev 2010) can be employed to classify words into different
+polarities. According to (Esuli and Sebastiani 2006), the performance of (Esuli and
+Sebastiani 2005) is comparable or better than those in (Kamps et al. 2004; Turney and
+Littman 2003).
+</p>
+<p>22</p>
+<p/>
+</div>
+<div class="page"><p/>
+<p>E. C. DragutAComprehensive Solution for Polarity Consistency Checking for Domain Independent Sentiment Dictionaries
+</p>
+<p>The differences between our approach and earlier ones, including those that are
+not WordNet-based, are: (1) to our knowledge, none of the earlier works studied the
+problem of polarity consistency checking for sentiment dictionaries and (2) inconsis-
+tencies within individual dictionaries and across dictionaries can be pinpointed by our
+techniques.
+</p>
+<p>11. Conclusion
+</p>
+<p>We study the problem of checking polarity consistency for sentiment word dictionaries.
+We prove that this problem is NP-complete. We show that in practice polarity incon-
+sistencies of words both within a dictionary and across dictionaries can be obtained
+using either a SAT solver or a sound deduction process. The inconsistencies are pin-
+pointed and this allows the dictionaries to be improved. Experiments on four sentiment
+dictionaries, including the union dictionary, are reported. As future work, we plan to
+categorize the 406 inconsistent words according to our classification and identify the
+reason behind each inconsistency.
+</p>
+<p>References
+Agerri, Rodrigo and Ana García-Serrano. 2010. Q-wordnet: Extracting polarity from wordnet
+</p>
+<p>senses. In LREC.
+Andreevskaia, A. and S. Bergler. 2006. Mining wordnet for fuzzy sentiment: Sentiment tag
+</p>
+<p>extraction from wordnet glosses. In EACL.
+Babic, Domagoj, Jesse Bingham, and Alan J. Hu. 2006. B-cubing: New possibilities for efficient
+</p>
+<p>sat-solving. TC, 55(11).
+Baccianella, Stefano, Andrea Esuli, and Fabrizio Sebastiani. 2010. SentiWordNet 3.0: An
+</p>
+<p>Enhanced Lexical Resource for Sentiment Analysis and Opinion Mining. In LREC, Valletta,
+Malta, May.
+</p>
+<p>Bentivogli, Luisa, Pamela Forner, Bernardo Magnini, and Emanuele Pianta. 2004. Revising the
+wordnet domains hierarchy: semantics, coverage and balancing. MLR.
+</p>
+<p>Breck, Eric, Yejin Choi, and Claire Cardie. 2007. Identifying expressions of opinion in context. In
+IJCAI.
+</p>
+<p>Cook, Stephen A. 1971. The complexity of theorem-proving procedures. In Proceedings of the third
+annual ACM symposium on Theory of computing, STOC ’71, pages 151–158, New York, NY, USA.
+ACM.
+</p>
+<p>Danescu-N.-M., Cristian, Gueorgi Kossinets, Jon Kleinberg, and Lillian Lee. 2009. How opinions
+are received by online communities: a case study on amazon.com helpfulness votes. In WWW,
+pages 141–150.
+</p>
+<p>Dershowitz, Nachum, Ziyad Hanna, and Er Nadel. 2006. A scalable algorithm for minimal
+unsatisfiable core extraction. In In Proc. SATŠ06. Springer.
+</p>
+<p>Ding, Xiaowen and Bing Liu. 2010. Resolving object and attribute coreference in opinion mining.
+In COLING.
+</p>
+<p>Dragut, Eduard C., Hong Wang, Clement Yu, Prasad Sistla, and Weiyi Meng. 2012. Polarity
+consistency checking for sentiment dictionaries. In ACL.
+</p>
+<p>Esuli, A. and F. Sebastiani. 2006. Determining term subjectivity and term orientation for opinion
+mining. In EACL.
+</p>
+<p>Esuli, Andrea and Fabrizio Sebastiani. 2005. Determining the semantic orientation of terms
+through gloss classification. In CIKM, pages 617–624.
+</p>
+<p>Han, Jiawei. 2005. Data Mining: Concepts and Techniques. Morgan Kaufmann Publishers Inc.
+Hassan, Ahmed and Dragomir Radev. 2010. Identifying text polarity using random walks. In
+</p>
+<p>Proceedings of the 48th Annual Meeting of the Association for Computational Linguistics, ACL ’10,
+pages 395–403.
+</p>
+<p>Kamps, J., M. Marx, R. Mokken, and M. de Rijke. 2004. Using wordnet to measure semantic
+orientation of adjectives. In LREC.
+</p>
+<p>Kim, M. and E. Hovy. 2004. Determining the sentiment of opinions. In COLING.
+</p>
+<p>23</p>
+<p/>
+</div>
+<div class="page"><p/>
+<p>Computational Linguistics Volume 1, Number 1
+</p>
+<p>Kim, Soo-Min and Eduard Hovy. 2006. Identifying and analyzing judgment opinions. In
+HLT-NAACL.
+</p>
+<p>Nelson, Victor P., H. Troy Nagle, Bill D. Carroll, and J. David Irwin. 1995. Digital logic circuit
+analysis and design. Prentice-Hall, Inc.
+</p>
+<p>Pang, B. and L. Lee. 2004. A sentimental education: Sentiment analysis using subjectivity
+summarization based on minimum cuts. In ACL.
+</p>
+<p>Rao, Delip and Deepak Ravichandran. 2009. Semi-supervised polarity lexicon induction. In
+EACL.
+</p>
+<p>Stone, P., D. Dunphy, M. Smith, and J. Ogilvie. 1996. The general inquirer: A computer approach
+to content analysis. In MIT Press.
+</p>
+<p>Taboada, M. and J. Grieve. 2004. Analyzing appraisal automatically. In AAAI Spring Symposium.
+Takamura, Hiroya, Takashi Inui, and Manabu Okumura. 2005. Extracting semantic orientations
+</p>
+<p>of words using spin model. In ACL, pages 133–140.
+TechRep. 2012. Technical report: Polarity consistency checking for sentiment dictionaries.
+Turney, Peter D. and Michael L. Littman. 2003. Measuring praise and criticism: Inference of
+</p>
+<p>semantic orientation from association. ACM Trans. Inf. Syst.
+Wilson, T., J. Wiebe, and P. Hoffmann. 2005. Recognizing contextual polarity in phrase-level
+</p>
+<p>sentiment analysis. In HLT/EMNLP.
+Xu, Lin, Frank Hutter, Holger H. Hoos, and Kevin Leyton-Brown. 2008. Satzilla: portfolio-based
+</p>
+<p>algorithm selection for sat. J. Artif. Int. Res., 32:565–606, June.
+</p>
+<p>24</p>
+<p/>
+</div>
+</body></html>
