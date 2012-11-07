@@ -31,7 +31,7 @@ import com.itextpdf.text.pdf.parser.PdfReaderContentParser;
 import edu.uic.cs.automatic_reviewer.input.Metadata;
 import edu.uic.cs.automatic_reviewer.input.Paper;
 import edu.uic.cs.automatic_reviewer.input.Paper.Author;
-import edu.uic.cs.automatic_reviewer.input.Paper.Page;
+import edu.uic.cs.automatic_reviewer.input.Paper.Paragraph;
 import edu.uic.cs.automatic_reviewer.misc.Assert;
 import edu.uic.cs.automatic_reviewer.misc.AutomaticReviewerException;
 import edu.uic.cs.automatic_reviewer.misc.LogHelper;
@@ -41,6 +41,8 @@ public class PaperParser /* extends AbstractWordOperations */{
 	private static final Logger LOGGER = LogHelper.getLogger(PaperParser.class);
 
 	private static final int PARAGRAPH_MIN_CHAR_LENGTH = 300;
+
+	private static final int REFERENCE_MIN_CHAR_LENGTH = 30;
 
 	private static final Pattern REFERENCE_PATTERN = Pattern.compile(
 			"(references|reference)\\s*", Pattern.CASE_INSENSITIVE);
@@ -119,8 +121,10 @@ public class PaperParser /* extends AbstractWordOperations */{
 		NodeList pageNodes = bodyNode.getChildNodes(); // page nodes
 
 		Paper resultPaper = new Paper();
+		resultPaper.setNumOfPages(pageNodes.getLength());
 
-		List<String> rawParagraphs = new ArrayList<String>();
+		List<Paragraph> rawParagraphs = new ArrayList<Paragraph>();
+
 		for (int pageIndex = 0; pageIndex < pageNodes.getLength(); pageIndex++) {
 
 			Node pageNode = pageNodes.item(pageIndex);
@@ -128,7 +132,7 @@ public class PaperParser /* extends AbstractWordOperations */{
 			Node classAttr = pageNode.getAttributes().getNamedItem("class");
 			Assert.isTrue("page".equalsIgnoreCase(classAttr.getNodeValue()));
 
-			Page page = new Page();
+			Integer pageNum = Integer.valueOf(pageIndex + 1); // based on "1"
 
 			NodeList paragraphNodes = pageNode.getChildNodes();
 			for (int paragraphIndex = 0; paragraphIndex < paragraphNodes
@@ -141,11 +145,8 @@ public class PaperParser /* extends AbstractWordOperations */{
 				// raw paragraph
 				String rawParagraph = paragraphNode.getTextContent();
 
-				page.addRawParagraph(rawParagraph);
-				rawParagraphs.add(rawParagraph);
+				rawParagraphs.add(new Paragraph(rawParagraph, pageNum));
 			}
-
-			resultPaper.addPage(page);
 		}
 
 		parseRawParagraphs(rawParagraphs, resultPaper);
@@ -153,21 +154,19 @@ public class PaperParser /* extends AbstractWordOperations */{
 		return resultPaper;
 	}
 
-	private void parseRawParagraphs(List<String> rawParagraphs,
+	private void parseRawParagraphs(List<Paragraph> rawParagraphs,
 			Paper resultPaper) {
 
 		boolean paperStarted = false; // if entire paper started
 		boolean contentStarted = false; // if the content started
-		boolean referencesStart = false;
-		// part of the first reference content may in the same line of
-		// "references", so we need to add this is this happens
-		String firstReferencePrefix = null;
 
 		List<String> rawAuthorInfos = new ArrayList<String>();
+		List<Paragraph> contentParagraphs = new ArrayList<Paragraph>();
 
 		for (int index = 0; index < rawParagraphs.size(); index++) {
 
-			String tidiedRawParagraph = tidyParagraph(rawParagraphs.get(index));
+			Paragraph paragraph = rawParagraphs.get(index);
+			String tidiedRawParagraph = tidyParagraph(paragraph.getContent());
 
 			if (tidiedRawParagraph.length() == 0 /* && !paperStarted */
 					|| StringUtils.startsWithAny(tidiedRawParagraph,
@@ -190,65 +189,118 @@ public class PaperParser /* extends AbstractWordOperations */{
 				if ("abstract".equalsIgnoreCase(tidiedRawParagraph)) {
 					continue; // ignore paragraph contains only "abstract"
 				} else if (tidiedRawParagraph.length() > PARAGRAPH_MIN_CHAR_LENGTH) {
-
 					resultPaper.setAbstract(tidiedRawParagraph);
 					contentStarted = true;
 
 					LOGGER.info("[ABSTRACT]\n" + tidiedRawParagraph + "\n");
 
-				} else // authors and university
-				{
+				} else { // authors and university
 					rawAuthorInfos.add(tidiedRawParagraph);
 				}
 
 			} else { // content
-				if (!referencesStart) // normal content
-				{
-					// references starts
-					if (StringUtils.startsWithIgnoreCase(tidiedRawParagraph,
-							"reference")) {
-
-						Matcher matcher = REFERENCE_PATTERN
-								.matcher(tidiedRawParagraph);
-						String possibleReference = matcher.replaceFirst("");
-						if (possibleReference.trim().length() > 0) {
-							firstReferencePrefix = possibleReference;
-						}
-
-						referencesStart = true;
-					} else {
-						// normal content
-						// TODO
-					}
-				} else // references
-				{
-					if (firstReferencePrefix != null) {
-						tidiedRawParagraph = firstReferencePrefix + " "
-								+ tidiedRawParagraph;
-						firstReferencePrefix = null;
-					}
-					resultPaper.addReference(tidiedRawParagraph);
-
-					LOGGER.info("[REFERENCE]\t" + tidiedRawParagraph);
-				}
+				contentParagraphs.add(new Paragraph(tidiedRawParagraph,
+						paragraph.getPageNum()));
 			}
 
 		} // end rawParagraphs "for"
 
+		parseAndFillAuthorInfosAndRefillTitleIfNecessary(resultPaper,
+				rawAuthorInfos);
+
+		fillNormalContentAndRefereces(resultPaper, contentParagraphs);
+
+		// System.out.println("=============================================");
+		// if (resultPaper.getAuthors() != null) {
+		// for (Author author : resultPaper.getAuthors()) {
+		// System.out.println(author);
+		// }
+		// }
+	}
+
+	private void parseAndFillAuthorInfosAndRefillTitleIfNecessary(
+			Paper resultPaper, List<String> rawAuthorInfos) {
 		authorInfoExtractor
 				.parseAndFillAuthorInfos(resultPaper, rawAuthorInfos);
+	}
 
-		System.out.println("=============================================");
-		if (resultPaper.getAuthors() != null) {
-			for (Author author : resultPaper.getAuthors()) {
-				System.out.println(author);
+	private void fillNormalContentAndRefereces(Paper resultPaper,
+			List<Paragraph> contentParagraphs) {
+
+		// match from the end of the list, in case there are "reference" key
+		// words within content
+		int index = contentParagraphs.size() - 1;
+		for (; index >= 0; index--) {
+
+			String tidiedRawParagraph = contentParagraphs.get(index)
+					.getContent();
+			if (StringUtils.startsWithIgnoreCase(tidiedRawParagraph,
+					"reference")) {
+				break;
+			}
+
+		}
+
+		fillNormalContentParagraphs(resultPaper, contentParagraphs, index);
+		fillReferences(resultPaper, contentParagraphs, index);
+	}
+
+	private void fillNormalContentParagraphs(Paper resultPaper,
+			List<Paragraph> contentParagraphs, int normalContentEndIndex) {
+
+		for (int index = 0; index < normalContentEndIndex; index++) {
+
+			Paragraph paragraph = contentParagraphs.get(index);
+
+			resultPaper.addContentParagraph(paragraph);
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.info("[PARAGRAPH]\tP" + paragraph.getPageNum() + " | "
+						+ paragraph.getContent());
 			}
 		}
 	}
 
-	private String tidyParagraph(String rawParagraph) {
+	private void fillReferences(Paper resultPaper,
+			List<Paragraph> contentParagraphs, int referencesStartIndex) {
+
+		String firstReferencePrefix = null;
+		for (int refIndex = referencesStartIndex; refIndex < contentParagraphs
+				.size(); refIndex++) {
+
+			Paragraph paragraph = contentParagraphs.get(refIndex);
+			String tidiedRawParagraph = paragraph.getContent();
+
+			// first line of "reference" may contain some part of the real
+			// reference
+			if (refIndex == referencesStartIndex) {
+				Matcher matcher = REFERENCE_PATTERN.matcher(tidiedRawParagraph);
+				// remove literal "reference"
+				String possibleReference = matcher.replaceFirst("");
+
+				if (possibleReference.trim().length() > 0) {
+					firstReferencePrefix = possibleReference;
+				}
+
+				continue; // skip the first line
+			}
+
+			if (firstReferencePrefix != null) {
+				tidiedRawParagraph = firstReferencePrefix + " "
+						+ tidiedRawParagraph;
+				firstReferencePrefix = null;
+			}
+
+			if (tidiedRawParagraph.length() > REFERENCE_MIN_CHAR_LENGTH) {
+				resultPaper.addReference(tidiedRawParagraph);
+				LOGGER.info("[REFERENCE]\t" + tidiedRawParagraph);
+			}
+
+		}
+	}
+
+	private String tidyParagraph(String paragraphContent) {
 		// TODO maybe do more jobs
-		return rawParagraph.trim();
+		return paragraphContent.trim();
 	}
 
 	private void parse(File file, Metadata metadata, DOMResult domResult) {
@@ -290,12 +342,42 @@ public class PaperParser /* extends AbstractWordOperations */{
 
 		PaperParser paperParser = new PaperParser();
 
+		// List<Paper> papers = new ArrayList<Paper>();
 		for (File file : folder.listFiles()) {
 			if (file.isDirectory()) {
 				continue;
 			}
-			paperParser.parse(file);
+
+			Paper paper = paperParser.parse(file);
+			outputPaperInfo(paper);
 		}
+	}
+
+	private static void outputPaperInfo(Paper paper) {
+
+		System.out.println(paper.getTitle());
+		System.out.println("---------------------");
+		for (Author author : paper.getAuthors()) {
+			System.out.println(author);
+		}
+		System.out.println("---------------------");
+		System.out.println(paper.getAbstract());
+		System.out.println("---------------------");
+		for (String reference : paper.getReferences()) {
+			System.out.println(reference);
+			System.out.println("---------");
+		}
+		System.out.println("---------------------");
+		System.out.println(paper.getNumOfPages() + " pages");
+		System.out.println("---------------------");
+		for (String paragraph : paper.getContentParagraphsOnPage(1)) {
+			System.out.println(paragraph);
+			System.out.println("---------");
+		}
+
+		System.out.println("===========================================");
+
+		System.out.println();
 
 	}
 }

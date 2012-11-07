@@ -1,22 +1,13 @@
 package edu.uic.cs.automatic_reviewer.input;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import edu.uic.cs.automatic_reviewer.misc.Assert;
 
 public class Paper {
-
-	// public static class Paragraph {
-	//
-	// private String content;
-	//
-	// public Paragraph(String content) {
-	// this.content = content;
-	// }
-	//
-	// public String getContent() {
-	// return content;
-	// }
-	// }
 
 	public static class Author {
 		private String name;
@@ -55,17 +46,36 @@ public class Paper {
 
 	}
 
-	public static class Page {
+	// public static class Page {
+	//
+	// private List<String> rawParagraphs = new ArrayList<String>();
+	//
+	// public void addRawParagraph(String rawParagraph) {
+	// this.rawParagraphs.add(rawParagraph);
+	// }
+	//
+	// public List<String> getRawParagraphs() {
+	// return rawParagraphs;
+	// }
+	// }
 
-		private List<String> rawParagraphs = new ArrayList<String>();
+	public static class Paragraph {
+		private String content;
+		private Integer pageNum;
 
-		public void addRawParagraph(String rawParagraph) {
-			this.rawParagraphs.add(rawParagraph);
+		public Paragraph(String content, Integer pageNum) {
+			this.content = content;
+			this.pageNum = pageNum;
 		}
 
-		public List<String> getRawParagraphs() {
-			return rawParagraphs;
+		public String getContent() {
+			return content;
 		}
+
+		public Integer getPageNum() {
+			return pageNum;
+		}
+
 	}
 
 	// /////////////////////////////////////////////////////////////////////////
@@ -75,28 +85,20 @@ public class Paper {
 	private List<Author> authors;
 
 	private String abstractParagraph;
-	// private List<String> paragraphs;
+
+	private int numOfPages;
+
+	private Map<Integer, List<String>> contentParagraphsByPage = new HashMap<Integer, List<String>>();
+	private List<String> contentParagraphs = new ArrayList<String>();
 	private List<String> references = new ArrayList<String>();
 
-	private List<Page> pages = new ArrayList<Page>();
-
-	// private List<Paragraph> paragraphs;
-
-	public void addPage(Page page) {
-		this.pages.add(page);
+	public void setNumOfPages(int numOfPages) {
+		this.numOfPages = numOfPages;
 	}
 
 	public int getNumOfPages() {
-		return pages.size();
+		return numOfPages;
 	}
-
-	// public List<Paragraph> getParagraphs() {
-	// return paragraphs;
-	// }
-	//
-	// public void setParagraphs(List<Paragraph> paragraphs) {
-	// this.paragraphs = paragraphs;
-	// }
 
 	public String getTitle() {
 		return title;
@@ -122,6 +124,37 @@ public class Paper {
 		return references;
 	}
 
+	public void addContentParagraph(Paragraph paragraph) {
+
+		Integer pageNum = paragraph.getPageNum();
+		Assert.isTrue(pageNum.intValue() <= numOfPages, "Page number ["
+				+ pageNum.intValue() + "] can not exceed number of pages ["
+				+ numOfPages + "]");
+
+		List<String> paragraphs = contentParagraphsByPage.get(pageNum);
+		if (paragraphs == null) {
+			paragraphs = new ArrayList<String>();
+			contentParagraphsByPage.put(pageNum, paragraphs);
+		}
+		paragraphs.add(paragraph.getContent());
+
+		this.contentParagraphs.add(paragraph.getContent());
+	}
+
+	public List<String> getContentParagraphs() {
+		return contentParagraphs;
+	}
+
+	/**
+	 * 
+	 * @param pageNum
+	 *            based on "1"!
+	 * @return
+	 */
+	public List<String> getContentParagraphsOnPage(Integer pageNum) {
+		return contentParagraphsByPage.get(pageNum);
+	}
+
 	public List<Author> getAuthors() {
 		return authors;
 	}
@@ -129,4 +162,5 @@ public class Paper {
 	public void setAuthors(List<Author> authors) {
 		this.authors = authors;
 	}
+
 }
