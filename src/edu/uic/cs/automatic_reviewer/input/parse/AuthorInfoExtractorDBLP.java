@@ -6,6 +6,7 @@ import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -27,6 +28,7 @@ import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
@@ -160,7 +162,8 @@ public class AuthorInfoExtractorDBLP implements AuthorInfoExtractor {
 			}
 		}
 
-		Map<String, String> infoByName = new HashMap<String, String>();
+		// use linkedHashMap to maintain the order of authors
+		Map<String, String> infoByName = new LinkedHashMap<String, String>();
 		for (String name : authorNames) {
 			Integer appearingIndex = appearingLineIndexByName.get(name);
 			if (appearingIndex == null) {
@@ -284,7 +287,7 @@ public class AuthorInfoExtractorDBLP implements AuthorInfoExtractor {
 			// really nothing matched, or too many matched.
 			// keep the original title
 			// we should use super class's method
-			System.out.println("NO NAME!!");
+			System.err.println("NO NAME!!");
 			// TODO
 		} else {
 			paper.setTitle(title); // update the title
@@ -306,6 +309,49 @@ public class AuthorInfoExtractorDBLP implements AuthorInfoExtractor {
 		return shrunkTitle;
 	}
 
+	// private String parseAuthorNames(Document document, List<String> names)
+	// throws Exception {
+	//
+	// String matchedNumString = xPath.evaluate("/result/hits/@total",
+	// document).trim();
+	// if (matchedNumString.length() == 0) { // nothing matched
+	// return null;
+	// }
+	//
+	// int matchedNum = Integer.parseInt(matchedNumString);
+	// if (matchedNum == 0) { // nothing matched
+	// return null;
+	// } else if (matchedNum > 1) { // should only one matched
+	// return "";
+	// }
+	//
+	// String titleNodeString = xPath.evaluate("//title", document);
+	// System.out.println(titleNodeString);
+	//
+	// String titleNodeXmlString = "<title>" + titleNodeString + "</title>";
+	//
+	// Document titleDocument = documentBuilder.parse(new InputSource(
+	// new StringReader(titleNodeXmlString)));
+	// NodeList authorNodes = (NodeList) xPath.evaluate(
+	// "/title/authors/author", titleDocument, XPathConstants.NODESET);
+	//
+	// Assert.isTrue(names.isEmpty());
+	// for (int index = 0; index < authorNodes.getLength(); index++) {
+	// String name = authorNodes.item(index).getFirstChild()
+	// .getNodeValue();
+	// names.add(name.trim());
+	// }
+	//
+	// String title = xPath.evaluate("/title/title", titleDocument).trim();
+	// if (title.endsWith(".")) {
+	// title = title.substring(0, title.length() - 1);
+	// }
+	//
+	// Assert.notEmpty(title);
+	// Assert.notEmpty(names);
+	// return title;
+	// }
+
 	private String parseAuthorNames(Document document, List<String> names)
 			throws Exception {
 
@@ -322,15 +368,14 @@ public class AuthorInfoExtractorDBLP implements AuthorInfoExtractor {
 			return "";
 		}
 
-		String titleNodeString = xPath.evaluate("//title", document);
-		// System.out.println(titleNodeString);
+		NodeList infoNodeList = (NodeList) xPath.evaluate("//hit/info",
+				document, XPathConstants.NODESET);
+		Assert.isTrue(infoNodeList.getLength() == 1);
 
-		String titleNodeXmlString = "<title>" + titleNodeString + "</title>";
+		Node infoNode = infoNodeList.item(0);
 
-		Document titleDocument = documentBuilder.parse(new InputSource(
-				new StringReader(titleNodeXmlString)));
-		NodeList authorNodes = (NodeList) xPath.evaluate(
-				"/title/authors/author", titleDocument, XPathConstants.NODESET);
+		NodeList authorNodes = (NodeList) xPath.evaluate("//authors/author",
+				infoNode, XPathConstants.NODESET);
 
 		Assert.isTrue(names.isEmpty());
 		for (int index = 0; index < authorNodes.getLength(); index++) {
@@ -339,7 +384,7 @@ public class AuthorInfoExtractorDBLP implements AuthorInfoExtractor {
 			names.add(name.trim());
 		}
 
-		String title = xPath.evaluate("/title/title", titleDocument).trim();
+		String title = xPath.evaluate("//title", infoNode).trim();
 		if (title.endsWith(".")) {
 			title = title.substring(0, title.length() - 1);
 		}
