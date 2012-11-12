@@ -163,4 +163,12 @@ public class Paper {
 		this.authors = authors;
 	}
 
+	public Metadata getMetadata() {
+		return metadata;
+	}
+
+	public void setMetadata(Metadata metadata) {
+		this.metadata = metadata;
+	}
+
 }

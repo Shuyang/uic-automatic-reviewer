@@ -6,7 +6,11 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -25,12 +29,8 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import com.itextpdf.text.pdf.PdfReader;
-import com.itextpdf.text.pdf.parser.PdfReaderContentParser;
-
 import edu.uic.cs.automatic_reviewer.input.Metadata;
 import edu.uic.cs.automatic_reviewer.input.Paper;
-import edu.uic.cs.automatic_reviewer.input.Paper.Author;
 import edu.uic.cs.automatic_reviewer.input.Paper.Paragraph;
 import edu.uic.cs.automatic_reviewer.misc.Assert;
 import edu.uic.cs.automatic_reviewer.misc.AutomaticReviewerException;
@@ -46,6 +46,13 @@ public class PaperParser /* extends AbstractWordOperations */{
 
 	private static final Pattern REFERENCE_PATTERN = Pattern.compile(
 			"(references|reference)\\s*", Pattern.CASE_INSENSITIVE);
+
+	private static final Pattern FIGURE_PATTERN = Pattern.compile(
+			"^(fig\\.|figure)\\s*\\d+", Pattern.CASE_INSENSITIVE);
+	private static final Pattern TABLE_PATTERN = Pattern.compile(
+			"^(tab\\.|table)\\s*\\d+", Pattern.CASE_INSENSITIVE);
+
+	private static final double NONALPHA_THRESHOLD_RATIO = 0.3;
 
 	private static final String[] IGNORING_PARAGRAPH_PREFIXES = readLines("ignoring_paragraph_prefixes.txt");
 
@@ -85,22 +92,147 @@ public class PaperParser /* extends AbstractWordOperations */{
 
 	public Paper parse(File file) {
 
-		Metadata metadata = new Metadata();
+		org.apache.tika.metadata.Metadata tikaMetadata = new org.apache.tika.metadata.Metadata();
 		DOMResult domResult = new DOMResult(); // use DOM
 
 		// start parsing using tika
-		parse(file, metadata, domResult);
+		parse(file, tikaMetadata, domResult);
 		// end parsing
 
 		Node document = domResult.getNode();
 		try {
 			Paper paper = parseDocument(document);
-			// FIXME metadata
+			Metadata metadata = extractMetaInfo(paper, tikaMetadata, file);
+			paper.setMetadata(metadata);
 
 			return paper;
 		} catch (Exception e) {
 			throw new AutomaticReviewerException(e);
 		}
+	}
+
+	private Metadata extractMetaInfo(Paper paper,
+			org.apache.tika.metadata.Metadata tikaMetadata, File file) {
+
+		Metadata metadata = new Metadata();
+
+		// figure
+		Map<Integer, Integer> figureNumByPage = countFiguresUsingRegex(paper);
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("{Page-Number_of_figures}: " + figureNumByPage);
+		}
+		metadata.setNumOfFiguresByPage(figureNumByPage);
+
+		// table
+		Map<Integer, Integer> tableNumByPage = countTablesUsingRegex(paper);
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("{Page-Number_of_tables}: " + tableNumByPage);
+		}
+		metadata.setNumOfTablesByPage(tableNumByPage);
+
+		// formula
+		Map<Integer, Integer> formulaNumByPage = countFormulas(paper);
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("{Page-Number_of_formulas}: " + formulaNumByPage);
+		}
+		metadata.setNumOfFormulasByPage(formulaNumByPage);
+
+		// TODO Auto-generated method stub
+		return metadata;
+	}
+
+	private Map<Integer, Integer> countFormulas(Paper paper) {
+		Map<Integer, Integer> countByPage = new TreeMap<Integer, Integer>();
+
+		for (int pageIndex = 1; pageIndex <= paper.getNumOfPages(); pageIndex++) {
+			List<String> paragraphs = paper
+					.getContentParagraphsOnPage(pageIndex);
+			if (paragraphs == null) {
+				countByPage.put(pageIndex, 0);
+				continue;
+			}
+
+			int numOfFormula = 0;
+			boolean startFormula = false;
+			for (String paragraph : paragraphs) {
+				// remove all spaces
+				paragraph = paragraph.replaceAll("\\s+", "");
+
+				if (isFormula(paragraph)) {
+					if (!startFormula) {
+						startFormula = true;
+					}
+				} else if (startFormula) { // end of a formula
+					numOfFormula++;
+					startFormula = false;
+				}
+			}
+			if (startFormula) {
+				numOfFormula++;
+			}
+
+			countByPage.put(pageIndex, numOfFormula);
+		}
+
+		return countByPage;
+	}
+
+	private boolean isFormula(String paragraph) {
+		char[] chArray = paragraph.toCharArray();
+		double numOfNonAlpha = 0.0;
+		for (char ch : chArray) {
+			if (!Character.isLetter(ch)) {
+				numOfNonAlpha++;
+			}
+		}
+
+		// TODO may be optimized
+		if (numOfNonAlpha / chArray.length >= NONALPHA_THRESHOLD_RATIO) {
+			return true;
+		}
+
+		return false;
+	}
+
+	private Map<Integer, Integer> countTablesUsingRegex(Paper paper) {
+		return countUsingRegex(paper, TABLE_PATTERN);
+	}
+
+	private Map<Integer, Integer> countFiguresUsingRegex(Paper paper) {
+		return countUsingRegex(paper, FIGURE_PATTERN);
+	}
+
+	private Map<Integer, Integer> countUsingRegex(Paper paper, Pattern pattern) {
+
+		Map<Integer, Integer> countByPage = new TreeMap<Integer, Integer>();
+
+		for (int pageIndex = 1; pageIndex <= paper.getNumOfPages(); pageIndex++) {
+			List<String> paragraphs = paper
+					.getContentParagraphsOnPage(pageIndex);
+			if (paragraphs == null) {
+				countByPage.put(pageIndex, 0);
+				continue;
+			}
+
+			Set<Integer> numbers = new HashSet<Integer>();
+			for (String paragraph : paragraphs) {
+				Matcher matcher = pattern.matcher(paragraph);
+				while (matcher.find()) {
+					String matchedString = matcher.group();
+					String value = matchedString.replaceAll("\\D", "");
+					try {
+						Integer num = Integer.valueOf(value);
+						numbers.add(num);
+					} catch (Exception e) {
+						// ignore
+					}
+				}
+			}
+
+			countByPage.put(pageIndex, numbers.size());
+		}
+
+		return countByPage;
 	}
 
 	public Paper parse(String filePath) {
@@ -144,7 +276,6 @@ public class PaperParser /* extends AbstractWordOperations */{
 
 				// raw paragraph
 				String rawParagraph = paragraphNode.getTextContent();
-
 				rawParagraphs.add(new Paragraph(rawParagraph, pageNum));
 			}
 		}
@@ -258,6 +389,23 @@ public class PaperParser /* extends AbstractWordOperations */{
 						+ paragraph.getContent());
 			}
 		}
+
+		removePageNumberOnEachPage(resultPaper);
+	}
+
+	private void removePageNumberOnEachPage(Paper resultPaper) {
+		for (int pageNum = 1; pageNum <= resultPaper.getNumOfPages(); pageNum++) {
+			List<String> paragraphs = resultPaper
+					.getContentParagraphsOnPage(pageNum);
+			if (paragraphs == null) {
+				continue; // reference page
+			}
+
+			String lastParagraph = paragraphs.get(paragraphs.size() - 1);
+			if (StringUtils.isNumeric(lastParagraph)) {
+				paragraphs.remove(paragraphs.size() - 1);
+			}
+		}
 	}
 
 	private void fillReferences(Paper resultPaper,
@@ -303,7 +451,8 @@ public class PaperParser /* extends AbstractWordOperations */{
 		return paragraphContent.trim();
 	}
 
-	private void parse(File file, Metadata metadata, DOMResult domResult) {
+	private void parse(File file, org.apache.tika.metadata.Metadata metadata,
+			DOMResult domResult) {
 
 		try {
 			BufferedInputStream inputStream = new BufferedInputStream(
@@ -318,22 +467,35 @@ public class PaperParser /* extends AbstractWordOperations */{
 		}
 	}
 
-	private int countImagesUsingIText(String filePath) {
-
-		ImageCounter imageCounter = new ImageCounter();
-		try {
-			PdfReader iTextReader = new PdfReader(filePath);
-			PdfReaderContentParser parser = new PdfReaderContentParser(
-					iTextReader);
-			for (int index = 1; index <= iTextReader.getNumberOfPages(); index++) {
-				parser.processContent(index, imageCounter);
-			}
-		} catch (IOException e) {
-			throw new AutomaticReviewerException(e);
-		}
-
-		return imageCounter.getCount();
-	}
+	// /**
+	// * Not accurate!
+	// *
+	// * @param filePath
+	// * @param countByPage
+	// * @return
+	// */
+	// private int countImagesUsingIText(String filePath,
+	// Map<Integer, Integer> countByPage) {
+	//
+	// int totalCount = 0;
+	// try {
+	// PdfReader iTextReader = new PdfReader(filePath);
+	// PdfReaderContentParser parser = new PdfReaderContentParser(
+	// iTextReader);
+	// for (int index = 1; index <= iTextReader.getNumberOfPages(); index++) {
+	//
+	// ImageCounter imageCounter = new ImageCounter();
+	// parser.processContent(index, imageCounter);
+	//
+	// countByPage.put(index, imageCounter.getCount());
+	// totalCount += imageCounter.getCount();
+	// }
+	// } catch (IOException e) {
+	// throw new AutomaticReviewerException(e);
+	// }
+	//
+	// return totalCount;
+	// }
 
 	public static void main(String[] args) {
 
@@ -356,24 +518,30 @@ public class PaperParser /* extends AbstractWordOperations */{
 	private static void outputPaperInfo(Paper paper) {
 
 		System.out.println(paper.getTitle());
-		System.out.println("---------------------");
-		for (Author author : paper.getAuthors()) {
-			System.out.println(author);
-		}
-		System.out.println("---------------------");
-		System.out.println(paper.getAbstract());
-		System.out.println("---------------------");
-		for (String reference : paper.getReferences()) {
-			System.out.println(reference);
-			System.out.println("---------");
-		}
+		// System.out.println("---------------------");
+		// for (Author author : paper.getAuthors()) {
+		// System.out.println(author);
+		// }
+		// System.out.println("---------------------");
+		// System.out.println(paper.getAbstract());
+		// System.out.println("---------------------");
+		// for (String reference : paper.getReferences()) {
+		// System.out.println(reference);
+		// System.out.println("---------");
+		// }
 		System.out.println("---------------------");
 		System.out.println(paper.getNumOfPages() + " pages");
+
+		Metadata metadata = paper.getMetadata();
 		System.out.println("---------------------");
-		for (String paragraph : paper.getContentParagraphsOnPage(1)) {
-			System.out.println(paragraph);
-			System.out.println("---------");
-		}
+		System.out.println("Figures:\t" + metadata.getNumOfFiguresByPage());
+		System.out.println("Tables:\t\t" + metadata.getNumOfTablesByPage());
+		System.out.println("Formulas:\t" + metadata.getNumOfFormulasByPage());
+		// System.out.println("---------------------");
+		// for (String paragraph : paper.getContentParagraphsOnPage(1)) {
+		// System.out.println(paragraph);
+		// System.out.println("---------");
+		// }
 
 		System.out.println("===========================================");
 

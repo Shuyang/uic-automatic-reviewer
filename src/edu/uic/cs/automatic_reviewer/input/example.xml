@@ -1,17 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <result>
-<query id="118882">a probabilistic model for canonicalizing named entity mentions</query>
-<status code="12">OK</status>
-<time unit="msecs">71.29</time>
-<completions total="1" computed="1" sent="1">
-<c sc="2" dc="1" oc="1" id="11689742">mentions</c>
-</completions>
-<suggestions computed="0" sent="0">
-</suggestions>
-<hits total="1" computed="1" sent="1" first="0">
-<hit score="116" id="1172598">
-<title><![CDATA[<dblp:authors><dblp:author>Dani Yogatama</dblp:author><dblp:author>Yanchuan Sim</dblp:author><dblp:author>Noah A. Smith</dblp:author></dblp:authors><dblp:title ee="http://www.aclweb.org/anthology/P12-1072">A Probabilistic Model for Canonicalizing Named Entity Mentions. </dblp:title><dblp:venue url="db/conf/acl/acl2012-1.html#YogatamaSS12" conference="ACL" year="2012" pages="685-693">ACL 2012:685-693</dblp:venue><dblp:year>2012</dblp:year><dblp:type>inproceedings</dblp:type>]]></title>
-<url>http://www.dblp.org/rec/bibtex/conf/acl/YogatamaSS12</url>
-</hit>
-</hits>
+	<query id="47869">a* class* based* agreement* model* for* generating*
+		accurately* inflected* translations*
+	</query>
+	<status code="12">OK</status>
+	<time unit="msecs">1157.35</time>
+	<completions total="1" computed="1" sent="1">
+		<c sc="2" dc="1" oc="1" id="12035201">translations</c>
+	</completions>
+	<suggestions computed="0" sent="0">
+	</suggestions>
+	<hits total="1" computed="1" sent="1" first="0">
+		<hit score="26" id="1187575">
+			<info>
+				<authors>
+					<author>Spence Green</author>
+					<author>John DeNero</author>
+				</authors>
+				<title ee="http://www.aclweb.org/anthology/P12-1016">A Class-Based Agreement Model for Generating
+					Accurately Inflected Translations.
+				</title>
+				<venue url="db/conf/acl/acl2012-1.html#GreenD12" conference="ACL"
+					pages="146-155">ACL 2012:146-155</venue>
+				<year>2012</year>
+				<type>inproceedings</type>
+			</info>
+			<url>http://www.dblp.org/rec/bibtex/conf/acl/GreenD12</url>
+		</hit>
+	</hits>
 </result>
