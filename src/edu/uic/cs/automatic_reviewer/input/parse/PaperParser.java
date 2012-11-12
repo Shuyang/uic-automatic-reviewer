@@ -31,6 +31,7 @@ import org.w3c.dom.NodeList;
 
 import edu.uic.cs.automatic_reviewer.input.Metadata;
 import edu.uic.cs.automatic_reviewer.input.Paper;
+import edu.uic.cs.automatic_reviewer.input.Paper.Author;
 import edu.uic.cs.automatic_reviewer.input.Paper.Paragraph;
 import edu.uic.cs.automatic_reviewer.misc.Assert;
 import edu.uic.cs.automatic_reviewer.misc.AutomaticReviewerException;
@@ -522,10 +523,10 @@ public class PaperParser /* extends AbstractWordOperations */{
 	private static void outputPaperInfo(Paper paper) {
 
 		System.out.println(paper.getTitle());
-		// System.out.println("---------------------");
-		// for (Author author : paper.getAuthors()) {
-		// System.out.println(author);
-		// }
+		System.out.println("---------------------");
+		for (Author author : paper.getAuthors()) {
+			System.out.println(author);
+		}
 		// System.out.println("---------------------");
 		// System.out.println(paper.getAbstract());
 		// System.out.println("---------------------");

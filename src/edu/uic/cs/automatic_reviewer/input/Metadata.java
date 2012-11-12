@@ -19,7 +19,7 @@ public class Metadata {
 			if (toolString.contains("tex")) {
 				return TeX;
 			}
-			if (toolString.contains("microsoft")) {
+			if (toolString.contains("microsoft") || toolString.contains("word")) {
 				return MS_WORD;
 			}
 

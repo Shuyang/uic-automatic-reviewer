@@ -402,7 +402,7 @@ public class AuthorInfoExtractorDBLP implements AuthorInfoExtractor {
 		}
 
 		title = title.replace("-", " ").replace(" ", "*%20")
-				.toLowerCase(Locale.US);
+				.replaceAll(":", "").toLowerCase(Locale.US);
 		title = title + "*"; // add the last "*"
 		String queryUrl = "http://www.dblp.org/search/api/?q=" + title
 				+ "&format=xml";
