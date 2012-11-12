@@ -4,7 +4,30 @@ import java.util.Map;
 
 public class Metadata {
 
-	private String creatorTool;
+	public static enum CreatorTool {
+		TeX, LaTex, MS_WORD, UNKNOWN;
+
+		public static CreatorTool parse(String toolString) {
+			if (toolString == null) {
+				return UNKNOWN;
+			}
+
+			toolString = toolString.toLowerCase();
+			if (toolString.contains("latex")) {
+				return LaTex;
+			}
+			if (toolString.contains("tex")) {
+				return TeX;
+			}
+			if (toolString.contains("microsoft")) {
+				return MS_WORD;
+			}
+
+			return UNKNOWN;
+		}
+	}
+
+	private CreatorTool creatorTool;
 
 	private Map<Integer, Integer> numOfFiguresByPage;
 	private int numOfFigures = 0;
@@ -118,4 +141,11 @@ public class Metadata {
 		return numOfPagesHaveTable;
 	}
 
+	public void setCreatorTool(String creatorTool) {
+		this.creatorTool = CreatorTool.parse(creatorTool);
+	}
+
+	public CreatorTool getCreatorTool() {
+		return creatorTool;
+	}
 }

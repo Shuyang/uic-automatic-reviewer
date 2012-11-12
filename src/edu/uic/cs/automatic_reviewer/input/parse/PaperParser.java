@@ -54,6 +54,8 @@ public class PaperParser /* extends AbstractWordOperations */{
 
 	private static final double NONALPHA_THRESHOLD_RATIO = 0.3;
 
+	private static final String METADATA_NAME_CREATORTOOL = "xmp:CreatorTool";
+
 	private static final String[] IGNORING_PARAGRAPH_PREFIXES = readLines("ignoring_paragraph_prefixes.txt");
 
 	private PDFParser tikaParser = new PDFParser();
@@ -137,7 +139,9 @@ public class PaperParser /* extends AbstractWordOperations */{
 		}
 		metadata.setNumOfFormulasByPage(formulaNumByPage);
 
-		// TODO Auto-generated method stub
+		String creatorTool = tikaMetadata.get(METADATA_NAME_CREATORTOOL);
+		metadata.setCreatorTool(creatorTool);
+
 		return metadata;
 	}
 
@@ -537,6 +541,8 @@ public class PaperParser /* extends AbstractWordOperations */{
 		System.out.println("Figures:\t" + metadata.getNumOfFiguresByPage());
 		System.out.println("Tables:\t\t" + metadata.getNumOfTablesByPage());
 		System.out.println("Formulas:\t" + metadata.getNumOfFormulasByPage());
+		System.out.println("---------------------");
+		System.out.println(metadata.getCreatorTool());
 		// System.out.println("---------------------");
 		// for (String paragraph : paper.getContentParagraphsOnPage(1)) {
 		// System.out.println(paragraph);
