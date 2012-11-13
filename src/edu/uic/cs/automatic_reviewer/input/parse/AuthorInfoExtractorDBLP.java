@@ -5,6 +5,7 @@ import java.io.StringReader;
 import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -21,12 +22,14 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.log4j.Logger;
+import org.apache.tika.metadata.Metadata;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -38,7 +41,9 @@ import edu.uic.cs.automatic_reviewer.misc.Assert;
 import edu.uic.cs.automatic_reviewer.misc.AutomaticReviewerException;
 import edu.uic.cs.automatic_reviewer.misc.LogHelper;
 
-public class AuthorInfoExtractorDBLP implements AuthorInfoExtractor {
+@SuppressWarnings("deprecation")
+public class AuthorInfoExtractorDBLP extends AuthorInfoExtractorRegex implements
+		Constants {
 
 	private static final Logger LOGGER = LogHelper
 			.getLogger(AuthorInfoExtractorDBLP.class);
@@ -64,16 +69,47 @@ public class AuthorInfoExtractorDBLP implements AuthorInfoExtractor {
 	}
 
 	@Override
-	public void parseAndFillAuthorInfos(Paper paper, List<String> rawAuthorInfos) {
+	public void parseAndFillAuthorInfos(Paper paper,
+			List<String> rawAuthorInfos, Metadata tikaMetadata) {
 
 		// retrieve names, and re-fill title if we matched one record in DBLP
 		List<String> authorNames = gatherAuthorNamesAndReFillTitle(paper);
+
+		if (authorNames.isEmpty()) {
+			authorNames = gatherAuthorNamesFromTikaMetadata(tikaMetadata);
+		}
+
+		if (authorNames.isEmpty()) {
+			super.parseAndFillAuthorInfos(paper, rawAuthorInfos, tikaMetadata);
+			return;
+		}
 
 		List<Author> authors = gatherEmailAndOrganizationInfos(authorNames,
 				rawAuthorInfos);
 
 		paper.setAuthors(authors);
 
+	}
+
+	private List<String> gatherAuthorNamesFromTikaMetadata(Metadata tikaMetadata) {
+
+		String authorString = tikaMetadata.get("Author");
+		if (authorString == null || authorString.trim().length() == 0) {
+			return Collections.emptyList();
+		}
+
+		if (authorString.toLowerCase()
+				.contains(ILLEGAL_AUTHOR_NAME_IN_LOW_CASE)) {
+			return Collections.emptyList();
+		}
+
+		List<String> result = new ArrayList<String>();
+		String[] authors = authorString.split(";");
+		for (String author : authors) {
+			result.add(author.trim());
+		}
+
+		return result;
 	}
 
 	private List<Author> gatherEmailAndOrganizationInfos(
@@ -231,6 +267,10 @@ public class AuthorInfoExtractorDBLP implements AuthorInfoExtractor {
 	private int findNameIndex(String term, List<String> authorNames,
 			Map<String, Integer> usedMaxIndexForTerm) {
 
+		if (StringUtils.containsAny(term, '(', ')')) {
+			return -1;
+		}
+
 		term = term.replaceAll("\\W", ""); // TODO may have problem here
 		if (term.length() == 0) { // none character
 			return -1;
@@ -264,6 +304,13 @@ public class AuthorInfoExtractorDBLP implements AuthorInfoExtractor {
 		String title = null;
 		try {
 			while (true) {
+
+				int numberOfSpaces = StringUtils.countMatches(possibleTitle,
+						" ");
+				if (numberOfSpaces <= TITLE_MIN_TERMS_NUMBER - 1) {
+					break;
+				}
+
 				String retrievedXmlString = retrievePaperInfoFromDBLP(possibleTitle);
 				Document document = documentBuilder.parse(new InputSource(
 						new StringReader(retrievedXmlString)));
@@ -279,16 +326,18 @@ public class AuthorInfoExtractorDBLP implements AuthorInfoExtractor {
 					break;
 				}
 			}
-		} catch (Exception e) {
-			throw new AutomaticReviewerException(e);
+		} catch (Throwable e) {
+			LOGGER.error("Caught error while retrieve paper info. from DBLP! ",
+					e);
+			// throw new AutomaticReviewerException(e);
 		}
 
 		if (title == null || title.equals("")) {
 			// really nothing matched, or too many matched.
 			// keep the original title
-			// we should use super class's method
-			System.err.println("NO NAME!!");
-			// TODO
+			LOGGER.warn("No paper found in DBLP for possible title ["
+					+ possibleTitle
+					+ "]. Author names will be retrieved from metadata. ");
 		} else {
 			paper.setTitle(title); // update the title
 			Assert.notEmpty(authorNames);
@@ -300,8 +349,12 @@ public class AuthorInfoExtractorDBLP implements AuthorInfoExtractor {
 
 	private String shrinkPossibleTitle(String possibleTitle) {
 
-		String shrunkTitle = possibleTitle.substring(0,
-				possibleTitle.lastIndexOf(" "));
+		int endIndex = possibleTitle.lastIndexOf(" ");
+		if (endIndex < 0) {
+			return null;
+		}
+
+		String shrunkTitle = possibleTitle.substring(0, endIndex);
 		if (shrunkTitle.equals(possibleTitle)) {
 			return null;
 		}
@@ -362,19 +415,19 @@ public class AuthorInfoExtractorDBLP implements AuthorInfoExtractor {
 		}
 
 		int matchedNum = Integer.parseInt(matchedNumString);
-		if (matchedNum == 0) { // nothing matched
+		// nothing matched or too many paper matched
+		if (matchedNum == 0 || matchedNum > MAX_NUMBER_OF_MATCHED_PAPER) {
 			return null;
-		} else if (matchedNum > 1) { // should only one matched
-			return "";
 		}
 
 		NodeList infoNodeList = (NodeList) xPath.evaluate("//hit/info",
 				document, XPathConstants.NODESET);
-		Assert.isTrue(infoNodeList.getLength() == 1);
+		Assert.isTrue(infoNodeList.getLength() >= 1);
 
+		// only retrieve the first matched one
 		Node infoNode = infoNodeList.item(0);
 
-		NodeList authorNodes = (NodeList) xPath.evaluate("//authors/author",
+		NodeList authorNodes = (NodeList) xPath.evaluate("authors/author",
 				infoNode, XPathConstants.NODESET);
 
 		Assert.isTrue(names.isEmpty());
@@ -401,8 +454,8 @@ public class AuthorInfoExtractorDBLP implements AuthorInfoExtractor {
 					+ "retrieve info from DBLP for title [" + title + "]");
 		}
 
-		title = title.replace("-", " ").replace(" ", "*%20")
-				.replaceAll(":", "").toLowerCase(Locale.US);
+		title = title.replace("-", " ").replace(" ", "*%20").replace(":", "")
+				.replace("`", "").toLowerCase(Locale.US);
 		title = title + "*"; // add the last "*"
 		String queryUrl = "http://www.dblp.org/search/api/?q=" + title
 				+ "&format=xml";

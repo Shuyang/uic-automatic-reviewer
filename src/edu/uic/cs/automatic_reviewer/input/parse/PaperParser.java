@@ -37,13 +37,10 @@ import edu.uic.cs.automatic_reviewer.misc.Assert;
 import edu.uic.cs.automatic_reviewer.misc.AutomaticReviewerException;
 import edu.uic.cs.automatic_reviewer.misc.LogHelper;
 
-public class PaperParser /* extends AbstractWordOperations */{
+public class PaperParser /* extends AbstractWordOperations */implements
+		Constants {
 
 	private static final Logger LOGGER = LogHelper.getLogger(PaperParser.class);
-
-	private static final int PARAGRAPH_MIN_CHAR_LENGTH = 300;
-
-	private static final int REFERENCE_MIN_CHAR_LENGTH = 30;
 
 	private static final Pattern REFERENCE_PATTERN = Pattern.compile(
 			"(references|reference)\\s*", Pattern.CASE_INSENSITIVE);
@@ -52,8 +49,6 @@ public class PaperParser /* extends AbstractWordOperations */{
 			"^(fig\\.|figure)\\s*\\d+", Pattern.CASE_INSENSITIVE);
 	private static final Pattern TABLE_PATTERN = Pattern.compile(
 			"^(tab\\.|table)\\s*\\d+", Pattern.CASE_INSENSITIVE);
-
-	private static final double NONALPHA_THRESHOLD_RATIO = 0.3;
 
 	private static final String METADATA_NAME_CREATORTOOL = "xmp:CreatorTool";
 
@@ -103,9 +98,12 @@ public class PaperParser /* extends AbstractWordOperations */{
 		// end parsing
 
 		Node document = domResult.getNode();
+		// TODO
+		// XmlHelper.printDocument(document, System.out);
+
 		try {
-			Paper paper = parseDocument(document);
-			Metadata metadata = extractMetaInfo(paper, tikaMetadata, file);
+			Paper paper = parseDocument(document, tikaMetadata);
+			Metadata metadata = extractMetaInfo(paper, tikaMetadata);
 			paper.setMetadata(metadata);
 
 			return paper;
@@ -115,7 +113,7 @@ public class PaperParser /* extends AbstractWordOperations */{
 	}
 
 	private Metadata extractMetaInfo(Paper paper,
-			org.apache.tika.metadata.Metadata tikaMetadata, File file) {
+			org.apache.tika.metadata.Metadata tikaMetadata) {
 
 		Metadata metadata = new Metadata();
 
@@ -245,7 +243,8 @@ public class PaperParser /* extends AbstractWordOperations */{
 		return parse(new File(filePath));
 	}
 
-	private Paper parseDocument(Node document) throws Exception {
+	private Paper parseDocument(Node document,
+			org.apache.tika.metadata.Metadata tikaMetadata) throws Exception {
 		// (XPath doesn't work! I don't know why...)
 		NodeList nodes = document.getChildNodes();
 		Assert.isTrue(nodes.getLength() == 1);
@@ -277,24 +276,39 @@ public class PaperParser /* extends AbstractWordOperations */{
 
 				Element paragraphNode = (Element) paragraphNodes
 						.item(paragraphIndex);
-				Assert.isTrue("p".equalsIgnoreCase(paragraphNode.getLocalName()));
+				if (!"p".equalsIgnoreCase(paragraphNode.getLocalName())) {
+					System.err.println("[" + paragraphNode.getLocalName()
+							+ "] should not appear here. ");
+					LOGGER.error("Only <p> node is allowed within page. But here, the node is ["
+							+ paragraphNode.getLocalName() + "]. ");
+					continue;
+				}
 
 				// raw paragraph
-				String rawParagraph = paragraphNode.getTextContent();
+				String rawParagraph = tidyParagraph(paragraphNode
+						.getTextContent());
+				// System.out.println(rawParagraph);
+				if (rawParagraph.length() == 0
+						|| StringUtils.startsWithAny(rawParagraph,
+								IGNORING_PARAGRAPH_PREFIXES)) {
+					continue;
+				}
+
 				rawParagraphs.add(new Paragraph(rawParagraph, pageNum));
 			}
 		}
 
-		parseRawParagraphs(rawParagraphs, resultPaper);
+		parseRawParagraphs(rawParagraphs, tikaMetadata, resultPaper);
 
 		return resultPaper;
 	}
 
 	private void parseRawParagraphs(List<Paragraph> rawParagraphs,
-			Paper resultPaper) {
+			org.apache.tika.metadata.Metadata tikaMetadata, Paper resultPaper) {
 
 		boolean paperStarted = false; // if entire paper started
 		boolean contentStarted = false; // if the content started
+		boolean nextIsAbstract = false;
 
 		List<String> rawAuthorInfos = new ArrayList<String>();
 		List<Paragraph> contentParagraphs = new ArrayList<Paragraph>();
@@ -302,13 +316,7 @@ public class PaperParser /* extends AbstractWordOperations */{
 		for (int index = 0; index < rawParagraphs.size(); index++) {
 
 			Paragraph paragraph = rawParagraphs.get(index);
-			String tidiedRawParagraph = tidyParagraph(paragraph.getContent());
-
-			if (tidiedRawParagraph.length() == 0 /* && !paperStarted */
-					|| StringUtils.startsWithAny(tidiedRawParagraph,
-							IGNORING_PARAGRAPH_PREFIXES)) {
-				continue;
-			}
+			String tidiedRawParagraph = paragraph.getContent();
 
 			if (!paperStarted) {
 
@@ -323,8 +331,10 @@ public class PaperParser /* extends AbstractWordOperations */{
 			} else if (!contentStarted) {
 
 				if ("abstract".equalsIgnoreCase(tidiedRawParagraph)) {
+					nextIsAbstract = true;
 					continue; // ignore paragraph contains only "abstract"
-				} else if (tidiedRawParagraph.length() > PARAGRAPH_MIN_CHAR_LENGTH) {
+				} else if (tidiedRawParagraph.length() > PARAGRAPH_MIN_CHAR_LENGTH
+						|| nextIsAbstract) {
 					resultPaper.setAbstract(tidiedRawParagraph);
 					contentStarted = true;
 
@@ -342,7 +352,7 @@ public class PaperParser /* extends AbstractWordOperations */{
 		} // end rawParagraphs "for"
 
 		parseAndFillAuthorInfosAndRefillTitleIfNecessary(resultPaper,
-				rawAuthorInfos);
+				rawAuthorInfos, tikaMetadata);
 
 		fillNormalContentAndRefereces(resultPaper, contentParagraphs);
 
@@ -355,9 +365,11 @@ public class PaperParser /* extends AbstractWordOperations */{
 	}
 
 	private void parseAndFillAuthorInfosAndRefillTitleIfNecessary(
-			Paper resultPaper, List<String> rawAuthorInfos) {
-		authorInfoExtractor
-				.parseAndFillAuthorInfos(resultPaper, rawAuthorInfos);
+			Paper resultPaper, List<String> rawAuthorInfos,
+			org.apache.tika.metadata.Metadata tikaMetadata) {
+
+		authorInfoExtractor.parseAndFillAuthorInfos(resultPaper,
+				rawAuthorInfos, tikaMetadata);
 	}
 
 	private void fillNormalContentAndRefereces(Paper resultPaper,
@@ -375,6 +387,11 @@ public class PaperParser /* extends AbstractWordOperations */{
 				break;
 			}
 
+		}
+
+		if (index < 0) {
+			LOGGER.error("No references found. There must be something wrong! ");
+			return;
 		}
 
 		fillNormalContentParagraphs(resultPaper, contentParagraphs, index);
@@ -453,15 +470,20 @@ public class PaperParser /* extends AbstractWordOperations */{
 
 	private String tidyParagraph(String paragraphContent) {
 		// TODO maybe do more jobs
+		if (paragraphContent == null) {
+			return "";
+		}
+
+		// non-ascii character
+		paragraphContent = paragraphContent.replace(" ", "");
 		return paragraphContent.trim();
 	}
 
 	private void parse(File file, org.apache.tika.metadata.Metadata metadata,
 			DOMResult domResult) {
-
+		BufferedInputStream inputStream = null;
 		try {
-			BufferedInputStream inputStream = new BufferedInputStream(
-					new FileInputStream(file));
+			inputStream = new BufferedInputStream(new FileInputStream(file));
 
 			// store the result inside a DOM structure
 			handler.setResult(domResult);
@@ -469,6 +491,8 @@ public class PaperParser /* extends AbstractWordOperations */{
 					.parse(inputStream, handler, metadata, new ParseContext());
 		} catch (Exception e) {
 			throw new AutomaticReviewerException(e);
+		} finally {
+			IOUtils.closeQuietly(inputStream);
 		}
 	}
 
@@ -504,17 +528,25 @@ public class PaperParser /* extends AbstractWordOperations */{
 
 	public static void main(String[] args) {
 
-		File folder = new File(
-				"D:\\Data\\UIC Documents\\Computer Science\\CS_521\\Project\\papers_acl_2012\\");
+		File folder = new File("data/papers/");
 
 		PaperParser paperParser = new PaperParser();
 
-		// List<Paper> papers = new ArrayList<Paper>();
-		for (File file : folder.listFiles()) {
-			if (file.isDirectory()) {
-				continue;
+		printPaper(paperParser, folder);
+	}
+
+	private static void printPaper(PaperParser paperParser, File file) {
+
+		if (file.isDirectory()) {
+			for (File child : file.listFiles()) {
+				printPaper(paperParser, child);
+			}
+		} else {
+			if (!file.toString().endsWith(".pdf")) {
+				return;
 			}
 
+			System.out.println(file);
 			Paper paper = paperParser.parse(file);
 			outputPaperInfo(paper);
 		}
@@ -537,13 +569,14 @@ public class PaperParser /* extends AbstractWordOperations */{
 		System.out.println("---------------------");
 		System.out.println(paper.getNumOfPages() + " pages");
 
-		Metadata metadata = paper.getMetadata();
-		System.out.println("---------------------");
-		System.out.println("Figures:\t" + metadata.getNumOfFiguresByPage());
-		System.out.println("Tables:\t\t" + metadata.getNumOfTablesByPage());
-		System.out.println("Formulas:\t" + metadata.getNumOfFormulasByPage());
-		System.out.println("---------------------");
-		System.out.println(metadata.getCreatorTool());
+		// Metadata metadata = paper.getMetadata();
+		// System.out.println("---------------------");
+		// System.out.println("Figures:\t" + metadata.getNumOfFiguresByPage());
+		// System.out.println("Tables:\t\t" + metadata.getNumOfTablesByPage());
+		// System.out.println("Formulas:\t" +
+		// metadata.getNumOfFormulasByPage());
+		// System.out.println("---------------------");
+		// System.out.println(metadata.getCreatorTool());
 		// System.out.println("---------------------");
 		// for (String paragraph : paper.getContentParagraphsOnPage(1)) {
 		// System.out.println(paragraph);
@@ -553,6 +586,12 @@ public class PaperParser /* extends AbstractWordOperations */{
 		System.out.println("===========================================");
 
 		System.out.println();
+
+		// try {
+		// Thread.sleep(2000);
+		// } catch (InterruptedException e) {
+		// // ignore
+		// }
 
 	}
 }

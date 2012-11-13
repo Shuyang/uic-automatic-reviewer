@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
+import org.apache.tika.metadata.Metadata;
 
 import edu.uic.cs.automatic_reviewer.input.Paper;
 import edu.uic.cs.automatic_reviewer.input.Paper.Author;
@@ -22,7 +23,8 @@ public class AuthorInfoExtractorRegex implements AuthorInfoExtractor {
 			.compile("^[_a-z0-9-]+(\\.[_a-z0-9-]+)*@[a-z0-9-]+(\\.[a-z0-9-]+)*(\\.[a-z]{2,4})$");
 
 	@Override
-	public void parseAndFillAuthorInfos(Paper paper, List<String> rawAuthorInfos) {
+	public void parseAndFillAuthorInfos(Paper paper,
+			List<String> rawAuthorInfos, Metadata tikaMetadata) {
 
 		List<Author> authors = new ArrayList<Author>();
 
@@ -39,7 +41,9 @@ public class AuthorInfoExtractorRegex implements AuthorInfoExtractor {
 					continue;
 				}
 
-				if (isCompoundEmails(info)) { // last line usually is the email
+				if (isCompoundEmails(info) && author != null) { // last line
+																// usually is
+																// the email
 
 					List<String> emails = parseCompoundEmailAddress(info);
 					// re-parse names regarding to the emails
@@ -57,9 +61,9 @@ public class AuthorInfoExtractorRegex implements AuthorInfoExtractor {
 					author = null;
 					organization.setLength(0);
 
-				} else if (EMAIL_PATTERN.matcher(info).matches()) {
+				} else if (EMAIL_PATTERN.matcher(info).matches()
+						&& author != null) {
 					// last line usually is the email
-
 					author.setEmail(info);
 					author.setOrganization(organization.toString().trim());
 					authors.add(author);
@@ -71,6 +75,8 @@ public class AuthorInfoExtractorRegex implements AuthorInfoExtractor {
 				} else if (author == null) { // first line always the name
 
 					author = new Author();
+					// replace non-alpha in name
+					info = info.replaceAll("[^\\w\\s)]", "");
 					author.setName(info);
 
 				} else {
@@ -84,7 +90,8 @@ public class AuthorInfoExtractorRegex implements AuthorInfoExtractor {
 	}
 
 	private List<Author> reparseAuthors(String namesString, List<String> emails) {
-
+		// replace non-alpha in name
+		namesString = namesString.replaceAll("[^\\w\\s)]", "");
 		String[] nameParts = namesString.split("\\s+");
 		int emailsNum = emails.size();
 
@@ -104,9 +111,9 @@ public class AuthorInfoExtractorRegex implements AuthorInfoExtractor {
 				result.add(author);
 			}
 		} else { // someone's name is first+middle+last
-			// FIXME Auto-generated method stub
-			System.out.println(namesString);
-
+			// TODO find some way to fill this kind of name
+			LOGGER.warn("Can not parse author name in string [" + namesString
+					+ "]");
 		}
 
 		return result;

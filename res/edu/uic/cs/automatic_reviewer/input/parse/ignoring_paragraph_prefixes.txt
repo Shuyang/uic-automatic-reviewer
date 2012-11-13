@@ -1,2 +1,4 @@
-Proceedings of the
+Proceedings of
 Jeju, Republic of Korea
+BioNLP 20
+Balto-Slavonic Natural Language Processing 20
