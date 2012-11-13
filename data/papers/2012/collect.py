@@ -11,7 +11,7 @@ for i in range(3601,3627):
 
 import os
 for i in range(1001,1112):
-	os.rename('P_'+ str(i) + '.pdf','P11_'+ str(i) + '.pdf')
+	os.rename('P_'+ str(i) + '.pdf','P12_'+ str(i) + '.pdf')
 
 
 for i in range(3701,3718):
