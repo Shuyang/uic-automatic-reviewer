@@ -1,8 +1,11 @@
 package edu.uic.cs.automatic_reviewer.input;
 
+import java.io.Serializable;
 import java.util.Map;
 
-public class Metadata {
+public class Metadata implements Serializable {
+
+	private static final long serialVersionUID = 6342261238073925827L;
 
 	public static enum CreatorTool {
 		TeX, LaTex, MS_WORD, UNKNOWN;
@@ -43,6 +46,8 @@ public class Metadata {
 	private int numOfFormulas;
 	private int maxNumOfFormulasOnOnePage = 0;
 	private int numOfPagesHaveFormula = 0;
+
+	private String paperFileName = null;
 
 	public void setNumOfFiguresByPage(Map<Integer, Integer> countByPage) {
 
@@ -147,5 +152,13 @@ public class Metadata {
 
 	public CreatorTool getCreatorTool() {
 		return creatorTool;
+	}
+
+	public String getPaperFileName() {
+		return paperFileName;
+	}
+
+	public void setPaperFileName(String paperFileName) {
+		this.paperFileName = paperFileName;
 	}
 }

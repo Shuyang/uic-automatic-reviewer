@@ -98,12 +98,18 @@ public class PaperParser /* extends AbstractWordOperations */implements
 		// end parsing
 
 		Node document = domResult.getNode();
-		// TODO
 		// XmlHelper.printDocument(document, System.out);
 
 		try {
 			Paper paper = parseDocument(document, tikaMetadata);
 			Metadata metadata = extractMetaInfo(paper, tikaMetadata);
+
+			// parse file name
+			String fileFullName = file.toString();
+			int pathLastPart = fileFullName.lastIndexOf(File.separatorChar);
+			String fileName = fileFullName.substring(pathLastPart + 1);
+			metadata.setPaperFileName(fileName);
+
 			paper.setMetadata(metadata);
 
 			return paper;
@@ -532,12 +538,17 @@ public class PaperParser /* extends AbstractWordOperations */implements
 
 		PaperParser paperParser = new PaperParser();
 
+		long begin = System.currentTimeMillis();
 		printPaper(paperParser, folder);
+		long end = System.currentTimeMillis();
+
+		System.out.printf("Total cost: %ds", (end - begin) / 1000);
 	}
 
 	private static void printPaper(PaperParser paperParser, File file) {
 
 		if (file.isDirectory()) {
+			System.out.println(file);
 			for (File child : file.listFiles()) {
 				printPaper(paperParser, child);
 			}

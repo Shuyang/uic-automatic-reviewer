@@ -1,5 +1,6 @@
 package edu.uic.cs.automatic_reviewer.input;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -7,9 +8,14 @@ import java.util.Map;
 
 import edu.uic.cs.automatic_reviewer.misc.Assert;
 
-public class Paper {
+public class Paper implements Serializable {
 
-	public static class Author {
+	private static final long serialVersionUID = -3069120465526032020L;
+
+	public static class Author implements Serializable {
+
+		private static final long serialVersionUID = 790656409867172365L;
+
 		private String name;
 		private String organization;
 		private String email;
@@ -46,20 +52,10 @@ public class Paper {
 
 	}
 
-	// public static class Page {
-	//
-	// private List<String> rawParagraphs = new ArrayList<String>();
-	//
-	// public void addRawParagraph(String rawParagraph) {
-	// this.rawParagraphs.add(rawParagraph);
-	// }
-	//
-	// public List<String> getRawParagraphs() {
-	// return rawParagraphs;
-	// }
-	// }
+	public static class Paragraph implements Serializable {
 
-	public static class Paragraph {
+		private static final long serialVersionUID = 7576232665276905523L;
+
 		private String content;
 		private Integer pageNum;
 
