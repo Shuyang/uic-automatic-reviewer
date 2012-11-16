@@ -1,4 +1,4 @@
-package edu.uic.cs.automatic_reviewer.features.ranking;
+package edu.uic.cs.automatic_reviewer.feature.ranking;
 
 import java.util.ArrayList;
 import java.util.List;

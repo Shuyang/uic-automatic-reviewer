@@ -1,4 +1,4 @@
-package edu.uic.cs.automatic_reviewer.features.ranking;
+package edu.uic.cs.automatic_reviewer.feature.ranking;
 
 import java.io.File;
 import java.io.IOException;
