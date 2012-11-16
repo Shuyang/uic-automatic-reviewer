@@ -56,8 +56,8 @@ public class SVMClassifier {
 		if(paperMap.containsKey(PaperPublishType.StudentWorkshopPaper)){
 			papers.addAll(paperMap.get(PaperPublishType.StudentWorkshopPaper));
 		}
-		if(paperMap.containsKey(PaperPublishType.WorshopPaper)){
-			papers.addAll(paperMap.get(PaperPublishType.WorshopPaper));
+		if(paperMap.containsKey(PaperPublishType.WorkshopPaper)){
+			papers.addAll(paperMap.get(PaperPublishType.WorkshopPaper));
 		}
 		
 		double y[] = new double[papers.size()];
