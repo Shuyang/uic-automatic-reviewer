@@ -161,7 +161,7 @@ public class PaperCache {
 						PaperPublishType.StudentWorkshopPaper);
 			} else if (fileName.startsWith("W")) {
 				parseAndStorePaper(file, papersOfYear,
-						PaperPublishType.WorshopPaper);
+						PaperPublishType.WorkshopPaper);
 			}
 		}
 	}
