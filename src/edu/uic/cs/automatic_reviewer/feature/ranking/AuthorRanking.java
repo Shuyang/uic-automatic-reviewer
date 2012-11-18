@@ -32,8 +32,8 @@ import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.util.Version;
 
+import edu.uic.cs.automatic_reviewer.common.AbstractWordOperations;
 import edu.uic.cs.automatic_reviewer.input.Paper.Author;
-import edu.uic.cs.automatic_reviewer.input.parse.AbstractWordOperations;
 import edu.uic.cs.automatic_reviewer.misc.Assert;
 import edu.uic.cs.automatic_reviewer.misc.AutomaticReviewerException;
 import edu.uic.cs.automatic_reviewer.misc.LogHelper;

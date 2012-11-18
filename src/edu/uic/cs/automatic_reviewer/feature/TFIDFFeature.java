@@ -8,8 +8,8 @@ import java.util.Map;
 
 import libsvm.svm_node;
 
+import edu.uic.cs.automatic_reviewer.common.AbstractWordOperations;
 import edu.uic.cs.automatic_reviewer.input.Paper;
-import edu.uic.cs.automatic_reviewer.input.parse.AbstractWordOperations;
 
 public class TFIDFFeature extends AbstractWordOperations{
 	private HashMap<Integer,Double> id_idf;

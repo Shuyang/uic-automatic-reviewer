@@ -1,12 +1,14 @@
-package edu.uic.cs.automatic_reviewer.input.parse;
+package edu.uic.cs.automatic_reviewer.common;
 
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.analysis.CharArraySet;
 import org.apache.lucene.analysis.PorterStemFilter;
 import org.apache.lucene.analysis.PorterStemmerExporter;
@@ -167,6 +169,25 @@ public abstract class AbstractWordOperations {
 
 	protected boolean isStopWord(String word) {
 		return StandardAnalyzer.STOP_WORDS_SET.contains(word);
+	}
+
+	protected boolean containsAny(String target, Collection<String> terms,
+			boolean ignoreCase) {
+		for (String term : terms) {
+			boolean contains = false;
+
+			if (!ignoreCase) {
+				contains = StringUtils.contains(target, term);
+			} else {
+				contains = StringUtils.containsIgnoreCase(target, term);
+			}
+
+			if (contains) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 }
