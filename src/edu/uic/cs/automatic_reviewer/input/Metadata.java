@@ -7,6 +7,10 @@ public class Metadata implements Serializable {
 
 	private static final long serialVersionUID = 6342261238073925827L;
 
+	/**
+	 * Useless since ACL gather and re-created the papers by using LaTex
+	 */
+	@Deprecated
 	public static enum CreatorTool {
 		TeX, LaTex, MS_WORD, UNKNOWN;
 

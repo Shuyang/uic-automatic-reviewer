@@ -90,6 +90,7 @@ public class PaperParser /* extends AbstractWordOperations */implements
 	}
 
 	public Paper parse(File file) {
+		LOGGER.debug(LogHelper.LOG_LAYER_ONE_BEGIN + file);
 
 		org.apache.tika.metadata.Metadata tikaMetadata = new org.apache.tika.metadata.Metadata();
 		DOMResult domResult = new DOMResult(); // use DOM
@@ -112,6 +113,8 @@ public class PaperParser /* extends AbstractWordOperations */implements
 			metadata.setPaperFileName(fileName);
 
 			paper.setMetadata(metadata);
+
+			LOGGER.debug(LogHelper.LOG_LAYER_ONE_END + file);
 
 			return paper;
 		} catch (Exception e) {

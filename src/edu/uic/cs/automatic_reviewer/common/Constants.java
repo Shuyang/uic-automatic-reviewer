@@ -45,9 +45,9 @@ public interface Constants {
 		int LDA_TRAINING_NUMBER_OF_ITERATIONS = 2000;
 
 		// TODO I am not sure about these three parameters
-		int LDA_PREDICTING_THINNING = 1;
-		int LDA_PREDICTING_BURN_IN = 5;
-		int LDA_PREDICTING_NUMBER_OF_ITERATIONS = 10;
+		int LDA_PREDICTING_THINNING = 5;
+		int LDA_PREDICTING_BURN_IN = 100;
+		int LDA_PREDICTING_NUMBER_OF_ITERATIONS = 2000;
 
 	}
 }
