@@ -1,12 +1,6 @@
 package edu.uic.cs.automatic_reviewer.input;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -18,13 +12,12 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 
 import edu.uic.cs.automatic_reviewer.input.parse.PaperParser;
 import edu.uic.cs.automatic_reviewer.misc.Assert;
-import edu.uic.cs.automatic_reviewer.misc.AutomaticReviewerException;
 import edu.uic.cs.automatic_reviewer.misc.LogHelper;
+import edu.uic.cs.automatic_reviewer.misc.SerializationHelper;
 
 public class PaperCache {
 
@@ -92,7 +85,8 @@ public class PaperCache {
 					// read papers
 					cachedPapersByYear = readAndParseAllPapers();
 					// cache papers
-					writeObjectToCache(cachedPapersByYear, PAPER_CACHE_FILE);
+					SerializationHelper.serialize(cachedPapersByYear,
+							PAPER_CACHE_FILE);
 				}
 
 				Assert.notNull(cachedPapersByYear);
@@ -182,45 +176,8 @@ public class PaperCache {
 
 	@SuppressWarnings("unchecked")
 	private Map<Integer, Map<PaperPublishType, List<Paper>>> getCachedPapersByYear() {
-		return (Map<Integer, Map<PaperPublishType, List<Paper>>>) getCachedObject(PAPER_CACHE_FILE);
-	}
-
-	private Object getCachedObject(String cachedFile) {
-		ObjectInputStream ois = null;
-		try {
-			BufferedInputStream stream = new BufferedInputStream(
-					new FileInputStream(cachedFile));
-			ois = new ObjectInputStream(stream);
-
-			Object cached = ois.readObject();
-			return cached;
-
-		} catch (Exception exception) {
-			System.err.println("No cache exists for [" + cachedFile + "]. ");
-			return null;
-		} finally {
-			IOUtils.closeQuietly(ois);
-		}
-	}
-
-	private void writeObjectToCache(Object object, String cacheFileName) {
-
-		FileUtils.deleteQuietly(new File(cacheFileName));
-
-		ObjectOutputStream oos = null;
-		try {
-			BufferedOutputStream stream = new BufferedOutputStream(
-					new FileOutputStream(cacheFileName));
-			oos = new ObjectOutputStream(stream);
-			oos.writeObject(object);
-			oos.flush();
-		} catch (Exception e) {
-			System.err.println("Fail to write cache [" + cacheFileName
-					+ "] into hard disk! ");
-			throw new AutomaticReviewerException(e);
-		} finally {
-			IOUtils.closeQuietly(oos);
-		}
+		return (Map<Integer, Map<PaperPublishType, List<Paper>>>) SerializationHelper
+				.deserialize(PAPER_CACHE_FILE);
 	}
 
 	public void removeCache() {
