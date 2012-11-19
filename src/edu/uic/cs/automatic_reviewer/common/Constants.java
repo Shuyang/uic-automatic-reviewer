@@ -25,4 +25,21 @@ public interface Constants {
 
 		int MAX_NUMBER_OF_PAGES_PER_PAPER = 10;
 	}
+
+	interface Topic {
+
+		int NUMBER_OF_TOPICS = 20;
+
+		double LDA_TRAINING_ALPHA_SUM = 1.0;
+		double LDA_TRAINING_BETA = 0.01;
+		int LDA_TRAINING_NUMBER_OF_THREADS = 4;
+		// for real applications, use 1000 to 2000 iterations)
+		int LDA_TRAINING_NUMBER_OF_ITERATIONS = 2000;
+
+		// TODO I am not sure about these three parameters
+		int LDA_PREDICTING_THINNING = 1;
+		int LDA_PREDICTING_BURN_IN = 5;
+		int LDA_PREDICTING_NUMBER_OF_ITERATIONS = 10;
+
+	}
 }
