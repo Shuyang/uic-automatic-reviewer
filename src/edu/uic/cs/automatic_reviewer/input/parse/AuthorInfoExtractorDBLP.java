@@ -35,6 +35,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
+import edu.uic.cs.automatic_reviewer.common.Constants;
 import edu.uic.cs.automatic_reviewer.input.Paper;
 import edu.uic.cs.automatic_reviewer.input.Paper.Author;
 import edu.uic.cs.automatic_reviewer.misc.Assert;
@@ -43,7 +44,7 @@ import edu.uic.cs.automatic_reviewer.misc.LogHelper;
 
 @SuppressWarnings("deprecation")
 public class AuthorInfoExtractorDBLP extends AuthorInfoExtractorRegex implements
-		Constants {
+		Constants.InputParse {
 
 	private static final Logger LOGGER = LogHelper
 			.getLogger(AuthorInfoExtractorDBLP.class);

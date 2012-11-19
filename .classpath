@@ -20,5 +20,8 @@
 	<classpathentry kind="lib" path="lib/libsvm.jar"/>
 	<classpathentry kind="lib" path="lib/htmllexer.jar"/>
 	<classpathentry kind="lib" path="lib/htmlparser.jar"/>
+	<classpathentry kind="lib" path="lib/mallet-deps.jar"/>
+	<classpathentry kind="lib" path="lib/mallet.jar" sourcepath="lib/lib_src/mallet-2.0.7-src.zip"/>
+	<classpathentry kind="lib" path="lib/opennlp-tools-1.5.2-incubating.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -1,6 +1,7 @@
 package edu.uic.cs.automatic_reviewer.common;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.ArrayList;
@@ -8,6 +9,10 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
+import opennlp.tools.sentdetect.SentenceDetectorME;
+import opennlp.tools.sentdetect.SentenceModel;
+
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.analysis.CharArraySet;
 import org.apache.lucene.analysis.PorterStemFilter;
@@ -24,6 +29,9 @@ import edu.uic.cs.automatic_reviewer.misc.AutomaticReviewerException;
 
 public abstract class AbstractWordOperations {
 	private PorterStemmerExporter porterStemmer = new PorterStemmerExporter();
+
+	private static final String SENTENCE_MODEL_NAME = "opennlp_en-sent.bin";
+	private static SentenceDetectorME SENTENCE_DETECTOR;
 
 	/**
 	 * NOT been stemmed!
@@ -188,6 +196,33 @@ public abstract class AbstractWordOperations {
 		}
 
 		return false;
+	}
+
+	protected String[] splitIntoSentences(String input) {
+		if (SENTENCE_DETECTOR == null) {
+			synchronized (AbstractWordOperations.class) {
+				if (SENTENCE_DETECTOR == null) {
+					initializeSentenceDetector();
+				}
+			}
+		}
+
+		return SENTENCE_DETECTOR.sentDetect(input);
+	}
+
+	private void initializeSentenceDetector() {
+		InputStream inputStream = AbstractWordOperations.class
+				.getResourceAsStream(SENTENCE_MODEL_NAME);
+
+		try {
+			SentenceModel sentenceModel = new SentenceModel(inputStream);
+			SENTENCE_DETECTOR = new SentenceDetectorME(sentenceModel);
+		} catch (IOException e) {
+			throw new AutomaticReviewerException(e);
+		} finally {
+			IOUtils.closeQuietly(inputStream);
+		}
+
 	}
 
 }

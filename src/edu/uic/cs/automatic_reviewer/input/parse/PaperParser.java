@@ -29,6 +29,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import edu.uic.cs.automatic_reviewer.common.Constants;
 import edu.uic.cs.automatic_reviewer.input.Metadata;
 import edu.uic.cs.automatic_reviewer.input.Paper;
 import edu.uic.cs.automatic_reviewer.input.Paper.Author;
@@ -38,7 +39,7 @@ import edu.uic.cs.automatic_reviewer.misc.AutomaticReviewerException;
 import edu.uic.cs.automatic_reviewer.misc.LogHelper;
 
 public class PaperParser /* extends AbstractWordOperations */implements
-		Constants {
+		Constants.InputParse {
 
 	private static final Logger LOGGER = LogHelper.getLogger(PaperParser.class);
 
