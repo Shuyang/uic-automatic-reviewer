@@ -19,6 +19,14 @@ public interface Constants {
 		String ILLEGAL_AUTHOR_NAME_IN_LOW_CASE = "association for computational linguistics";
 	}
 
+	interface Ranking {
+
+		/**
+		 * Number of author rankings we want to store
+		 */
+		int NUMBER_OF_AUTHORS_TO_RETRIEVE = 2000;
+	}
+
 	interface Feature {
 
 		int MIN_FREQUENCY_OF_TERMS = 2;

@@ -33,12 +33,14 @@ import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.util.Version;
 
 import edu.uic.cs.automatic_reviewer.common.AbstractWordOperations;
+import edu.uic.cs.automatic_reviewer.common.Constants;
 import edu.uic.cs.automatic_reviewer.input.Paper.Author;
 import edu.uic.cs.automatic_reviewer.misc.Assert;
 import edu.uic.cs.automatic_reviewer.misc.AutomaticReviewerException;
 import edu.uic.cs.automatic_reviewer.misc.LogHelper;
 
-public class AuthorRanking extends AbstractWordOperations {
+public class AuthorRanking extends AbstractWordOperations implements
+		Constants.Ranking {
 
 	private static final Logger LOGGER = LogHelper
 			.getLogger(AuthorRanking.class);
@@ -79,7 +81,7 @@ public class AuthorRanking extends AbstractWordOperations {
 
 		AuthorRankingCrawler crawler = new AuthorRankingCrawler();
 		List<Author> authors = crawler
-				.crawlAuthors(AuthorRankingCrawler.NUMBER_OF_AUTHORS_TO_RETRIEVE);
+				.crawlAuthors(NUMBER_OF_AUTHORS_TO_RETRIEVE);
 
 		wirteIndex(authors);
 	}

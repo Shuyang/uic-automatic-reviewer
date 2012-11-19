@@ -33,8 +33,6 @@ class AuthorRankingCrawler {
 			+ "&end="
 			+ URL_RANKING_END_PLACE_HOLDER + "";
 
-	public static final int NUMBER_OF_AUTHORS_TO_RETRIEVE = 2000;
-
 	private static final Logger LOGGER = LogHelper
 			.getLogger(AuthorRankingCrawler.class);
 
