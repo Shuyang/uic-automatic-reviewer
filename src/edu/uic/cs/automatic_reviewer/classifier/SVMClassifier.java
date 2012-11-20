@@ -20,20 +20,22 @@ public class SVMClassifier {
 	private svm_problem prob;	
 	private String error_msg;
 	private int nr_fold;
+	
+	private int num_features;
 	//	private svm_model model;
 	//	private int cross_validation;
 	
 	private void setDefaultParameters(){
 		param = new svm_parameter();
 		// default values
-		param.svm_type = svm_parameter.C_SVC;
-		param.kernel_type = svm_parameter.RBF;
+		param.svm_type = svm_parameter.NU_SVC;
+		param.kernel_type = svm_parameter.LINEAR;
 		param.degree = 3;
-		param.gamma = 0;	// 1/num_features
+		param.gamma = 1/num_features;
 		param.coef0 = 0;
 		param.nu = 0.5;
 		param.cache_size = 100;
-		param.C = 1;
+		param.C = 500;
 		param.eps = 1e-3;
 		param.p = 0.1;
 		param.shrinking = 1;
@@ -50,6 +52,7 @@ public class SVMClassifier {
 		
 		List<Paper> posList = paperMap.get(PaperPublishType.LongPaper);
 		if(posList != null){
+			
 			papers.addAll(posList);
 			posNum = posList.size();
 		}
@@ -80,12 +83,15 @@ public class SVMClassifier {
 				FeatureType.TFIDF);
 		FeatureExtractor featureExtractor = new FeatureExtractor();
 		prob.x = featureExtractor.generateFeatureVectors(papers,types);
+		num_features = featureExtractor.getNumOfFeautres();
 
 	}
 	
 	private void run(Map<PaperPublishType, List<Paper>> paperMap){
-		setDefaultParameters();
+
 		generateSVMProblem(paperMap);
+		setDefaultParameters();
+		
 		error_msg = svm.svm_check_parameter(prob,param);
 		if(error_msg != null)
 		{

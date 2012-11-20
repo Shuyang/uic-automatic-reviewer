@@ -42,6 +42,13 @@ public class FeatureExtractor {
 
 	int numOfTerms;
 	TFIDFFeature tfidfFeature;
+	
+	private int numOfFeautres;
+	
+
+	public int getNumOfFeautres() {
+		return numOfFeautres;
+	}
 
 	public svm_node[][] generateFeatureVectors(List<Paper> papers,
 			List<FeatureType> types) {
@@ -67,6 +74,8 @@ public class FeatureExtractor {
 			}
 			offset += feautreSize(type);
 		}
+		
+		numOfFeautres = offset;
 
 		for (int i = 0; i < n; ++i) {
 			ArrayList<svm_node> featureArray_i = featureArrays.get(i);
@@ -87,6 +96,7 @@ public class FeatureExtractor {
 		return x;
 	}
 
+	
 	public static void main(String[] args) {
 
 	}

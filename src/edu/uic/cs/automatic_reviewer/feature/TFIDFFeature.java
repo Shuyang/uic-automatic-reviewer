@@ -25,19 +25,25 @@ public class TFIDFFeature extends AbstractWordOperations {
 	public void extractIDF(List<Paper> papers) {
 		HashMap<String, Double> df = new HashMap<String, Double>();
 		for (Paper p : papers) {
-			// System.out.println(p.getTitle());
-			List<String> termList = porterStemmingAnalyzeUsingDefaultStopWords(p
-					.getTitle());
-			HashSet<String> termSet = new HashSet<String>();
-			termSet.addAll(termList);
-			for (String t : termSet) {
-				// System.out.println(t);
-				Double term_df = df.get(t);
-				if (term_df == null) {
-					df.put(t, 1.0);
-				} else {
-					df.put(t, term_df + 1);
+
+			if(p.getAbstract()!= null){
+				List<String> termList = porterStemmingAnalyzeUsingDefaultStopWords(p
+						.getAbstract());
+				HashSet<String> termSet = new HashSet<String>();
+				termSet.addAll(termList);
+				for (String t : termSet) {
+					// System.out.println(t);
+					Double term_df = df.get(t);
+					if (term_df == null) {
+						df.put(t, 1.0);
+					} else {
+						df.put(t, term_df + 1);
+					}
 				}
+				System.out.println(p.getTitle());
+			}else{
+				System.out.println("no abstract" +p.getTitle());
+				System.out.println(p.getMetadata());
 			}
 		}
 		int docNum = papers.size();
@@ -70,19 +76,23 @@ public class TFIDFFeature extends AbstractWordOperations {
 
 		for (int i = 0; i < n; ++i) {
 			Paper p = papers.get(i);
-			List<String> termList = porterStemmingAnalyzeUsingDefaultStopWords(p
-					.getTitle());
+			
 
 			HashMap<Integer, Double> term_TFIDFMap = new HashMap<Integer, Double>();
-			for (String t : termList) {
-				// System.out.println(t);
-				Integer id = term_id.get(t);
-				if (id != null) {
-					Double value = term_TFIDFMap.get(id);
-					if (value == null)
-						term_TFIDFMap.put(id, id_idf.get(id));
-					else
-						term_TFIDFMap.put(id, value + id_idf.get(id));
+			
+			if(p.getAbstract()!= null){
+				List<String> termList = porterStemmingAnalyzeUsingDefaultStopWords(p
+						.getAbstract());
+				for (String t : termList) {
+					// System.out.println(t);
+					Integer id = term_id.get(t);
+					if (id != null) {
+						Double value = term_TFIDFMap.get(id);
+						if (value == null)
+							term_TFIDFMap.put(id, id_idf.get(id));
+						else
+							term_TFIDFMap.put(id, value + id_idf.get(id));
+					}
 				}
 			}
 
