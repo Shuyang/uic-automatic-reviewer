@@ -25,6 +25,12 @@ public interface Constants {
 		 * Number of author rankings we want to store
 		 */
 		int NUMBER_OF_AUTHORS_TO_RETRIEVE = 2000;
+
+		/**
+		 * Lucene search score threshold, only result has score above or equal
+		 * to this score will be considered as matched result and be returned.
+		 */
+		float SCORE_THRESHOLD = 7.0f;
 	}
 
 	interface Feature {
