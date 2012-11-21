@@ -45,8 +45,6 @@ public class AuthorRanking extends AbstractWordOperations implements
 	private static final Logger LOGGER = LogHelper
 			.getLogger(AuthorRanking.class);
 
-	private static final float SCORE_THRESHOLD = 7.0f;
-
 	private static final String FIELD_NAME__RANK = "RANK";
 	private static final String FIELD_NAME__NAME = "NAME";
 	private static final String FIELD_NAME__ORGANIZATION = "ORGANIZATION";
