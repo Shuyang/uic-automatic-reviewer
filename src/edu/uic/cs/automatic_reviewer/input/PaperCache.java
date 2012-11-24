@@ -78,25 +78,24 @@ public class PaperCache {
 			int year) {
 		Map<Integer, Map<PaperPublishType, List<Paper>>> cachedPapersByYear = getCachedPapersByYear();
 
-		if (cachedPapersByYear == null) {
-			synchronized (this) {
-				cachedPapersByYear = getCachedPapersByYear();
-				if (cachedPapersByYear == null) {
-					// read papers
-					cachedPapersByYear = readAndParseAllPapers();
-					// cache papers
-					SerializationHelper.serialize(cachedPapersByYear,
-							PAPER_CACHE_FILE);
-				}
-
-				Assert.notNull(cachedPapersByYear);
-			}
-		}
-
 		Map<PaperPublishType, List<Paper>> result = cachedPapersByYear
 				.get(Integer.valueOf(year));
 		if (result == null) {
 			return Collections.emptyMap();
+		}
+
+		return result;
+	}
+
+	public List<Paper> getAllPapers() {
+		Map<Integer, Map<PaperPublishType, List<Paper>>> cachedPapersByYear = getCachedPapersByYear();
+
+		List<Paper> result = new ArrayList<Paper>();
+		for (Map<PaperPublishType, List<Paper>> papersOfYearByType : cachedPapersByYear
+				.values()) {
+			for (List<Paper> papersOfYear : papersOfYearByType.values()) {
+				result.addAll(papersOfYear);
+			}
 		}
 
 		return result;
@@ -176,8 +175,27 @@ public class PaperCache {
 
 	@SuppressWarnings("unchecked")
 	private Map<Integer, Map<PaperPublishType, List<Paper>>> getCachedPapersByYear() {
-		return (Map<Integer, Map<PaperPublishType, List<Paper>>>) SerializationHelper
+
+		Map<Integer, Map<PaperPublishType, List<Paper>>> cachedPapersByYear = (Map<Integer, Map<PaperPublishType, List<Paper>>>) SerializationHelper
 				.deserialize(PAPER_CACHE_FILE);
+
+		if (cachedPapersByYear == null) {
+			synchronized (this) {
+				cachedPapersByYear = (Map<Integer, Map<PaperPublishType, List<Paper>>>) SerializationHelper
+						.deserialize(PAPER_CACHE_FILE);
+				if (cachedPapersByYear == null) {
+					// read papers
+					cachedPapersByYear = readAndParseAllPapers();
+					// cache papers
+					SerializationHelper.serialize(cachedPapersByYear,
+							PAPER_CACHE_FILE);
+				}
+
+				Assert.notNull(cachedPapersByYear);
+			}
+		}
+
+		return cachedPapersByYear;
 	}
 
 	public void removeCache() {
@@ -208,6 +226,9 @@ public class PaperCache {
 			System.out.println(paper.getMetadata().getPaperFileName());
 		}
 
+		for (Paper paper : PaperCache.getInstance().getAllPapers()) {
+			System.out.println(paper.getMetadata().getPaperFileName());
+		}
 		// PaperCache.getInstance().removeCache();
 
 	}
