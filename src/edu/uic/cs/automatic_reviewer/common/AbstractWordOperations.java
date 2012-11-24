@@ -5,7 +5,9 @@ import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -25,13 +27,30 @@ import org.apache.lucene.analysis.standard.StandardTokenizer;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.util.Version;
 
+import edu.stanford.nlp.parser.lexparser.LexicalizedParser;
 import edu.uic.cs.automatic_reviewer.misc.AutomaticReviewerException;
 
 public abstract class AbstractWordOperations {
 	private PorterStemmerExporter porterStemmer = new PorterStemmerExporter();
 
 	private static final String SENTENCE_MODEL_NAME = "opennlp_en-sent.bin";
-	private static SentenceDetectorME SENTENCE_DETECTOR;
+	private static final SentenceModel SENTENCE_MODEL = loadSentenceModel();
+
+	private volatile SentenceDetectorME sentenceDetector;
+
+	private static volatile LexicalizedParser STANFORD_PARSER;
+
+	private static SentenceModel loadSentenceModel() {
+		InputStream inputStream = AbstractWordOperations.class
+				.getResourceAsStream(SENTENCE_MODEL_NAME);
+		try {
+			return new SentenceModel(inputStream);
+		} catch (IOException e) {
+			throw new AutomaticReviewerException(e);
+		} finally {
+			IOUtils.closeQuietly(inputStream);
+		}
+	}
 
 	/**
 	 * NOT been stemmed!
@@ -198,31 +217,62 @@ public abstract class AbstractWordOperations {
 		return false;
 	}
 
-	protected String[] splitIntoSentences(String input) {
-		if (SENTENCE_DETECTOR == null) {
-			synchronized (AbstractWordOperations.class) {
-				if (SENTENCE_DETECTOR == null) {
-					initializeSentenceDetector();
+	protected List<String> splitIntoSentences(String input) {
+		return splitIntoSentences(input, false);
+	}
+
+	/**
+	 * 
+	 * If jointLastHyphenTerm=true, the last term which contains hyphen will be
+	 * connect with term in next line but keeping the hyphen. For example: <br>
+	 * <b>"last frame of a seg-<br>
+	 * ment." <br>
+	 * </b> will become <br>
+	 * <b>"last frame of a seg-ment."</b>
+	 * 
+	 * @param input
+	 * @param jointLastHyphenTerm
+	 * @return
+	 */
+	protected List<String> splitIntoSentences(String input,
+			boolean jointLastHyphenTerm) {
+		if (sentenceDetector == null) {
+			synchronized (this) {
+				if (sentenceDetector == null) {
+					sentenceDetector = new SentenceDetectorME(SENTENCE_MODEL);
 				}
 			}
 		}
 
-		return SENTENCE_DETECTOR.sentDetect(input);
-	}
-
-	private void initializeSentenceDetector() {
-		InputStream inputStream = AbstractWordOperations.class
-				.getResourceAsStream(SENTENCE_MODEL_NAME);
-
-		try {
-			SentenceModel sentenceModel = new SentenceModel(inputStream);
-			SENTENCE_DETECTOR = new SentenceDetectorME(sentenceModel);
-		} catch (IOException e) {
-			throw new AutomaticReviewerException(e);
-		} finally {
-			IOUtils.closeQuietly(inputStream);
+		String[] sentences = sentenceDetector.sentDetect(input);
+		if (jointLastHyphenTerm) {
+			return jointLastHyphenTerm(sentences);
 		}
 
+		return Arrays.asList(sentences);
 	}
 
+	private List<String> jointLastHyphenTerm(String[] sentences) {
+		if (sentences == null || sentences.length == 0) {
+			return Collections.emptyList();
+		}
+
+		List<String> result = new ArrayList<String>(sentences.length);
+		for (String sentence : sentences) {
+			sentence = sentence.replaceAll("-(\\r\\n|\\r|\\n)", "-");
+			result.add(sentence);
+		}
+		return result;
+	}
+
+	protected LexicalizedParser getStanfordParser() {
+		if (STANFORD_PARSER == null) {
+			synchronized (AbstractWordOperations.class) {
+				if (STANFORD_PARSER == null) {
+					STANFORD_PARSER = LexicalizedParser.loadModel();
+				}
+			}
+		}
+		return STANFORD_PARSER;
+	}
 }
