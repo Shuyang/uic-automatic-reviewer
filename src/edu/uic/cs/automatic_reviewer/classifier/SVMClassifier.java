@@ -34,8 +34,8 @@ public class SVMClassifier {
 		param.gamma = 1/num_features;
 		param.coef0 = 0;
 		param.nu = 0.5;
-		param.cache_size = 100;
-		param.C = 500;
+		param.cache_size = 500;
+		param.C = 400;
 		param.eps = 1e-3;
 		param.p = 0.1;
 		param.shrinking = 1;
@@ -78,9 +78,14 @@ public class SVMClassifier {
 		prob.l = y.length;
 		prob.y = y;
 		
-		List<FeatureType> types = Arrays.asList(FeatureType.NumOfFiguresByPage,
-				FeatureType.NumOfFormulasByPage, FeatureType.NumOfTablesByPage,
-				FeatureType.TFIDF);
+
+//		List<FeatureType> types = Arrays.asList(FeatureType.NumOfFiguresByPage,
+//				FeatureType.NumOfFormulasByPage, FeatureType.NumOfTablesByPage,
+//				FeatureType.TFIDF);
+		
+		
+		List<FeatureType> types = Arrays.asList(FeatureType.LDATopic);
+		
 		FeatureExtractor featureExtractor = new FeatureExtractor();
 		prob.x = featureExtractor.generateFeatureVectors(papers,types);
 		num_features = featureExtractor.getNumOfFeautres();
@@ -132,11 +137,32 @@ public class SVMClassifier {
 				);
 		}
 		else
-		{
-			for(i=0;i<prob.l;i++)
-				if(target[i] == prob.y[i])
+		{	int tp = 0, fp = 0, tn = 0, fn = 0;
+			for(i=0;i<prob.l;i++){
+				if(target[i] == prob.y[i]){
 					++total_correct;
+					if(target[i] == 1)
+						++tp;
+					else 
+						++tn;
+				}else{
+					if(target[i] == 1)
+						++fp;
+					else 
+						++fn;
+				}
+			}
+			
+			
+			double prec = (double)tp/(tp+fp);
+			double recl = (double)tp/(tp+fn);
+			double f1 = 2.0*tp/(2*tp+fp+fn);
+			
 			System.out.print("Cross Validation Accuracy = "+100.0*total_correct/prob.l+"%\n");
+			System.out.print("prec = "+100.0*prec+"%\n");
+			System.out.print("recl = "+100.0*recl+"%\n");
+			System.out.print("F1 = "+100.0*f1+"%\n");
+			
 		}
 	}
 

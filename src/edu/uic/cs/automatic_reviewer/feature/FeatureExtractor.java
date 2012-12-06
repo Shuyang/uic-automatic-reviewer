@@ -6,10 +6,12 @@ import libsvm.svm_node;
 import edu.uic.cs.automatic_reviewer.common.Constants;
 import edu.uic.cs.automatic_reviewer.input.Paper;
 
-public class FeatureExtractor {
+
+
+public class FeatureExtractor  {
 
 	public static enum FeatureType {
-		NumOfFiguresByPage, NumOfTablesByPage, NumOfFormulasByPage, TFIDF;
+		NumOfFiguresByPage, NumOfTablesByPage, NumOfFormulasByPage, TFIDF, LDATopic;
 	}
 
 	private int feautreSize(FeatureType type) {
@@ -20,6 +22,8 @@ public class FeatureExtractor {
 			return Constants.Feature.MAX_NUMBER_OF_PAGES_PER_PAPER;
 		case TFIDF:
 			return numOfTerms;
+		case LDATopic:
+			return Constants.Topic.NUMBER_OF_TOPICS;
 		default:
 			return 0;
 		}
@@ -35,6 +39,8 @@ public class FeatureExtractor {
 					offset);
 		case TFIDF:
 			return tfidfFeature.tfidfForAllTerms(papers, offset);
+		case LDATopic:
+			return TopicFeature.extractTopicFeature(papers, offset);
 		default:
 			return null;
 		}
