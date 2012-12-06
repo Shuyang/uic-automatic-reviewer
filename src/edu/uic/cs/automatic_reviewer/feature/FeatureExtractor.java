@@ -11,7 +11,7 @@ import edu.uic.cs.automatic_reviewer.input.Paper;
 public class FeatureExtractor  {
 
 	public static enum FeatureType {
-		NumOfFiguresByPage, NumOfTablesByPage, NumOfFormulasByPage, TFIDF, LDATopic;
+		NumOfFiguresByPage, NumOfTablesByPage, NumOfFormulasByPage, TFIDF, LDATopic, FashionTerms;
 	}
 
 	private int feautreSize(FeatureType type) {
@@ -21,9 +21,11 @@ public class FeatureExtractor  {
 		case NumOfFormulasByPage:
 			return Constants.Feature.MAX_NUMBER_OF_PAGES_PER_PAPER;
 		case TFIDF:
-			return numOfTerms;
+			return numOfTFIDFTerms;
 		case LDATopic:
 			return Constants.Topic.NUMBER_OF_TOPICS;
+		case FashionTerms:
+			return numOfFashionTerms;
 		default:
 			return 0;
 		}
@@ -40,14 +42,19 @@ public class FeatureExtractor  {
 		case TFIDF:
 			return tfidfFeature.tfidfForAllTerms(papers, offset);
 		case LDATopic:
-			return TopicFeature.extractTopicFeature(papers, offset);
+			return topicFeature.extractTopicFeature(papers, offset);
+		case FashionTerms:
+			return fashionTechniquesFeature.extractFancyTermsFeature(papers, offset);
 		default:
 			return null;
 		}
 	}
 
-	int numOfTerms;
+	int numOfTFIDFTerms;
+	int numOfFashionTerms;
 	TFIDFFeature tfidfFeature;
+	TopicFeature topicFeature;
+	FashionTechniquesFeature fashionTechniquesFeature;
 	
 	private int numOfFeautres;
 	
@@ -64,9 +71,19 @@ public class FeatureExtractor  {
 		if (types.contains(FeatureType.TFIDF)) {
 			tfidfFeature = new TFIDFFeature();
 			tfidfFeature.extractIDF(papers);
-			numOfTerms = tfidfFeature.getNumOfTerms();
+			numOfTFIDFTerms = tfidfFeature.getNumOfTerms();
+		}
+		
+		if(types.contains(FeatureType.LDATopic)){
+			topicFeature = new TopicFeature();
+			topicFeature.readModelFromCache();	
 		}
 
+		if (types.contains(FeatureType.FashionTerms)) {
+			fashionTechniquesFeature = new FashionTechniquesFeature();
+			numOfFashionTerms = fashionTechniquesFeature.getFeatureSize();
+		}
+		
 		ArrayList<ArrayList<svm_node>> featureArrays = new ArrayList<ArrayList<svm_node>>();
 		for (int i = 0; i < n; ++i) {
 			featureArrays.add(new ArrayList<svm_node>());
@@ -98,6 +115,8 @@ public class FeatureExtractor  {
 			}
 			System.out.println();
 		}
+		
+		
 
 		return x;
 	}
