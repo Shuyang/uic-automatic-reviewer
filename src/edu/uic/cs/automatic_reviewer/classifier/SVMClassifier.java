@@ -29,12 +29,12 @@ public class SVMClassifier {
 		param = new svm_parameter();
 		// default values
 		param.svm_type = svm_parameter.C_SVC;
-		param.kernel_type = svm_parameter.LINEAR;
+		param.kernel_type = svm_parameter.RBF;
 		param.degree = 3;
-		param.gamma = 1/num_features;
+		param.gamma = 1.0/num_features;
 		param.coef0 = 0;
 		param.nu = 0.5;
-		param.cache_size = 100;
+		param.cache_size = 500;
 		param.C = 500;
 		param.eps = 1e-3;
 		param.p = 0.1;
@@ -69,7 +69,7 @@ public class SVMClassifier {
 			y[i] = 1;
 		}
 		for(; i < y.length; ++i){
-			y[i] = 0;
+			y[i] = -1;
 		}
 
 
@@ -78,10 +78,10 @@ public class SVMClassifier {
 		prob.l = y.length;
 		prob.y = y;
 
-//		List<FeatureType> types = Arrays.asList(FeatureType.NumOfFiguresByPage,
-//				FeatureType.NumOfFormulasByPage, FeatureType.NumOfTablesByPage,
-//				FeatureType.LDATopic);
-		List<FeatureType> types = Arrays.asList(FeatureType.FashionTerms);
+		List<FeatureType> types = Arrays.asList(FeatureType.NumOfFiguresByPage,
+				FeatureType.NumOfFormulasByPage, FeatureType.NumOfTablesByPage,
+				FeatureType.LDATopic,FeatureType.FashionTerms,FeatureType.AuthorMaxRank);
+//		List<FeatureType> types = Arrays.asList(FeatureType.AuthorMaxRank);
 		
 //		List<FeatureType> types = Arrays.asList(FeatureType.NumOfFiguresByPage,
 //		FeatureType.NumOfFormulasByPage, FeatureType.NumOfTablesByPage);
@@ -89,6 +89,15 @@ public class SVMClassifier {
 		FeatureExtractor featureExtractor = new FeatureExtractor();
 		prob.x = featureExtractor.generateFeatureVectors(papers,types);
 		num_features = featureExtractor.getNumOfFeautres();
+		
+
+		for (i = 0; i < prob.x.length; ++i) {
+			System.out.print(prob.y[i]);
+			for (int j = 0; j < prob.x[i].length; ++j) {
+				System.out.print(" "+ prob.x[i][j].index + ":" + prob.x[i][j].value);
+			}
+			System.out.println();
+		}
 
 	}
 
@@ -169,8 +178,8 @@ public class SVMClassifier {
 
 	public static void main(String[] args) {
 		Map<PaperPublishType, List<Paper>> result = PaperCache.getInstance()
-				.getPapersByPublishTypeForYear(2012);
-		System.out.println(2012);
+				.getPapersByPublishTypeForYear(2007);
+		
 
 		SVMClassifier classfier = new SVMClassifier();
 		classfier.run(result);

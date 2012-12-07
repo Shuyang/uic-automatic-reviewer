@@ -35,7 +35,7 @@ public interface Constants {
 
 	interface Feature {
 
-		int MIN_FREQUENCY_OF_TERMS = 2;
+		int MIN_FREQUENCY_OF_TERMS = 3;
 
 		int MAX_NUMBER_OF_PAGES_PER_PAPER = 10;
 	}

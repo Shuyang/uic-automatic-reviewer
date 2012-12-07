@@ -11,7 +11,8 @@ import edu.uic.cs.automatic_reviewer.input.Paper;
 public class FeatureExtractor  {
 
 	public static enum FeatureType {
-		NumOfFiguresByPage, NumOfTablesByPage, NumOfFormulasByPage, TFIDF, LDATopic, FashionTerms;
+		NumOfFiguresByPage, NumOfTablesByPage, NumOfFormulasByPage, TFIDF, LDATopic, FashionTerms,
+		FirstAuthorRank, AuthorMaxRank;
 	}
 
 	private int feautreSize(FeatureType type) {
@@ -26,6 +27,9 @@ public class FeatureExtractor  {
 			return Constants.Topic.NUMBER_OF_TOPICS;
 		case FashionTerms:
 			return numOfFashionTerms;
+		case FirstAuthorRank:
+		case AuthorMaxRank:
+			return 1;
 		default:
 			return 0;
 		}
@@ -45,6 +49,10 @@ public class FeatureExtractor  {
 			return topicFeature.extractTopicFeature(papers, offset);
 		case FashionTerms:
 			return fashionTechniquesFeature.extractFancyTermsFeature(papers, offset);
+		case FirstAuthorRank:
+			return AuthorRankFeature.extractFirstAuthorRank(papers, offset);
+		case AuthorMaxRank:
+			return AuthorRankFeature.extractAuthorMaxRank(papers, offset);
 		default:
 			return null;
 		}
@@ -63,6 +71,10 @@ public class FeatureExtractor  {
 		return numOfFeautres;
 	}
 
+	
+	
+	
+	
 	public svm_node[][] generateFeatureVectors(List<Paper> papers,
 			List<FeatureType> types) {
 		int n = papers.size();
@@ -98,7 +110,7 @@ public class FeatureExtractor  {
 			offset += feautreSize(type);
 		}
 		
-		numOfFeautres = offset;
+		numOfFeautres = offset - 1;
 
 		for (int i = 0; i < n; ++i) {
 			ArrayList<svm_node> featureArray_i = featureArrays.get(i);
@@ -107,6 +119,8 @@ public class FeatureExtractor  {
 				x[i][j] = featureArray_i.get(j);
 			}
 		}
+		
+		scaleFeatures(x);
 
 		for (int i = 0; i < n; ++i) {
 			for (int j = 0; j < x[i].length; ++j) {
@@ -121,9 +135,37 @@ public class FeatureExtractor  {
 		return x;
 	}
 
+	static final double SCALED_MAX = 1;
+	static final double SCALED_MIN = -1;
 	
-	public static void main(String[] args) {
+	public void scaleFeatures( svm_node[][] x){
+		double featureMax[] = new double[numOfFeautres];
+		double featureMin[] = new double[numOfFeautres];
+		for(int j = 0; j < numOfFeautres; ++j){
+			featureMax[j] = -Double.MAX_VALUE;
+			featureMin[j] = Double.MAX_VALUE;
+		}
+		
+		
 
+		
+		
+		for(int i = 0 ; i < x.length; ++i){
+			for(int j = 0; j < numOfFeautres; ++j){
+				featureMax[j] = Math.max(x[i][j].value,featureMax[j]);
+				featureMin[j] = Math.min(x[i][j].value,featureMin[j]);
+			}
+		}
+		
+		for(int i = 0 ; i < x.length; ++i){
+			for(int j = 0; j < numOfFeautres; ++j){
+				if(featureMax[j] - featureMin[j] != 0)
+					x[i][j].value = (x[i][j].value - featureMin[j])*(SCALED_MAX - SCALED_MIN)/(featureMax[j]- featureMin[j]) + SCALED_MIN;
+			}
+		}
+		
+		
 	}
+	
 
 }

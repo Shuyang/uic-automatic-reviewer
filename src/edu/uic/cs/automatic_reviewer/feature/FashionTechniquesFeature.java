@@ -51,12 +51,14 @@ public class FashionTechniquesFeature {
 			features.add(feature_i);
 
 			for (Entry<String,Boolean> entry: techniquesMentionedInPaper.entrySet()) {
-				if (entry.getValue()) {
-					svm_node node = new svm_node();
-					node.index = termIndex.get(entry.getKey()) + offset;
+				svm_node node = new svm_node();
+				node.index = termIndex.get(entry.getKey()) + offset;
+				if (entry.getValue()) {	
 					node.value = 1;
-					feature_i.add(node);
+				}else{
+					node.value = 0;
 				}
+				feature_i.add(node);
 			}
 		}
 		return features;

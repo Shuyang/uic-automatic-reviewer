@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import libsvm.svm_node;
 import edu.uic.cs.automatic_reviewer.common.AbstractWordOperations;
@@ -12,12 +13,12 @@ import edu.uic.cs.automatic_reviewer.common.Constants;
 import edu.uic.cs.automatic_reviewer.input.Paper;
 
 public class TFIDFFeature extends AbstractWordOperations {
-	private HashMap<Integer, Double> id_idf;
-	private HashMap<String, Integer> term_id;
+	//private HashMap<Integer, Double> id_idf;
+	private HashMap<String, Double> term_idf;
 
 	public int getNumOfTerms() {
-		if (term_id != null)
-			return term_id.size();
+		if (term_idf != null)
+			return term_idf.size();
 		else
 			return -1;
 	}
@@ -28,7 +29,7 @@ public class TFIDFFeature extends AbstractWordOperations {
 
 			if(p.getAbstract()!= null){
 				List<String> termList = porterStemmingAnalyzeUsingDefaultStopWords(p
-						.getAbstract());
+						.getTitle());
 				HashSet<String> termSet = new HashSet<String>();
 				termSet.addAll(termList);
 				for (String t : termSet) {
@@ -42,23 +43,21 @@ public class TFIDFFeature extends AbstractWordOperations {
 				}
 				System.out.println(p.getTitle());
 			}else{
-				System.out.println("no abstract" +p.getTitle());
+				System.out.println("no title" +p.getTitle());
 				System.out.println(p.getMetadata());
 			}
 		}
 		int docNum = papers.size();
-		int currentID = 0;
 
-		id_idf = new HashMap<Integer, Double>();
-		term_id = new HashMap<String, Integer>();
+
+		term_idf = new HashMap<String, Double>();
 		for (Map.Entry<String, Double> entry : df.entrySet()) {
 			String term = entry.getKey();
 			double term_df = entry.getValue();
 			if (term_df >= Constants.Feature.MIN_FREQUENCY_OF_TERMS) {
-				term_id.put(term, currentID);
-				id_idf.put(currentID, Math.log(docNum / term_df));
-				currentID++;
+				term_idf.put(term, Math.log(docNum / term_df));
 			}
+
 		}
 
 		// for(Map.Entry<String, Integer> e:term_id.entrySet()){
@@ -70,41 +69,48 @@ public class TFIDFFeature extends AbstractWordOperations {
 	public ArrayList<ArrayList<svm_node>> tfidfForAllTerms(List<Paper> papers,
 			int offset) {
 		int n = papers.size();
-		int m = id_idf.size();
-		System.out.println(n + " " + m);
+		int m = term_idf.size();
+		//System.out.println(n + " " + m);
 		ArrayList<ArrayList<svm_node>> features = new ArrayList<ArrayList<svm_node>>();
 
 		for (int i = 0; i < n; ++i) {
 			Paper p = papers.get(i);
-			
 
-			HashMap<Integer, Double> term_TFIDFMap = new HashMap<Integer, Double>();
-			
-			if(p.getAbstract()!= null){
+
+			HashMap<String,Integer> termCount = new HashMap<String,Integer>();
+
+			if(p.getTitle()!= null){
 				List<String> termList = porterStemmingAnalyzeUsingDefaultStopWords(p
-						.getAbstract());
-				for (String t : termList) {
-					// System.out.println(t);
-					Integer id = term_id.get(t);
-					if (id != null) {
-						Double value = term_TFIDFMap.get(id);
-						if (value == null)
-							term_TFIDFMap.put(id, id_idf.get(id));
-						else
-							term_TFIDFMap.put(id, value + id_idf.get(id));
-					}
+						.getTitle());
+
+				for(String s: termList){
+					if(termCount.containsKey(s))
+						termCount.put(s, termCount.get(s)+1);
+					else
+						termCount.put(s, 1);
 				}
 			}
 
 			ArrayList<svm_node> feature_i = new ArrayList<svm_node>();
 			features.add(feature_i);
 
-			for (Map.Entry<Integer, Double> entry : term_TFIDFMap.entrySet()) {
+			//System.out.println(termCount.size() + "##");
+			int j = 0;
+			for(Entry<String,Double> entry:term_idf.entrySet()){
 				svm_node node = new svm_node();
-				node.index = entry.getKey() + offset;
-				node.value = entry.getValue();
+				node.index = (j++) + offset;
+
+
+
+				if(termCount.containsKey(entry.getKey())){
+					node.value = entry.getValue()*termCount.get(entry.getKey());
+				}
+				else
+					node.value = 0;
 				feature_i.add(node);
+
 			}
+
 		}
 
 		return features;

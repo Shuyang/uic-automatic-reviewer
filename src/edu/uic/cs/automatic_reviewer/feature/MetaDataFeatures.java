@@ -28,12 +28,16 @@ public class MetaDataFeatures {
 
 			for (int j = 0; j < m; ++j) {
 				Integer num = pageMap.get(j);
-				if (num != null && num != 0) {
-					svm_node node = new svm_node();
-					node.index = j + offset;
-					node.value = num;
-					feature_i.add(node);
-				}
+
+				if(num == null)
+					num = 0;
+
+
+				svm_node node = new svm_node();
+				node.index = j + offset;
+				node.value = num;
+				feature_i.add(node);
+
 			}
 		}
 		return features;

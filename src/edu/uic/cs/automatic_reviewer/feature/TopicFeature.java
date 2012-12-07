@@ -15,8 +15,8 @@ import edu.uic.cs.automatic_reviewer.misc.SerializationHelper;
 import libsvm.svm_node;
 
 public class TopicFeature {
-	private static final String MODEL_CACHE_FILE = "data/model/LDAModel.cache";
-	private static final String FEATURE_CACHE_FILE = "data/model/LDAFeatures.cache";
+	private static final String MODEL_CACHE_FILE = "data/model/LDAModel_2007.cache";
+	private static final String FEATURE_CACHE_FILE = "data/model/LDAFeatures_2007.cache";
 
 
 	TopicPredictor predictor;
@@ -100,7 +100,7 @@ public class TopicFeature {
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		TopicFeature tf = new TopicFeature();
-		List<Paper> papers = PaperCache.getInstance().getPapers(2012);
+		List<Paper> papers = PaperCache.getInstance().getPapers(2007);
 		tf.learnAndSaveModel(papers);
 
 	}
