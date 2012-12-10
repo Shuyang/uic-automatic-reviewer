@@ -25,6 +25,7 @@
 	<classpathentry kind="lib" path="lib/opennlp-tools-1.5.2-incubating.jar" sourcepath="lib/lib_src/apache-opennlp-1.5.2-incubating-src.zip"/>
 	<classpathentry kind="lib" path="lib/stanford-parser.jar" sourcepath="lib/lib_src/stanford-parser-2.0.4-sources.jar"/>
 	<classpathentry kind="lib" path="lib/stanford-parser-2.0.4-models.jar"/>
+	<classpathentry kind="lib" path="lib/db4o-8.0.249.16098-all-java5.jar" sourcepath="lib/lib_src/db4o-8.0-java-src.jar"/>
 	<classpathentry kind="output" path="bin"/>
 	<referencedentry kind="lib" path="lib/opennlp-maxent-3.0.2-incubating.jar" sourcepath="lib/lib_src/apache-opennlp-1.5.2-incubating-src.zip"/>
 </classpath>
