@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.1415926-2.4-0.9998 (TeX Live 2012) (format=xelatex 2012.6.30)  11 DEC 2012 10:46
+This is XeTeX, Version 3.1415926-2.4-0.9998 (TeX Live 2012) (format=xelatex 2012.6.30)  11 DEC 2012 10:51
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -191,15 +191,16 @@ Missing character: There is no ” in font ptmr7t!
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
  [2]
-Missing character: There is no • in font ptmr7t!
+LaTeX Font Info:    Try loading font information for OMS+ptm on input line 127.
+
+
+(/usr/local/texlive/2012/texmf-dist/tex/latex/psnfss/omsptm.fd
+File: omsptm.fd 
+)
+LaTeX Font Info:    Font shape `OMS/ptm/m/n' in size <10.95> not available
+(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 127.
 Missing character: There is no “ in font ptmr7t!
 Missing character: There is no ” in font ptmr7t!
-Missing character: There is no • in font ptmr7t!
-Missing character: There is no • in font ptmr7t!
-Missing character: There is no • in font ptmr7t!
-
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
  [3]
 Missing character: There is no ’ in font ptmr7t!
 File: materials/paper_uml.png Graphic file (type QTm)
@@ -212,11 +213,11 @@ File: materials/workload.eps Graphic file (type eps)
  <materials/workload.eps> [4] [5]
 (./report.aux) ) 
 Here is how much of TeX's memory you used:
- 802 strings out of 494004
- 10563 string characters out of 3150890
+ 820 strings out of 494004
+ 10886 string characters out of 3150890
  61811 words of memory out of 3000000
- 4090 multiletter control sequences out of 15000+200000
- 11011 words of font info for 36 fonts, out of 3000000 for 9000
+ 4105 multiletter control sequences out of 15000+200000
+ 11268 words of font info for 37 fonts, out of 3000000 for 9000
  1144 hyphenation exceptions out of 8191
  25i,9n,19p,727b,264s stack positions out of 5000i,500n,10000p,200000b,50000s
 
