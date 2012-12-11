@@ -64,24 +64,25 @@ The full papers are used as positive samples. Due to lack of real rejected paper
 
 We use different features: some of them are directly extracted from the paper; the others are calculated by using several different techniques. 
 
-•	Metadata
+\begin{itemize} 
+\item {\bf Metadata}
 Metadata are those information extracted from paper itself, like the number of pages, total numbers of tables/formulas/figures, number of tables/formulas/figures per page, max number of tables/formulas/figures per page. In our current experiment, we only use total number of tables/formulas/figures as features.
 
-•	Author Ranking
+\item {\bf 	Author Ranking}
 We extracted top 2000 authors in “Natural Language \& Speech” area from Microsoft Academic Search [??], and use this extracted list as the authors’ ranking. If author doesn’t appear in the list, the rank will be zero.
 
-•	Popular techniques mentioned in the paper
+\item {\bf 	Popular techniques mentioned in the paper}
 We also manually created a list of popular techniques which may be used in the NLP research. The terms of techniques and its synonyms are group together. We check each technique in the paper, to see if it has been mentioned or not.
 
-•	Words in the Title (TF-IDF Score)
+\item {\bf Words in the Title (TF-IDF Score)}
 Based on the assumption that novel ideas are favored in the conference, and such papers may have titles that contain novel terms which are more attractive to the reviewers, we count the TF-IDF score for the title terms, and use score as one of features.
 
-•	Topic – LDA (Latent Dirichlet Allocation )
+\item {\bf Topic – LDA (Latent Dirichlet Allocation )}
 LDA is used to extract topics from all the papers. In our experiment, top 20 topics are extracted, and the probability distribution vector of topics is used as one feature. 
 
-•	Sentence complexity
+\item {\bf 	Sentence complexity}
 All the content sentences within papers are parsed into phrase structure tree by using Stanford Parser [??]. The depth of tree is used as complexity of the corresponding sentence.  //TODO how exactly we use it??
-
+\end{itemize}
 
 Papers are first parsed into structured data (Java objects). Metadata from the paper are used directly as features. Then the parsed papers are processed by several feature extractors. Finally, the feature vectors are sent to Support Vector Machines (SVM) for model learning and evaluation.
 

@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.1415926-2.4-0.9998 (TeX Live 2012) (format=xelatex 2012.6.30)  11 DEC 2012 10:51
+This is XeTeX, Version 3.1415926-2.4-0.9998 (TeX Live 2012) (format=xelatex 2012.6.30)  11 DEC 2012 11:59
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -119,28 +119,38 @@ Missing character: There is no “ in font ptmr7t!
 Missing character: There is no ” in font ptmr7t!
 Missing character: There is no “ in font ptmr7t!
 Missing character: There is no ” in font ptmr7t!
-Missing character: There is no • in font ptmr7t!
-Missing character: There is no • in font ptmr7t!
+LaTeX Font Info:    Try loading font information for OMS+ptm on input line 68.
+
+(/usr/local/texlive/2012/texmf-dist/tex/latex/psnfss/omsptm.fd
+File: omsptm.fd 
+)
+LaTeX Font Info:    Font shape `OMS/ptm/m/n' in size <10.95> not available
+(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 68.
+LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <10.95> not available
+(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 68.
+
+Underfull \hbox (badness 1067) in paragraph at lines 68--70
+\OT1/ptm/m/n/10.95 num-ber of ta-bles/formulas/figures per page,
+ []
+
+
+Underfull \hbox (badness 2418) in paragraph at lines 68--70
+\OT1/ptm/m/n/10.95 max num-ber of ta-bles/formulas/figures per
+ []
+
 Missing character: There is no “ in font ptmr7t!
 Missing character: There is no ” in font ptmr7t!
 Missing character: There is no ’ in font ptmr7t!
 Missing character: There is no ’ in font ptmr7t!
-Missing character: There is no • in font ptmr7t!
-Missing character: There is no • in font ptmr7t!
- [1
+[1
 
 
 
 
 ]
-Missing character: There is no • in font ptmr7t!
-Missing character: There is no – in font ptmr7t!
-Missing character: There is no • in font ptmr7t!
+Missing character: There is no – in font ptmb7t!
 File: materials/architecture.eps Graphic file (type eps)
-
-<materials/architecture.eps>
-LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <10.95> not available
-(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 104.
+ <materials/architecture.eps>
 Missing character: There is no “ in font ptmr7t!
 Missing character: There is no … in font ptmr7t!
 Missing character: There is no ” in font ptmr7t!
@@ -154,7 +164,7 @@ Missing character: There is no ” in font ptmr7t!
 Missing character: There is no “ in font ptmr7t!
 Missing character: There is no ” in font ptmr7t!
 
-Underfull \hbox (badness 1077) in paragraph at lines 113--115
+Underfull \hbox (badness 1077) in paragraph at lines 114--116
 \OT1/ptm/m/n/10.95 Ex-trac-tor. Meta-data Ex-trac-tor uses reg-u-lar ex-
  []
 
@@ -165,17 +175,17 @@ Missing character: There is no “ in font ptmr7t!
 Missing character: There is no ” in font ptmr7t!
 Missing character: There is no ’ in font ptmr7t!
 
-Underfull \hbox (badness 4779) in paragraph at lines 116--119
+Underfull \hbox (badness 4779) in paragraph at lines 117--120
 []\OT1/ptm/m/n/10.95 Candidate ti-tle and raw au-thor in-for-ma-tion
  []
 
 
-Underfull \hbox (badness 7186) in paragraph at lines 116--119
+Underfull \hbox (badness 7186) in paragraph at lines 117--120
 \OT1/ptm/m/n/10.95 are pro-cessed by Ti-tle & Au-thor Ex-trac-tor.
  []
 
 
-Underfull \hbox (badness 2735) in paragraph at lines 116--119
+Underfull \hbox (badness 2735) in paragraph at lines 117--120
 \OT1/ptm/m/n/10.95 http://www.dblp.org/search/api/?q=[TITLE] where
  []
 
@@ -187,25 +197,13 @@ Missing character: There is no “ in font ptmr7t!
 Missing character: There is no ” in font ptmr7t!
 Missing character: There is no “ in font ptmr7t!
 Missing character: There is no ” in font ptmr7t!
-
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
- [2]
-LaTeX Font Info:    Try loading font information for OMS+ptm on input line 127.
-
-
-(/usr/local/texlive/2012/texmf-dist/tex/latex/psnfss/omsptm.fd
-File: omsptm.fd 
-)
-LaTeX Font Info:    Font shape `OMS/ptm/m/n' in size <10.95> not available
-(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 127.
+[2]
 Missing character: There is no “ in font ptmr7t!
 Missing character: There is no ” in font ptmr7t!
  [3]
 Missing character: There is no ’ in font ptmr7t!
 File: materials/paper_uml.png Graphic file (type QTm)
-
-<use  "materials/paper_uml.png" >
+ <use  "materials/paper_uml.png" >
 Missing character: There is no • in font ptmr7t!
 Missing character: There is no • in font ptmr7t!
 Missing character: There is no • in font ptmr7t!
