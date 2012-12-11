@@ -85,7 +85,7 @@ public class SVMClassifier {
 		prob = new svm_problem();
 		prob.l = y.length;
 		prob.y = y;
-
+		
 //		List<FeatureType> types = Arrays.asList(FeatureType.NumOfFiguresByPage,
 //				FeatureType.NumOfFormulasByPage, FeatureType.NumOfTablesByPage,
 //				FeatureType.LDATopic,FeatureType.FashionTerms,FeatureType.AuthorMaxRank);
