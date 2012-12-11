@@ -28,13 +28,13 @@ public class SVMClassifier {
 	private void setDefaultParameters(){
 		param = new svm_parameter();
 		// default values
-		param.svm_type = svm_parameter.C_SVC;
+		param.svm_type = svm_parameter.NU_SVC;
 		param.kernel_type = svm_parameter.RBF;
 		param.degree = 3;
 		param.gamma = 1.0/num_features;
 		param.coef0 = 0;
 		param.nu = 0.5;
-		param.cache_size = 500;
+		param.cache_size = 5000;
 		param.C = 500;
 		param.eps = 1e-3;
 		param.p = 0.1;
@@ -91,8 +91,16 @@ public class SVMClassifier {
 //				FeatureType.LDATopic,FeatureType.FashionTerms,FeatureType.AuthorMaxRank);
 //		List<FeatureType> types = Arrays.asList(FeatureType.AuthorMaxRank);
 		
-		List<FeatureType> types = Arrays.asList(FeatureType.NumOfFiguresByPage,
-		FeatureType.NumOfFormulasByPage, FeatureType.NumOfTablesByPage);
+		List<FeatureType> types = Arrays.asList(
+				//FeatureType.NumOfFiguresByPage,
+				//FeatureType.NumOfFormulasByPage, 
+				//FeatureType.NumOfTablesByPage
+				//FeatureType.AuthorMaxRank,
+				//.FeatureType.TFIDF,
+				//FeatureType.FashionTerms,
+				//FeatureType.LDATopic
+				FeatureType.ComplexityDirectly
+				);
 		
 //		List<FeatureType> types = Arrays.asList(FeatureType.ComplexityDirectly);
 		
@@ -188,7 +196,7 @@ public class SVMClassifier {
 
 	public static void main(String[] args) {
 		Map<PaperPublishType, List<Paper>> result = PaperCache.getInstance()
-				.getPapersByPublishTypeForYear(2012);
+				.getPapersByPublishTypeForYear(2007);
 		
 
 		SVMClassifier classfier = new SVMClassifier();
