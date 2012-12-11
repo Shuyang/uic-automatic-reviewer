@@ -12,7 +12,7 @@ public class FeatureExtractor  {
 
 	public static enum FeatureType {
 		NumOfFiguresByPage, NumOfTablesByPage, NumOfFormulasByPage, TFIDF, LDATopic, FashionTerms,
-		FirstAuthorRank, AuthorMaxRank;
+		FirstAuthorRank, AuthorMaxRank, ComplexityBining ,ComplexityDirectly, ComlexityNormalized;
 	}
 
 	private int feautreSize(FeatureType type) {
@@ -30,6 +30,12 @@ public class FeatureExtractor  {
 		case FirstAuthorRank:
 		case AuthorMaxRank:
 			return 1;
+		case ComplexityBining:
+			return SentenseComplexityFeature.BiningFeatureSize;
+		case ComplexityDirectly:
+			return SentenseComplexityFeature.MaxComplexity;
+		case ComlexityNormalized:
+			return SentenseComplexityFeature.MaxComplexity;
 		default:
 			return 0;
 		}
@@ -53,6 +59,12 @@ public class FeatureExtractor  {
 			return AuthorRankFeature.extractFirstAuthorRank(papers, offset);
 		case AuthorMaxRank:
 			return AuthorRankFeature.extractAuthorMaxRank(papers, offset);
+		case ComplexityBining:
+			return SentenseComplexityFeature.extractBiningComplexityFeature(papers, offset);
+		case ComplexityDirectly:
+			return SentenseComplexityFeature.extractDirectComplexityFeature(papers, offset);
+		case ComlexityNormalized:
+			return SentenseComplexityFeature.extractNormalizedComplexityFeature(papers, offset);
 		default:
 			return null;
 		}

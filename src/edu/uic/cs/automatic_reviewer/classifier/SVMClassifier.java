@@ -51,40 +51,50 @@ public class SVMClassifier {
 		int posNum = 0;
 
 		List<Paper> posList = paperMap.get(PaperPublishType.LongPaper);
+		
 		if(posList != null){
-
 			papers.addAll(posList);
 			posNum = posList.size();
 		}
 		if(paperMap.containsKey(PaperPublishType.StudentWorkshopPaper)){
-			papers.addAll(paperMap.get(PaperPublishType.StudentWorkshopPaper));
+			for(Paper p:paperMap.get(PaperPublishType.StudentWorkshopPaper)){
+				if(p.getNumOfPages() >= 8)
+					papers.add(p);
+			}
 		}
 		if(paperMap.containsKey(PaperPublishType.WorkshopPaper)){
-			papers.addAll(paperMap.get(PaperPublishType.WorkshopPaper));
+			for(Paper p:paperMap.get(PaperPublishType.WorkshopPaper)){
+				if(p.getNumOfPages() >= 8)
+					papers.add(p);
+			}
 		}
 
+		System.out.println("#posSamples:" + posNum + " #negSamples" + (papers.size() - posNum));
 		double y[] = new double[papers.size()];
 		int i = 0;
 		for(; i < posNum; ++i){
 			y[i] = 1;
+			
 		}
 		for(; i < y.length; ++i){
 			y[i] = -1;
 		}
-
+		
 
 
 		prob = new svm_problem();
 		prob.l = y.length;
 		prob.y = y;
 
-		List<FeatureType> types = Arrays.asList(FeatureType.NumOfFiguresByPage,
-				FeatureType.NumOfFormulasByPage, FeatureType.NumOfTablesByPage,
-				FeatureType.LDATopic,FeatureType.FashionTerms,FeatureType.AuthorMaxRank);
+//		List<FeatureType> types = Arrays.asList(FeatureType.NumOfFiguresByPage,
+//				FeatureType.NumOfFormulasByPage, FeatureType.NumOfTablesByPage,
+//				FeatureType.LDATopic,FeatureType.FashionTerms,FeatureType.AuthorMaxRank);
 //		List<FeatureType> types = Arrays.asList(FeatureType.AuthorMaxRank);
 		
-//		List<FeatureType> types = Arrays.asList(FeatureType.NumOfFiguresByPage,
-//		FeatureType.NumOfFormulasByPage, FeatureType.NumOfTablesByPage);
+		List<FeatureType> types = Arrays.asList(FeatureType.NumOfFiguresByPage,
+		FeatureType.NumOfFormulasByPage, FeatureType.NumOfTablesByPage);
+		
+//		List<FeatureType> types = Arrays.asList(FeatureType.ComplexityDirectly);
 		
 		FeatureExtractor featureExtractor = new FeatureExtractor();
 		prob.x = featureExtractor.generateFeatureVectors(papers,types);
@@ -178,7 +188,7 @@ public class SVMClassifier {
 
 	public static void main(String[] args) {
 		Map<PaperPublishType, List<Paper>> result = PaperCache.getInstance()
-				.getPapersByPublishTypeForYear(2007);
+				.getPapersByPublishTypeForYear(2012);
 		
 
 		SVMClassifier classfier = new SVMClassifier();
