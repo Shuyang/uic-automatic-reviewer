@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.1415926-2.4-0.9998 (TeX Live 2012) (format=xelatex 2012.6.30)  11 DEC 2012 11:59
+This is XeTeX, Version 3.1415926-2.4-0.9998 (TeX Live 2012) (format=xelatex 2012.6.30)  12 DEC 2012 12:53
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -201,22 +201,92 @@ Missing character: There is no ” in font ptmr7t!
 Missing character: There is no “ in font ptmr7t!
 Missing character: There is no ” in font ptmr7t!
  [3]
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <10.95> on input line 189.
+
+Underfull \hbox (badness 10000) in paragraph at lines 198--198
+[]\OT1/ptm/m/n/10.95 Popular
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 199--199
+[]\OT1/ptm/m/n/10.95 Author
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 200--200
+[]\OT1/ptm/m/n/10.95 Sentence
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 229--229
+[]\OT1/ptm/m/n/10.95 Sentence
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 230--230
+[]\OT1/ptm/m/n/10.95 Metadata
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 230--230
+\OT1/ptm/m/n/10.95 &LDA&
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 247--247
+[]\OT1/ptm/m/n/10.95 Sentence
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 248--248
+[]\OT1/ptm/m/n/10.95 Metadata
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 248--248
+\OT1/ptm/m/n/10.95 &LDA&
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 264--264
+[]\OT1/ptm/m/n/10.95 Sentence
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 265--265
+[]\OT1/ptm/m/n/10.95 Metadata
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 265--265
+\OT1/ptm/m/n/10.95 &LDA&
+ []
+
+[4]
 Missing character: There is no ’ in font ptmr7t!
+ [5]
 File: materials/paper_uml.png Graphic file (type QTm)
  <use  "materials/paper_uml.png" >
 Missing character: There is no • in font ptmr7t!
 Missing character: There is no • in font ptmr7t!
 Missing character: There is no • in font ptmr7t!
 File: materials/workload.eps Graphic file (type eps)
- <materials/workload.eps> [4] [5]
-(./report.aux) ) 
+ <materials/workload.eps> [6
+
+] [7]
+(./report.aux)
+
+LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
+
+ ) 
 Here is how much of TeX's memory you used:
- 820 strings out of 494004
- 10886 string characters out of 3150890
- 61811 words of memory out of 3000000
- 4105 multiletter control sequences out of 15000+200000
- 11268 words of font info for 37 fonts, out of 3000000 for 9000
+ 828 strings out of 494004
+ 11004 string characters out of 3150890
+ 70811 words of memory out of 3000000
+ 4113 multiletter control sequences out of 15000+200000
+ 11733 words of font info for 39 fonts, out of 3000000 for 9000
  1144 hyphenation exceptions out of 8191
  25i,9n,19p,727b,264s stack positions out of 5000i,500n,10000p,200000b,50000s
 
-Output written on report.pdf (5 pages).
+Output written on report.pdf (7 pages).

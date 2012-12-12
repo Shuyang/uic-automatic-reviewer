@@ -152,20 +152,153 @@ Because there is a limitation of the number of pages in every conference, we thi
 
 
 \section{Results and Discussion}
-We use the SVM with 10-fold-cross validation to evaluate our Automatic Reviewer system. The result of all positive predictions is used as the baseline. 
+We use the SVM with 10-fold cross-validation to evaluate our Automatic Reviewer system. The result of all positive predictions is used as the baseline. 
 
 
-\subsection{Evaluation on Each Feature}
+\subsection{Evaluation of Each Feature}
+\label{sec:feature_eval}
 As first part of our experiment, 
-we 
-In table
+we evaluate the classifiers that learned using each single feature.
+For the evaluation,
+We conduct 10-fold cross-validation on the ACL 2012 data set,
+and report the precision, reacll and F-score for the classier using each single feature.
 
-\subsection{Evaluation on Each Single Year Data}
-We evaluate the proposed apporach the papers of each single year.
-For each year of the years 2012, 2010 and 2007, 
-we use 10-fold cross validation for the evaluation.
+As shown in the Table \ref{tab:feature_eval},
+LDA Topic feature and sentence complexity feature are two best predictors for this problem.
+Both of they can construct a classifier that is better that the all-positive baseline.
+Each of the metadata feature (number of pictures/formulas/tables on each page),
+when is used alone, is a weak predictor.
+But when we consider all the features from metadata together,
+we get a classifier that is significantly outperforms the all-positive baseline.
+Terms in title and popular techniques are two other weak predictors,
+but they can still make alone a classifier with higher precision than the baseline,
+which means when they are used together with other features, they can contribute to a better classifier.
+The author ranking feature is the weakest predictor among all the features we consider.
 
-Table
+The result shows that:
+(1) The full papers accepted by ACL 2012 are statistically 
+different from the workshop papers in the complexity of sentences and topic of the paper.
+(2) The numbers of pictures/formulas/tables in the full papers accepted by ACL are larger
+comparing with those of workshop papers.
+(3) The ranking of authors of a paper does not have influence on whether the paper 
+is an ACL conference full papers or not, 
+which may result from the double-blind reviewing of ACL2012. 
+
+\begin{table}
+\begin{center}
+\begin{tabular}{|p{2cm}|cl|c|c|}
+\hline 
+& \bf Precision & \bf Recall & \bf F-score \\ \hline
+\#Pictures & 63.6 & 68.5 & 65.8 \\ \hline
+\#Formulas	& 74.5	& 68.5	& 71.4\\ \hline
+\#Tables	&70.0 &	80.2	& 74.8\\ \hline
+Metadata	& 74.8	& 82.9	& 78.6\\ \hline
+Title	& 65.2	& 91.0 &	76.0\\ \hline
+LDA Topic &	69.9	&91.9&	79.4\\ \hline
+Popular Techniques	& 67.0	& 47.7	&55.8\\ \hline
+Author Ranking	& 57.0	& 76.6	& 65.4\\ \hline
+Sentence Complexity	& 71.4	& 90.1 &	79.7\\ \hline
+All Positive	& 58.4	& 100.0	& 73.7\\\hline
+\end{tabular}
+\end{center}
+\label{tab:feature_eval}
+\caption{Evaluation of Classifiers Using Each Single Feature}
+\end{table}
+
+
+
+\subsection{Evaluation on Different Data Sets}
+We also evaluate the proposed approach on different data sets.
+We collect the ACL conference and workshop papers on the years 2012, 2010 and 2007,
+and evaluate our approach by conducting cross-validation on each of the three data sets.
+
+For each dataset we compare the evaluation result of the classifier learned by all the features with the all-positive basline.
+Since metadata feature, LDA topic feature and sentence complexity feature are three most useful features, as discussed in Section \ref{sec:feature_eval}
+, we also list the result of the classifer learned from each of the three features as well as the one learned from three of them. 
+Table \ref{tab:2012} \ref{tab:2010} and \ref{tab:2007} show the resulf of ACL 2012, 2010 and 2007 datasets respectively.
+
+
+
+\begin{table}
+\begin{center}
+\begin{tabular}{|p{2cm}|cl|c|c|}
+\hline 
+& \bf Precision & \bf Recall & \bf F-score \\ \hline
+Metadata	& 74.8	& 82.9	& 78.6\\ \hline
+LDA Topic &	69.9	&91.9&	79.4\\ \hline
+Sentence Complexity	& 71.4	& 90.1 &	79.7\\ \hline
+Metadata \&LDA\& Complexity	& 79.8	& 92.8 & \bf 85.8\\ \hline
+All features	& 80.5	& 85.6	& 83.0\\ \hline
+All Positive	& 58.4	& 100.0	& 73.7\\\hline
+\end{tabular}
+\end{center}
+\label{tab:2012}
+\caption{Evaluation on ACL 2012 Data Set}
+\end{table}
+
+
+\begin{table}
+\begin{center}
+\begin{tabular}{|p{2cm}|cl|c|c|}
+\hline 
+& \bf Precision & \bf Recall & \bf F-score \\ \hline
+Metadata	&70.1&68.8&69.4\\ \hline
+LDA Topic &65.4&66.3&65.8\\ \hline
+Sentence Complexity	&65.3&60.0&62.5\\ \hline
+Metadata \&LDA\& Complexity	&69.3&72.9&\bf 70.6\\ \hline
+All features	&67.2&69.4&68.3\\ \hline
+All Positive	&52.7& 100.0	& 68.9\\\hline
+\end{tabular}
+\end{center}
+\label{tab:2010}
+\caption{Evaluation on ACL 2010 Data Set}
+\end{table}
+
+\begin{table}
+\begin{center}
+\begin{tabular}{|p{2cm}|cl|c|c|}
+\hline 
+& \bf Precision & \bf Recall & \bf F-score \\ \hline
+Metadata	& 35.2	& 31.3	& 33.2\\ \hline
+LDA Topic &	59.2	& 58.6&	58.9\\ \hline
+Sentence Complexity	& 65.3	& 60.0 &	\bf 62.5\\ \hline
+Metadata \&LDA\& Complexity	& 42.7	& 41.4 & 42.1\\ \hline
+All features	& 60.5	& 49.5	& 54.5 \\ \hline
+All Positive	& 35.6	& 100.0	& 52.5\\ \hline
+\end{tabular}
+\end{center}
+\label{tab:2007}
+\caption{Evaluation on ACL 2007 Data Set}
+\end{table}
+
+
+As shown in these tables,
+the proposed approach performs best on the ACL 2012 data set,
+and can get slightly better performance than the baseline on the ACL 2010 and 2007 data set.
+
+On the ACL 2012 data set, the feautres "Metadata", "LDA topic" and "Sentence Complexity" 
+all have better F-score than the baseline.
+When three of them considered together, the F-score is significantly better then the baseline.
+The F-score of the classifier using all features is slightly lower than the three-best-features classifier,
+but still outperforms the baseline with 10\%.
+
+On the ACL 2010 data set, each of the three features is not as strong predictor as it is on the ACL 2012 data set.
+But when we create a classifier use all of the three of them, 
+the result is better than the baseline. 
+But if we cansider all the features together, 
+the result classifier is not better than the baseline.
+
+On the ACL 2007 data set, the sentence complexity feature alone is a good predictor.
+It can make a classifer than is 10\% outperforms the all-positive baseline.
+Other features are not as good that the sentence complexity feature,
+when consider all the features together, the result is not as good as the one using only the sentence complexity feature,
+but it is still better than the baseline.
+
+As we have discussed, the result of evaluation is different on each dataset, because features may work well on one dataset, 
+but not so well on another dataset.
+It is still not clear to us why each feature may have different performance on different data set.
+It may because of that each year the ACL conference has different set of workshops comes alone with it.
+
 
 \subsection{Discussion and Conclusion} 
 
