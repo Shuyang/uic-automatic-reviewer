@@ -42,7 +42,7 @@ We extract several features, which range from paper metadata to paper topics. We
 
 \section{Related Work}
 
-Predicting has been studied in many areas, especially in e-commerce. Online store like Amazon uses data mining techniques to predict what the customer would like to buy based on her/his previous purchase history, and other customers’ purchase behavior. Such techniques are known as association analysis [1]. Hal Varian [2] studied using Google queries to help predict economic activity. In last few years, with the great success of social networking, more and more researches focus on that area too. Devavrat Shah and Stanislav Nikolov recently announced their new algorithm that can predict trending topics on Twitter as much as five hours in advance and with an accuracy of 95\% [3]. However, as far as we know, no similar study has been done in predicting conference paper acceptance. The only related study focus on the visual structure of conference papers [4]. 
+Predicting has been studied in Machine Learning/Data Mining area for many years [1]. Great successes have been made in areas range from e-commerce to economics by applying such predicting techniques. With the growing popularity of social networking, researchers try to predict the trend by analyzing the topics of posts in the social networking [2]. 
 
 
 
@@ -81,8 +81,9 @@ Total & 370 & 402 & 772 \\\hline
 
 \section{Approaches}
 \subsection{Outline}
-Papers are first parsed into structured data (Java objects). Metadata from the paper are used directly as features. Then the parsed papers are processed by several feature extractors. Finally, the feature vectors are sent to Support Vector Machines (SVM) for model learning and evaluation.
-
+%=====================BEGIN, Hong
+%Papers are first parsed into structured data (Java objects). Metadata from the paper are used directly as features. %Then the parsed papers are processed by several feature extractors. Finally, the feature vectors are sent to Support %Vector Machines (SVM) for model learning and evaluation.
+%=====================END, Hong
 
 \begin{figure*}[htb]
   \centering
@@ -99,26 +100,27 @@ Papers are first parsed into structured data (Java objects). Metadata from the p
 
 
 \subsection{Features}
-We use four different set of features: some of them are directly extracted from the paper; the others are calculated by using several different techniques. 
+We use several features: some of them are directly extracted from the paper; 
+the others are calculated by using more sophisticated techniques.
 
 \begin{itemize} 
 \item {\bf Metadata}
 Metadata are those information extracted from paper itself, like the number of pages, total numbers of tables/formulas/figures, number of tables/formulas/figures per page, max number of tables/formulas/figures per page. In our current experiment, we only use total number of tables/formulas/figures as features.
 
 \item {\bf 	Author Ranking}
-We extracted top 2000 authors in “Natural Language \& Speech” area from Microsoft Academic Search [??], and use this extracted list as the authors’ ranking. If author doesn’t appear in the list, the rank will be zero.
+We extracted top 2000 authors in ``Natural Language & Speech'' area from Microsoft Academic Search , and use this extracted list as the authors’ ranking. If author doesn’t appear in the list, the rank will be zero.
 
 \item {\bf 	Popular techniques mentioned in the paper}
-We also manually created a list of popular techniques which may be used in the NLP research. The terms of techniques and its synonyms are group together. We check each technique in the paper, to see if it has been mentioned or not.
+We also manually created a list of popular techniques which may be used in the NLP research. The terms of techniques and its synonyms, abbreviations are group together. We check each technique in the paper, to see if it has been mentioned or not.
 
 \item {\bf Words in the Title (TF-IDF Score)}
-Based on the assumption that novel ideas are favored in the conference, and such papers may have titles that contain novel terms which are more attractive to the reviewers, we count the TF-IDF score for the title terms, and use score as one of features.
+Based on the assumption that novel ideas are favored in the conference, and papers with novel ideas may have titles that contain infrequent terms which are more attractive to the reviewers, we count the TF-IDF score for the title terms, and use score as one of features.
 
 \item {\bf Topic – LDA (Latent Dirichlet Allocation )}
-LDA is used to extract topics from all the papers. In our experiment, top 20 topics are extracted, and the probability distribution vector of topics is used as one feature. 
+LDA[??] is used to extract topics from all the papers. In our experiment, top 20 topics are extracted, and the probability distribution vector of topics is used as one feature. 
 
 \item {\bf 	Sentence complexity}
-All the content sentences within papers are parsed into phrase structure tree by using Stanford Parser [??]. The depth of tree is used as complexity of the corresponding sentence.  
+All the content sentences within papers are parsed into phrase structure trees by using Stanford Parser [??]. The depth of tree is used as complexity of the corresponding sentence.  
 For each paper, we count the number of sentences with each possible value of complexity,
 and use the frequency of all the possible values of complexity as a feature vector.
 \end{itemize}
@@ -128,35 +130,31 @@ and use the frequency of all the possible values of complexity as a feature vect
 
 \subsection{Paper parser}
 
-There are three sub-components in the paper parser: Apache Tika [??], Metadata Extractor, and Title \& Author Extractor. 
-Downloaded original papers are first sent to Apache Tika which is a PDF file parser. It can parse PDF file into HTML-like structured data. The paper is parsed into several <page> tags which contains <p> tags that denote the raw paragraphs in the original paper. 
+There are three sub-components in the paper parser: Apache Tika , Metadata Extractor, and Title & Author Extractor. 
 
-Because the parsing is not very accuracy, the raw paragraphs contain all the texts in the paper, including the page foot, like “Proceedings of …”, “BioNLP 20...”. Those paragraphs are discarded. Then, the first raw paragraph is considered as the candidate title. The paragraph starts with “abstract” is the abstract paragraph. If there’s no paragraph starts with “abstract”, the first paragraph which contains more than 300 English letters is considered as abstract paragraph. 
+The original papers which downloaded from ACL web-site are first sent to Apache Tika which is a PDF file parser. It can parse PDF file into HTML-like structured data. The paper is parsed into several <page> tags which contain <p> tags that denote the raw paragraphs in the original paper. 
 
-We consider all the paragraphs between title and abstract as raw author info which contains author names, affiliations, and email addresses. All paragraphs after the key-word “reference” are considered as references. The other paragraphs between abstract and references are considered as content paragraphs. 
+Because the parsing is not very accurate, the raw paragraphs contain all the texts in the paper, including the page foot, like ``Proceedings of …'', ``BioNLP 20...''. After all these noise paragraphs are discarded by regular expression matching, the first raw paragraph is considered as the candidate title. The paragraph starts with ``abstract'' is the abstract paragraph. If there’s no paragraph starts with ``abstract'', the first paragraph which contains more than 300 English letters is considered as the abstract paragraph. 
+We consider all the paragraphs between title and abstract as raw author info which contains author names, affiliations, and email addresses. All paragraphs after the key-word ``reference'' or ``references'' are considered as paper references. The other paragraphs between abstract and references are considered as content paragraphs. 
 
-Content paragraphs are then sent to Metadata Extractor. 
-Metadata Extractor uses regular expression \verb- "\^(fig\.|figure)\s*\d+"- and  \verb-"\^(tab\.|table)\s*\d+"- to match the figures and tables in each page. Continuous paragraphs which contain more than 30\% non- alphabet English letters are considered as one formula. These approaches may not be very accurate. However, since both training and testing papers are parsed based on this same rule, we think the inaccuracy is acceptable. Using the methods above, all the metadata are generated. 
+Content paragraphs are then sent to Metadata Extractor. Metadata Extractor uses regular expression \verb- "\^(fig\.|figure)\s*\d+"- and  \verb-"\^(tab\.|table)\s*\d+"- to find the figures and tables in each page. Continuous paragraphs which contain more than 30\% non- alphabet English letters are considered as one formula. These approaches may not be very accurate. However, since both training and testing papers are parsed based on this same rule, we think the inaccuracy is acceptable. Using the methods above, all the metadata are generated. 
 
-Candidate title and raw author information are processed by Title \& Author Extractor. This extractor utilizes DBLP’s web service API: 
-“http://www.dblp.org/search/api/?q=[TITLE]”  
-where “[TITLE]” is the paper title to search. This API supports fuzzy query, so we send the raw title to the API and retrieve the most reliable one as the real title for the paper. Together with the title, author names are also returned from this API. Then the extractor uses regular express to match the email addresses within raw author info, the text between the author name and email addresses are considered as the author’s affiliation. 
+Candidate title and raw author information are processed by Title & Author Extractor. This extractor utilizes DBLP’s web service API . This API supports fuzzy query, so we send the raw title to the API and retrieve the most reliable one as the real title for the paper. If a paper does not exist in DBLP, the raw title is accepted. Together with the title, author names are also returned from DBLP web API. The extractor uses regular expression to match the email addresses within raw author info, the text between the author name and matched email addresses are considered as the author’s affiliation. Currently, only title and author names are used in our experiment. 
 
-Through the paper parser, the PDF paper is parsed into a Java “Paper” object. “Paper” contains one “Metadata”, several “Author” objects, and all sentences in each paragraph. The corresponding UML is attached in the Appendix. 
+Through the paper parser, the PDF paper is parsed into structured Java ``Paper'' object. ``Paper'' contains one ``Metadata'', several ``Author'' objects, and all sentences in each paragraph. The corresponding UML is attached in the Appendix.
 
 
 \subsection{Feature Extractors}
-Besides the metadata feature which directly comes from parsed Metadata object, other features are generated by several feature extractors. 
+Besides the metadata feature which directly comes from the parsed Metadata object, other features are generated from the following 4 feature extractors. 
 
 \begin{itemize} 
 \item {\bf Author ranker}
-Author ranker extracts the top 2000 authors in “Natural Language \& Speech” area from Microsoft Academic Search. Then the author names, affiliations and ranking are stored in a Lucene [??] index. Because there may be abbreviation in names which appeared in the paper, we send fuzzy query of author name to Lucene index to retrieve the ranking information. Also an empirical threshold value are set to filter those unlikely matching. 
+Author ranker extracts top 2000 authors in ``Natural Language & Speech'' area from Microsoft Academic Search. Then the author names, affiliations and ranking are stored in a Lucene  index. Because abbreviation in names may appear in the paper, we send fuzzy query of author name to the Lucene index to retrieve the ranking information. Also an empirical threshold matching score is set to filter out those unlikely matching. 
 
 
 \item {\bf Term analyzer}
-Term analyzer tries to catch concepts from paper at term-level. Right now the analyzer mainly focuses on the popular technique terms mentioned in the paper. Not like topic of paper, these technique terms concentrate on technique aspects of paper content. We manually created a list of technique terms and their synonyms and abbreviations. 
+Term analyzer tries to catch technical concepts from paper at term-level. Right now this analyzer mainly focuses on the popular technique terms mentioned in the paper. Unlike topics of paper, these technique terms only concentrate on technique aspects of the paper content. We manually created a list of technique terms and their synonyms and abbreviations. Term analyzer uses this term list to generate a Boolean feature vector. Each value in the vector corresponds to the existence of each technique term.
 
-Term analyzer use this term table to generate a Boolean vector feature, each value in the vector corresponds to the existence of each technique term. 
 \begin{table}
 \begin{center}
 \begin{tabular}{|c|p{4cm}|}
@@ -186,10 +184,10 @@ MutualInformation&	mutual information;\\ \hline
 
 
 \item	{\bf Topic analyzer}
-We believe that during a period of time, some certain topics are more interested in a given research area, and those papers studied such topics have more chances been accepted by the conference in that research area. In order to find out what topics are more interested by the conference, we use LDA (Latent Dirichlet allocation) to extract 20 topics from all the training data. The probability distribution of the topics of paper is used as a feature vector.  
+We believe that during a period of time, certain topics are more interested in certain research area, and those papers studied such topics have more chances been accepted by the conference in that research area. In order to find out what topics are more favored in the conference, we use LDA (Latent Dirichlet allocation) to extract 20 topics from all the training data. The probability distribution of the topics of paper is used as a feature vector. 
 
 \item	{\bf Sentence analyzer}
-Because there is a limitation of the number of pages in every conference, we think the sentence would be more complicated if the paper contains more information. Based on this assumption, we use sentence analyzer to analyze the complexities of sentences in each paper. The paragraphs in paper are first split into sentences, and then these sentences are parsed by Stanford Parser [??]. The entire parsing process is extremely slow. It costs more than 27 hours in our experiment machine (Intel Core i5, 2.27GHz, 6G RAM for JVM) with 5 working threads in parallel. After we got the parsed phrase structure tree from Stanford Parser, the depth of each sentence tree is used as the measurement of sentence complexity. 
+Because there is a limit in the number of pages of conference paper, we think the sentence would be more complicated if the paper contains more information, and such paper are more valuable than others. Based on this assumption, we use sentence analyzer to analyze the complexities of sentences in each paper. The paragraphs in paper are split into sentences first. And then these sentences are parsed by Stanford Parser. The entire parsing process is extremely slow. It costs more than 27 hours in our experiment machine (Intel Core i5, 2.27GHz, 6G RAM for JVM) with 5 working threads in parallel. After we got the parsed phrase structure tree from Stanford Parser, the depth of each sentence tree is used as the measurement of sentence complexity. 
 
 \end{itemize} 
 
