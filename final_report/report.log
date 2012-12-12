@@ -1,8 +1,8 @@
-This is XeTeX, Version 3.1415926-2.4-0.9998 (TeX Live 2012) (format=xelatex 2012.6.30)  12 DEC 2012 12:53
+This is XeTeX, Version 3.1415926-2.4-0.9998 (TeX Live 2012) (format=xelatex 2012.6.30)  12 DEC 2012 15:02
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
-**report.tex
+**report
 (./report.tex
 LaTeX2e <2011/06/27>
 Babel <v3.8m> and hyphenation patterns for english, dumylang, nohyphenation, ge
@@ -76,7 +76,11 @@ Package: appendix 2009/09/02 v1.2b extra appendix facilities
 \c@@ppsavesec=\count89
 \c@@ppsaveapp=\count90
 )
-(./report.aux)
+(./report.aux
+
+LaTeX Warning: Label `tab:statistics' multiply defined.
+
+)
 \openout1 = `report.aux'.
 
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 30.
@@ -119,22 +123,35 @@ Missing character: There is no “ in font ptmr7t!
 Missing character: There is no ” in font ptmr7t!
 Missing character: There is no “ in font ptmr7t!
 Missing character: There is no ” in font ptmr7t!
-LaTeX Font Info:    Try loading font information for OMS+ptm on input line 68.
+Missing character: There is no ’ in font ptmr7t!
+ [1
+
+
+
+
+]
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <10.95> on input line 69.
+LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <10.95> not available
+(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 83.
+File: materials/architecture.eps Graphic file (type eps)
+
+<materials/architecture.eps>
+LaTeX Font Info:    Try loading font information for OMS+ptm on input line 105.
+
 
 (/usr/local/texlive/2012/texmf-dist/tex/latex/psnfss/omsptm.fd
 File: omsptm.fd 
 )
 LaTeX Font Info:    Font shape `OMS/ptm/m/n' in size <10.95> not available
-(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 68.
-LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <10.95> not available
-(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 68.
+(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 105.
 
-Underfull \hbox (badness 1067) in paragraph at lines 68--70
+Underfull \hbox (badness 1067) in paragraph at lines 105--107
 \OT1/ptm/m/n/10.95 num-ber of ta-bles/formulas/figures per page,
  []
 
 
-Underfull \hbox (badness 2418) in paragraph at lines 68--70
+Underfull \hbox (badness 2418) in paragraph at lines 105--107
 \OT1/ptm/m/n/10.95 max num-ber of ta-bles/formulas/figures per
  []
 
@@ -142,15 +159,7 @@ Missing character: There is no “ in font ptmr7t!
 Missing character: There is no ” in font ptmr7t!
 Missing character: There is no ’ in font ptmr7t!
 Missing character: There is no ’ in font ptmr7t!
-[1
-
-
-
-
-]
 Missing character: There is no – in font ptmb7t!
-File: materials/architecture.eps Graphic file (type eps)
- <materials/architecture.eps>
 Missing character: There is no “ in font ptmr7t!
 Missing character: There is no … in font ptmr7t!
 Missing character: There is no ” in font ptmr7t!
@@ -161,13 +170,17 @@ Missing character: There is no ” in font ptmr7t!
 Missing character: There is no ’ in font ptmr7t!
 Missing character: There is no “ in font ptmr7t!
 Missing character: There is no ” in font ptmr7t!
+[2]
 Missing character: There is no “ in font ptmr7t!
 Missing character: There is no ” in font ptmr7t!
 
-Underfull \hbox (badness 1077) in paragraph at lines 114--116
+Underfull \hbox (badness 1077) in paragraph at lines 138--140
 \OT1/ptm/m/n/10.95 Ex-trac-tor. Meta-data Ex-trac-tor uses reg-u-lar ex-
  []
 
+
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
 Missing character: There is no ’ in font ptmr7t!
 Missing character: There is no “ in font ptmr7t!
 Missing character: There is no ” in font ptmr7t!
@@ -175,118 +188,200 @@ Missing character: There is no “ in font ptmr7t!
 Missing character: There is no ” in font ptmr7t!
 Missing character: There is no ’ in font ptmr7t!
 
-Underfull \hbox (badness 4779) in paragraph at lines 117--120
+Underfull \hbox (badness 4779) in paragraph at lines 141--144
 []\OT1/ptm/m/n/10.95 Candidate ti-tle and raw au-thor in-for-ma-tion
  []
 
 
-Underfull \hbox (badness 7186) in paragraph at lines 117--120
+Underfull \hbox (badness 7186) in paragraph at lines 141--144
 \OT1/ptm/m/n/10.95 are pro-cessed by Ti-tle & Au-thor Ex-trac-tor.
  []
 
 
-Underfull \hbox (badness 2735) in paragraph at lines 117--120
+Underfull \hbox (badness 2735) in paragraph at lines 141--144
 \OT1/ptm/m/n/10.95 http://www.dblp.org/search/api/?q=[TITLE] where
  []
 
-Missing character: There is no “ in font ptmr7t!
-Missing character: There is no ” in font ptmr7t!
-Missing character: There is no “ in font ptmr7t!
-Missing character: There is no ” in font ptmr7t!
-Missing character: There is no “ in font ptmr7t!
-Missing character: There is no ” in font ptmr7t!
-Missing character: There is no “ in font ptmr7t!
-Missing character: There is no ” in font ptmr7t!
-[2]
-Missing character: There is no “ in font ptmr7t!
-Missing character: There is no ” in font ptmr7t!
- [3]
-LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <10.95> on input line 189.
 
-Underfull \hbox (badness 10000) in paragraph at lines 198--198
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+ [3]
+Missing character: There is no “ in font ptmr7t!
+Missing character: There is no ” in font ptmr7t!
+Missing character: There is no “ in font ptmr7t!
+Missing character: There is no ” in font ptmr7t!
+Missing character: There is no “ in font ptmr7t!
+Missing character: There is no ” in font ptmr7t!
+Missing character: There is no “ in font ptmr7t!
+Missing character: There is no ” in font ptmr7t!
+Missing character: There is no “ in font ptmr7t!
+Missing character: There is no ” in font ptmr7t!
+
+Underfull \hbox (badness 1917) in paragraph at lines 166--166
+[]\OT1/ptm/m/n/10.95 HMM; HMMs; Hid-den
+ []
+
+
+Underfull \hbox (badness 2261) in paragraph at lines 167--167
+[]\OT1/ptm/m/n/10.95 MaxEnt; max-i-mum en-
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 168--168
+[]\OT1/ptm/m/n/10.95 MEMM; maximum-
+ []
+
+
+Underfull \hbox (badness 2970) in paragraph at lines 168--168
+\OT1/ptm/m/n/10.95 entropy Markov model;
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 168--168
+\OT1/ptm/m/n/10.95 max-i-mum en-tropy
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 170--170
+[]\OT1/ptm/m/n/10.95 NER; named-entity
+ []
+
+
+Underfull \hbox (badness 2644) in paragraph at lines 170--170
+\OT1/ptm/m/n/10.95 recog-ni-tion; named en-
+ []
+
+
+Underfull \hbox (badness 5756) in paragraph at lines 170--170
+\OT1/ptm/m/n/10.95 tity recog-ni-tion; en-tity
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 170--170
+\OT1/ptm/m/n/10.95 iden-ti-fi-ca-tion; en-tity
+ []
+
+
+Underfull \hbox (badness 7963) in paragraph at lines 171--171
+[]\OT1/ptm/m/n/10.95 SVM; SVMs; sup-port
+ []
+
+
+Underfull \hbox (badness 1221) in paragraph at lines 171--171
+\OT1/ptm/m/n/10.95 vec-tor net-work; sup-port
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 174--174
+[]\OT1/ptm/m/n/10.95 LSI; la-tent se-man-tic
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 174--174
+\OT1/ptm/m/n/10.95 value de-com-po-si-tion;
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 174--174
+\OT1/ptm/m/n/10.95 LSA; la-tent se-man-tic
+ []
+
+
+Underfull \hbox (badness 2538) in paragraph at lines 175--175
+\OT1/ptm/m/n/10.95 gence; Kullback-Leibler
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 175--175
+\OT1/ptm/m/n/10.95 di-ver-gence; Kull-back
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 175--175
+\OT1/ptm/m/n/10.95 Leibler di-ver-gence;
+ []
+
+[4]
+Underfull \hbox (badness 10000) in paragraph at lines 248--248
 []\OT1/ptm/m/n/10.95 Popular
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 199--199
+Underfull \hbox (badness 10000) in paragraph at lines 249--249
 []\OT1/ptm/m/n/10.95 Author
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 200--200
+Underfull \hbox (badness 10000) in paragraph at lines 250--250
 []\OT1/ptm/m/n/10.95 Sentence
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 229--229
+Underfull \hbox (badness 10000) in paragraph at lines 279--279
 []\OT1/ptm/m/n/10.95 Sentence
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 230--230
+Underfull \hbox (badness 10000) in paragraph at lines 280--280
 []\OT1/ptm/m/n/10.95 Metadata
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 230--230
+Underfull \hbox (badness 10000) in paragraph at lines 280--280
 \OT1/ptm/m/n/10.95 &LDA&
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 247--247
+Underfull \hbox (badness 10000) in paragraph at lines 297--297
 []\OT1/ptm/m/n/10.95 Sentence
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 248--248
+Underfull \hbox (badness 10000) in paragraph at lines 298--298
 []\OT1/ptm/m/n/10.95 Metadata
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 248--248
+Underfull \hbox (badness 10000) in paragraph at lines 298--298
 \OT1/ptm/m/n/10.95 &LDA&
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 264--264
+Underfull \hbox (badness 10000) in paragraph at lines 314--314
 []\OT1/ptm/m/n/10.95 Sentence
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 265--265
+Underfull \hbox (badness 10000) in paragraph at lines 315--315
 []\OT1/ptm/m/n/10.95 Metadata
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 265--265
+Underfull \hbox (badness 10000) in paragraph at lines 315--315
 \OT1/ptm/m/n/10.95 &LDA&
  []
 
-[4]
+[5]
 Missing character: There is no ’ in font ptmr7t!
- [5]
+ [6]
 File: materials/paper_uml.png Graphic file (type QTm)
  <use  "materials/paper_uml.png" >
-Missing character: There is no • in font ptmr7t!
-Missing character: There is no • in font ptmr7t!
-Missing character: There is no • in font ptmr7t!
 File: materials/workload.eps Graphic file (type eps)
- <materials/workload.eps> [6
+ <materials/workload.eps> [7
 
-] [7]
+] [8]
 (./report.aux)
 
-LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
+LaTeX Warning: There were multiply-defined labels.
 
  ) 
 Here is how much of TeX's memory you used:
- 828 strings out of 494004
- 11004 string characters out of 3150890
+ 829 strings out of 494004
+ 11020 string characters out of 3150890
  70811 words of memory out of 3000000
- 4113 multiletter control sequences out of 15000+200000
+ 4114 multiletter control sequences out of 15000+200000
  11733 words of font info for 39 fonts, out of 3000000 for 9000
  1144 hyphenation exceptions out of 8191
- 25i,9n,19p,727b,264s stack positions out of 5000i,500n,10000p,200000b,50000s
+ 25i,10n,19p,876b,307s stack positions out of 5000i,500n,10000p,200000b,50000s
 
-Output written on report.pdf (7 pages).
+Output written on report.pdf (8 pages).

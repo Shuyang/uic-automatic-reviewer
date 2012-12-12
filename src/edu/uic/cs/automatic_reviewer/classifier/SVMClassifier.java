@@ -196,7 +196,7 @@ public class SVMClassifier {
 
 	public static void main(String[] args) {
 		Map<PaperPublishType, List<Paper>> result = PaperCache.getInstance()
-				.getPapersByPublishTypeForYear(2007);
+				.getPapersByPublishTypeForYear(2012);
 		
 
 		SVMClassifier classfier = new SVMClassifier();

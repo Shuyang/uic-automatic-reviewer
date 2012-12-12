@@ -34,35 +34,72 @@
 \end{abstract}
 
 \section{Introduction}
-After submitted a paper to a conference, you, as the author of the paper, usually are most interested in whether your paper will be accepted or not.
-However, it is the decision made by the reviewers of conference. 
-One question rises here is that “can we predict the result?” or more specifically, “can we find the criteria of a certain conference?” 
-In this paper, we introduce Automatic Reviewer which may give you the answers, even before you submit the paper to the conference. 
+After submitted a paper to a conference, you, as the author of the paper, usually are most interested in whether your paper will be accepted or not. However, it is the decision made by the reviewers of conference. A question arises here is that “can we predict the result?” or more specifically, “can we find the criteria of a certain conference?” In this paper, we introduce Automatic Reviewer, which may give you the answers, even before you submit the paper to the conference. 
 
-This paper studies the following two problems: 
-1. What statistical features of papers are correlated to the decision of the conference? 
-2. To what extent can an automatic program predict whether a paper will be accepted or not?
+This paper studies the following two problems: 1. What statistical features of papers are correlated to the decision of the conference? 2. To what extent can an automatic program predict whether a paper will be accepted or not?
 
-We extract several features which range from paper metadata to paper topics. 
-We use supervised learning algorithm (SVM) to learn our system model, and use cross-fold validation to evaluate our method. 
+We extract several features, which range from paper metadata to paper topics. We use supervised learning algorithm (SVM) to learn our system model, and use cross-fold validation to evaluate our method. 
 
 \section{Related Work}
 
-Predicting has been studied in many areas, especially in economics.?? Hal Varian studied using Google queries to help predict economic activity 
-%(http://static.googleusercontent.com/external_content/untrusted_dlcp/www.google.com/en/us/googleblogs/pdfs/google_predicting_the_present.pdf)
-// TODO more examples??
-
-However, as far as we know, no similar study has been done in predicting conference paper acceptance. The only related study is focus on the visual structure of papers [??]. 
-
-// TODO 4 related papers?!
+Predicting has been studied in many areas, especially in e-commerce. Online store like Amazon uses data mining techniques to predict what the customer would like to buy based on her/his previous purchase history, and other customers’ purchase behavior. Such techniques are known as association analysis [1]. Hal Varian [2] studied using Google queries to help predict economic activity. In last few years, with the great success of social networking, more and more researches focus on that area too. Devavrat Shah and Stanislav Nikolov recently announced their new algorithm that can predict trending topics on Twitter as much as five hours in advance and with an accuracy of 95\% [3]. However, as far as we know, no similar study has been done in predicting conference paper acceptance. The only related study focus on the visual structure of conference papers [4]. 
 
 
 
 \section{Data Set}
-Currently, we only focus on ACL conference papers. We also limited our study to the papers which were published in year 2007, 2010, and 2012. The reason is that ??
-The full papers are used as positive samples. Due to lack of real rejected papers, we assume that all the workshop papers are not as good as the full papers, and use them as negative samples in our study. The statistics of dataset is listed as below: 
+Currently, we focus on ACL conference.
+The full papers accepted by ACL are used as positive samples. 
+As we do not have access to the real rejected papers, 
+we use the papers in the joint workshops with ACL as the negative samples.
+We made an assumption that the workshop papers are the papers rejected by the main conference.
+The assumption is obviously not true for every ACL workshop paper.
+But it still make sense for two reasons:
+(1) Usually, workshop paper are not of as good quality as the main conference paper. 
+(2) If a paper is rejected by the main conference, the authors will be suggested to submit the paper to the workshops come along with the conference.
 
-We use different features: some of them are directly extracted from the paper; the others are calculated by using several different techniques. 
+
+We collect the papers which were published in ACL conference and joint workshops in year 2007, 2010, and 2012. 
+They are the latest three ACL conferences that are not a joint conference.
+We do not want to consider joint conference, because we want to focus on ACL conference alone.
+After collecting the data, we filter out the workshop paper that is less than 8 pages, since the full papers accpected by ACL conference usually have 9 or 10 pages.
+The statistics of dataset is listed in Table \ref{tab:statistics} 
+
+\begin{table}
+\begin{center}
+\begin{tabular}{|c|cl|c|c|}
+\hline 
+Year & Positive &	Negative & Total\\ \hline 
+2007 & 99  &	179 & 278\\ \hline	
+2010 	& 160 &  144 & 304	\\ \hline
+2012 	& 111 & 79 & 190 \\ \hline
+Total & 370 & 402 & 772 \\\hline	
+\end{tabular}
+\end{center}
+\label{tab:statistics}
+\caption{The Statistics of Dataset}
+\end{table}
+
+\section{Approaches}
+\subsection{Outline}
+Papers are first parsed into structured data (Java objects). Metadata from the paper are used directly as features. Then the parsed papers are processed by several feature extractors. Finally, the feature vectors are sent to Support Vector Machines (SVM) for model learning and evaluation.
+
+
+\begin{figure*}[htb]
+  \centering
+	 	 \includegraphics[width=0.9\textwidth]{materials/architecture.eps}
+		\caption{The architecture of the proposed approach}
+		\label{fig:architecture}
+\end{figure*}
+In this study, we first downloaded all the papers from ACL web-site. Then we send them to Automatic Reviewer. There are three main components in Automatic Reviewer: 1. paper parser; 2. feature extractors; and 3. model and evaluation component. 
+The architecture is showed in Figure \ref{fig:architecture}.
+
+Papers are first parsed into structured data (Java objects). Metadata from the paper are used directly as features. Then the parsed papers are processed by several feature extractors. Finally, the feature vectors are sent to Support Vector Machines (SVM) for model learning and evaluation.
+
+
+
+
+\subsection{Features}
+We use four different set of features: some of them are directly extracted from the paper; the others are calculated by using several different techniques. 
 
 \begin{itemize} 
 \item {\bf Metadata}
@@ -81,23 +118,10 @@ Based on the assumption that novel ideas are favored in the conference, and such
 LDA is used to extract topics from all the papers. In our experiment, top 20 topics are extracted, and the probability distribution vector of topics is used as one feature. 
 
 \item {\bf 	Sentence complexity}
-All the content sentences within papers are parsed into phrase structure tree by using Stanford Parser [??]. The depth of tree is used as complexity of the corresponding sentence.  //TODO how exactly we use it??
+All the content sentences within papers are parsed into phrase structure tree by using Stanford Parser [??]. The depth of tree is used as complexity of the corresponding sentence.  
+For each paper, we count the number of sentences with each possible value of complexity,
+and use the frequency of all the possible values of complexity as a feature vector.
 \end{itemize}
-
-Papers are first parsed into structured data (Java objects). Metadata from the paper are used directly as features. Then the parsed papers are processed by several feature extractors. Finally, the feature vectors are sent to Support Vector Machines (SVM) for model learning and evaluation.
-
-
-\section{Approaches}
-\begin{figure*}[htb]
-  \centering
-	 	 \includegraphics[width=0.7\textwidth]{materials/architecture.eps}
-		\caption{The architecture of the proposed approach}
-		\label{fig:architecture}
-\end{figure*}
-In this study, we first downloaded all the papers from ACL web-site. Then we send them to Automatic Reviewer. There are three main components in Automatic Reviewer: 1. paper parser; 2. feature extractors; and 3. model and evaluation component. 
-The architecture is showed in Figure \ref{fig:architecture}.
-
-Papers are first parsed into structured data (Java objects). Metadata from the paper are used directly as features. Then the parsed papers are processed by several feature extractors. Finally, the feature vectors are sent to Support Vector Machines (SVM) for model learning and evaluation.
 
 
 
@@ -133,6 +157,32 @@ Author ranker extracts the top 2000 authors in “Natural Language \& Speech” 
 Term analyzer tries to catch concepts from paper at term-level. Right now the analyzer mainly focuses on the popular technique terms mentioned in the paper. Not like topic of paper, these technique terms concentrate on technique aspects of paper content. We manually created a list of technique terms and their synonyms and abbreviations. 
 
 Term analyzer use this term table to generate a Boolean vector feature, each value in the vector corresponds to the existence of each technique term. 
+\begin{table}
+\begin{center}
+\begin{tabular}{|c|p{4cm}|}
+\hline 
+Term & Forms\\ \hline 
+LDA	& LDA; Latent Dirichlet allocation\\ \hline 
+HMM	& HMM; HMMs; Hidden Markov model\\ \hline 
+MaxEnt	&MaxEnt; maximum entropy\\ \hline 
+MEMM &	MEMM; maximum-entropy Markov model; maximum entropy Markov model\\ \hline 
+CRF	& CRF; CRFs; Conditional random fields\\ \hline 
+NER	& NER; named-entity recognition; named entity recognition; entity identification; entity extraction\\ \hline 
+SVM	& SVM; SVMs; support vector machine; support vector machine; support vector network; support vector networks\\ \hline 
+LogisticRegression	& logistic regression \\ \hline 
+LinearRegression	&linear regression\\ \hline 
+LSI &	LSI; latent semantic indexing; SVD; singular value decomposition; LSA; latent semantic analysis\\ \hline 
+KLdivergence &	KL-divergence; KLdivergence; Kullback-Leibler divergence; Kullback Leibler divergence; information gain\\ \hline 
+MutualInformation&	mutual information;\\ \hline 
+\end{tabular}
+\end{center}
+\label{tab:statistics}
+\caption{The Statistics of Dataset}
+\end{table}
+
+
+
+
 
 
 \item	{\bf Topic analyzer}
@@ -300,25 +350,27 @@ It is still not clear to us why each feature may have different performance on d
 It may because of that each year the ACL conference has different set of workshops comes alone with it.
 
 
-\subsection{Discussion and Conclusion} 
+\subsection{Conclusion and Future Work} 
+From the result of evaluation, we can see that the proposed model can predict whether a paper is accepted or not with good accuracy. 
+The metadata, sentence complexity and the topic distribution learned by LDA model are the best features.
+This result proved our assumption that certain topics are more favored by certain conference. 
+Also, tables number is the best of all three metadata, which indicates that the reviewers of paper are more willing to see the well structured result of research rather than plain text.
 
-// may be changed according to new evaluation result
-Form the result of evaluation, we can see that our model can predict whether a paper is accepted or not with good accuracy. The metadata and the topic distribution learned by LDA model are the best features. This result proved our assumption that certain topics are more favored by certain conference. Also, tables number is the best of all three metadata, which indicates that the reviewers of paper are more willing to see the well structured result of research rather than plain text. // TODO 
-
-Features like popular techniques and author ranking do not work very good. This phenomena indicates that the quality of ACL conference is very high, the papers are thoroughly studied before accepting/rejecting, and the conference cares more about the content of paper rather than whether the techniques used are popular or not. Because the reviewing is blind, the author’s ranking cannot influence the decision of the reviewers. 
-
-We find that our model seems work better on the more balanced dataset (i.e. the numbers of positive and negative samples are close to each other)
-
-// TODO
-
-
-In the future, we want to study how the topic/style of papers changes over the time. And we also want to extend our research to other conferences in other area. We want to find out the main difference between the accepted papers in different conferences, and different areas. 
-Currently, the negative samples are workshop papers which may not be representative.  We are considering using papers come from lower-level conferences within the same research area as the negative samples. 
+Features like popular techniques and author ranking do not work very good. 
+This phenomena indicates that the quality of ACL conference is very high, the papers are thoroughly studied before accepting/rejecting, and the conference cares more about the content of paper rather than whether the techniques used are popular or not. 
+Because the reviewing is blind, the author’s ranking cannot influence the decision of the reviewers. 
 
 
+In the future, we want to study how the topic/style of papers changes over the time. 
+And we also want to extend our research to other conferences in other area.
+We want to find out the main difference between the accepted papers in different conferences, and different areas. 
+Currently, the negative samples are workshop papers which may not be representative. 
+We are considering using papers come from lower-level conferences within the same research area as the negative samples. 
 
-\begin{appendices}
-\chapter{Additional materials}
+\appendix
+
+\section{Additional materials}
+See the Figure \ref{fig:uml} for the parsed Jave Paper object.  
 \begin{figure*}[htb]
   \centering
 	 	 \includegraphics[width=0.7\textwidth]{materials/paper_uml.png}
@@ -328,21 +380,23 @@ Currently, the negative samples are workshop papers which may not be representat
 
 
 
-\chapter{Project Workload}
-•	The blue parts are done by Hong Wang.
-•	The red parts (including original paper gathering and evaluation) are done by Shuyang Lin.
-•	This project report and previous presentation slides are done by both of them. 
+\section{Project Workload}
+See the Figure \ref{fig:workload}.
+\begin{itemize}
+\item The blue parts (includs paper parser, major part of feature extracting) are done by Hong Wang.
+\item	The red parts (includs data collecting, minor part of feature extrating, feature generating and classifier) are done by Shuyang Lin.
+\item	This project report and previous presentation slides are done by both of them. 
+\end{itemize}
+
 
 \begin{figure*}[htb]
   \centering
 	 	 \includegraphics[width=0.5\textwidth]{materials/workload.eps}
-		\caption{UML for the parsed Java Paper object}
+		\caption{Wordload}
 		\label{fig:workload}
 \end{figure*}
 
 
-
-\end{appendices}
 
 
 
