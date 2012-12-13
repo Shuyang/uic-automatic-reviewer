@@ -112,9 +112,9 @@ Total & 370 & 402 & 772 \\\hline
 
 \section{Approaches}
 \subsection{Outline}
-Papers are first parsed into structured data (Java objects). Metadata from the paper are used directly as features. 
-Then the parsed papers are processed by several feature extractors. Finally, the feature vectors are sent to Support 
-Vector Machines (SVM) for model learning and evaluation.
+%Papers are first parsed into structured data (Java objects). Metadata from the paper are used directly as features. 
+%Then the parsed papers are processed by several feature extractors. Finally, the feature vectors are sent to Support 
+%Vector Machines (SVM) for model learning and evaluation.
 
 \begin{figure*}[htb]
   \centering
@@ -145,7 +145,7 @@ We extracted top 2000 authors in ``Natural Language \& Speech'' area from Micros
 We also manually created a list of popular techniques which may be used in the NLP research. The terms of techniques and its synonyms, abbreviations are group together. We check each technique group in the paper, to see if it has been mentioned or not.
 
 \item {\bf Words in the title (TF-IDF Score)}
-Based on the assumption that novel ideas are favored in the conference, and papers with novel ideas may have titles that contain infrequent terms which are more attractive to the reviewers, we count the TF-IDF score for the title terms, and use the score as one of features.
+Based on the assumption that novel ideas are favored in the conference, and papers with novel ideas may have titles that contain infrequent terms which are more attractive to the reviewers, we count the TF-IDF score for the title terms, and use the score as one of the features.
 
 \item {\bf Topic – LDA (Latent Dirichlet Allocation )}
 LDA is used to extract topics from all the papers. In our experiment, top 20 topics are extracted, and the probability distribution vector of topics is used as one feature. 
@@ -170,7 +170,7 @@ We consider all the paragraphs between title and abstract as raw author info whi
 
 Content paragraphs are then sent to Metadata Extractor. Metadata Extractor uses regular expression \verb- "\^(fig\.|figure)\s*\d+"- and  \verb-"\^(tab\.|table)\s*\d+"- to find the figures and tables in each page. Continuous paragraphs which contain more than 30\% non- alphabet English letters are considered as one formula. These approaches may not be very accurate. However, since both training and testing papers are parsed based on this same rule, we think the inaccuracy is acceptable. Using the methods above, all the metadata are generated. 
 
-Candidate title and raw author information are processed by Title \& Author Extractor. This extractor utilizes DBLP's web service API \footnote{http://www.dblp.org/search/api/?q=[TITLE], where "[TITLE]" is the paper title to search.}. This API supports fuzzy query search. So we send the raw title to the API and retrieve the most reliable one as the real title for the paper. If a paper does not exist in DBLP, the raw title is accepted. Together with the title, author names are also returned from DBLP web API. The extractor uses regular expression to match the email addresses within raw author info, the text between the author name and matched email addresses are considered as the author's affiliation (including address). Currently, only title and author names are further used in our experiment. 
+Candidate title and raw author information are processed by Title \& Author Extractor. This extractor utilizes DBLP's web service API \footnote{http://www.dblp.org/search/api/?q=[TITLE], where "[TITLE]" is the paper title to search.}. This API supports fuzzy query search. We send the raw title to the API and retrieve the most reliable one as the real title for the paper. If a paper does not exist in DBLP, the raw title is accepted. Together with the title, author names are also returned from DBLP web API. The extractor uses regular expression to match the email addresses within raw author info, the text between the author name and matched email addresses are considered as the author's affiliation. Currently, only title and author names are further used in our experiment. 
 
 Through the paper parser, the PDF paper is parsed into structured Java ``Paper'' object. ``Paper'' contains one ``Metadata'', several ``Author'' objects, and all sentences in each paragraph. The corresponding UML is attached in the Appendix.
 
@@ -180,12 +180,12 @@ Besides the metadata feature which directly comes from the parsed Metadata objec
 
 \begin{itemize} 
 \item {\bf Author ranker}
-Author ranker extracts top 2000 authors in ``Natural Language \& Speech'' area from Microsoft Academic Search. Then the author names, affiliations and ranking are stored in a Lucene [foorprint:Apache Lucene, http://lucene.apache.org/] index. Because abbreviation of names may appear in the paper, we send fuzzy query of author name to the Lucene index to retrieve the ranking information. Also an empirical matching score threshold is set in order to filter out those unlikely matching. 
+Author ranker extracts top 2000 authors in ``Natural Language \& Speech'' area from Microsoft Academic Search. Then the author names, affiliations and ranking are stored in a Lucene \footnote{Apache Lucene, http://lucene.apache.org/} index. Because abbreviation of names may appear in the paper, we send fuzzy query of author name to the Lucene index to retrieve the ranking information. Also an empirical matching score threshold is set in order to filter out those unlikely matching. 
 
 
 \item {\bf Term analyzer}
 Term analyzer tries to catch technical concepts from paper at term-level. Right now this analyzer mainly focuses on the popular technique terms mentioned in the paper. Unlike topics of paper, these technique terms only concentrate on technique aspects of the paper content. We manually created a list of technique terms and their synonyms and abbreviations. 
-The term list is shown in Table \ref{tab:terms}.
+The term list is shown in Table \ref{tab:terms} in the Appendix.
 Term analyzer uses this term list to generate a Boolean feature vector. Each value in the vector corresponds to the existence of each technique term.
 
 
@@ -225,7 +225,7 @@ and report the precision, recall and F-score for the classier using each single 
 
 As shown in the Table \ref{tab:feature_eval},
 LDA Topic feature and sentence complexity feature are two best predictors for this problem.
-Each of them can construct a classifier that is better that the all-positive baseline.
+Each of them can construct a classifier that is better than the all-positive baseline.
 Each of the metadata feature (number of pictures/formulas/tables on each page),
 when is used alone, is a weak predictor.
 But when we consider all the features from metadata together,
@@ -275,7 +275,7 @@ and evaluate our approach by conducting cross-validation on each of the three da
 For each data set we compare the evaluation result of the classifier learned by all the features with the all-positive baseline.
 Since metadata feature, LDA topic feature and sentence complexity feature are three most useful features, as discussed in Section \ref{sec:feature_eval}
 , we also list the result of the classifier learned from each of the three features as well as the one learned from three of them. 
-Table \ref{tab:2012} \ref{tab:2010} and \ref{tab:2007} show the result of ACL 2012, 2010 and 2007 data sets respectively.
+Table \ref{tab:2012}, \ref{tab:2010} and \ref{tab:2007} show the result of ACL 2012, 2010 and 2007 data sets respectively.
 
 
 
@@ -349,9 +349,9 @@ But if we consider all the features together,
 the result classifier is not better than the baseline.
 
 On the ACL 2007 data set, the sentence complexity feature alone is a good predictor.
-It can make a classifier than is 10\% outperforms the all-positive baseline.
-Other features are not as good that the sentence complexity feature,
-when consider all the features together, the result is not as good as the one using only the sentence complexity feature,
+It can make a classifier that is 10\% outperforms the all-positive baseline.
+Other features are not as good as the sentence complexity feature.
+When consider all the features together, the result is not as good as the one using only the sentence complexity feature,
 but it is still better than the baseline.
 
 As we have shown above, the results of evaluation are different on each data set, because features may work well on one data set, 
