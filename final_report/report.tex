@@ -113,7 +113,7 @@ the others are calculated by using more sophisticated techniques.
 Metadata are those information extracted from paper itself, like the number of pages, total numbers of tables/formulas/figures, number of tables/formulas/figures per page, max number of tables/formulas/figures per page. In our current experiment, we only use total number of tables/formulas/figures as features.
 
 \item {\bf 	Author Ranking}
-We extracted top 2000 authors in ``Natural Language & Speech'' area from Microsoft Academic Search , and use this extracted list as the authors’ ranking. If author doesn’t appear in the list, the rank will be zero.
+We extracted top 2000 authors in ``Natural Language \& Speech'' area from Microsoft Academic Search , and use this extracted list as the authors’ ranking. If author doesn’t appear in the list, the rank will be zero.
 
 \item {\bf 	Popular techniques mentioned in the paper}
 We also manually created a list of popular techniques which may be used in the NLP research. The terms of techniques and its synonyms, abbreviations are group together. We check each technique in the paper, to see if it has been mentioned or not.
@@ -135,7 +135,7 @@ and use the frequency of all the possible values of complexity as a feature vect
 
 \subsection{Paper parser}
 
-There are three sub-components in the paper parser: Apache Tika , Metadata Extractor, and Title & Author Extractor. 
+There are three sub-components in the paper parser: Apache Tika , Metadata Extractor, and Title \& Author Extractor. 
 
 The original papers which downloaded from ACL web-site are first sent to Apache Tika which is a PDF file parser. It can parse PDF file into HTML-like structured data. The paper is parsed into several <page> tags which contain <p> tags that denote the raw paragraphs in the original paper. 
 
@@ -144,7 +144,7 @@ We consider all the paragraphs between title and abstract as raw author info whi
 
 Content paragraphs are then sent to Metadata Extractor. Metadata Extractor uses regular expression \verb- "\^(fig\.|figure)\s*\d+"- and  \verb-"\^(tab\.|table)\s*\d+"- to find the figures and tables in each page. Continuous paragraphs which contain more than 30\% non- alphabet English letters are considered as one formula. These approaches may not be very accurate. However, since both training and testing papers are parsed based on this same rule, we think the inaccuracy is acceptable. Using the methods above, all the metadata are generated. 
 
-Candidate title and raw author information are processed by Title & Author Extractor. This extractor utilizes DBLP’s web service API . This API supports fuzzy query, so we send the raw title to the API and retrieve the most reliable one as the real title for the paper. If a paper does not exist in DBLP, the raw title is accepted. Together with the title, author names are also returned from DBLP web API. The extractor uses regular expression to match the email addresses within raw author info, the text between the author name and matched email addresses are considered as the author’s affiliation. Currently, only title and author names are used in our experiment. 
+Candidate title and raw author information are processed by Title \& Author Extractor. This extractor utilizes DBLP’s web service API . This API supports fuzzy query, so we send the raw title to the API and retrieve the most reliable one as the real title for the paper. If a paper does not exist in DBLP, the raw title is accepted. Together with the title, author names are also returned from DBLP web API. The extractor uses regular expression to match the email addresses within raw author info, the text between the author name and matched email addresses are considered as the author’s affiliation. Currently, only title and author names are used in our experiment. 
 
 Through the paper parser, the PDF paper is parsed into structured Java ``Paper'' object. ``Paper'' contains one ``Metadata'', several ``Author'' objects, and all sentences in each paragraph. The corresponding UML is attached in the Appendix.
 
@@ -154,7 +154,7 @@ Besides the metadata feature which directly comes from the parsed Metadata objec
 
 \begin{itemize} 
 \item {\bf Author ranker}
-Author ranker extracts top 2000 authors in ``Natural Language & Speech'' area from Microsoft Academic Search. Then the author names, affiliations and ranking are stored in a Lucene  index. Because abbreviation in names may appear in the paper, we send fuzzy query of author name to the Lucene index to retrieve the ranking information. Also an empirical threshold matching score is set to filter out those unlikely matching. 
+Author ranker extracts top 2000 authors in ``Natural Language \& Speech'' area from Microsoft Academic Search. Then the author names, affiliations and ranking are stored in a Lucene  index. Because abbreviation in names may appear in the paper, we send fuzzy query of author name to the Lucene index to retrieve the ranking information. Also an empirical threshold matching score is set to filter out those unlikely matching. 
 
 
 \item {\bf Term analyzer}
