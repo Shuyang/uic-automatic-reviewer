@@ -185,8 +185,31 @@ Author ranker extracts top 2000 authors in ``Natural Language \& Speech'' area f
 
 \item {\bf Term analyzer}
 Term analyzer tries to catch technical concepts from paper at term-level. Right now this analyzer mainly focuses on the popular technique terms mentioned in the paper. Unlike topics of paper, these technique terms only concentrate on technique aspects of the paper content. We manually created a list of technique terms and their synonyms and abbreviations. 
-The term list is shown in Table \ref{tab:terms} in the Appendix.
+The term list is shown in Table \ref{tab:terms}.
 Term analyzer uses this term list to generate a Boolean feature vector. Each value in the vector corresponds to the existence of each technique term.
+
+\begin{table}[htb]
+\begin{center}
+\begin{tabular}{|c|p{5cm}|}
+\hline 
+Term & Forms\\ \hline 
+LDA	& LDA; Latent Dirichlet allocation\\ \hline 
+HMM	& HMM; HMMs; Hidden Markov model\\ \hline 
+MaxEnt	&MaxEnt; maximum entropy\\ \hline 
+MEMM &	MEMM; maximum-entropy Markov model; maximum entropy Markov model\\ \hline 
+CRF	& CRF; CRFs; Conditional random fields\\ \hline 
+NER	& NER; named-entity recognition; named entity recognition; entity identification; entity extraction\\ \hline 
+SVM	& SVM; SVMs; support vector machine; support vector machine; support vector network; support vector networks\\ \hline 
+LogisticRegression	& logistic regression \\ \hline 
+LinearRegression	&linear regression\\ \hline 
+LSI &	LSI; latent semantic indexing; SVD; singular value decomposition; LSA; latent semantic analysis\\ \hline 
+KLdivergence &	KL-divergence; KLdivergence; Kullback-Leibler divergence; Kullback Leibler divergence; information gain\\ \hline 
+MutualInformation&	mutual information;\\ \hline 
+\end{tabular}
+\end{center}
+\caption{Popular techinique terms used by term analyzer}
+\label{tab:terms}
+\end{table}
 
 
 
@@ -316,7 +339,7 @@ All Positive	&52.7& 100.0	& 68.9\\\hline
 
 \begin{table}
 \begin{center}
-\begin{tabular}{|p{2cm}|cl|c|c|}
+\begin{tabular}{|p{2cm}|c|c|c|}
 \hline 
 & \bf Precision & \bf Recall & \bf F-score \\ \hline
 Metadata	& 35.2	& 31.3	& 33.2\\ \hline
@@ -330,6 +353,10 @@ All Positive	& 35.6	& 100.0	& 52.5\\ \hline
 \caption{Evaluation on ACL 2007 Data Set}
 \label{tab:2007}
 \end{table}
+
+
+
+
 
 
 As shown in these tables,
@@ -361,12 +388,20 @@ It may because of the criteria of reviewing gradually changes as time goes by,
 but may also be explained by the fact that each year the ACL conference has different set of workshops comes alone with it.
 
 
+
+
+
 \subsection{Conclusion and Future Work} 
 From the result of evaluation, we can see that the proposed model can predict whether a paper is accepted or not with good accuracy. 
 The metadata, sentence complexity and the topic distribution learned by LDA model are the three best features.
 This result proved our assumption that certain topics are more favored by certain conference,
 and the complexity of the sentences also influence whether it will be accepted or not.
 Also, tables number is the best of all three metadata, which indicates that the reviewers of paper are more willing to see the well structured result of research rather than plain text.
+
+
+
+
+
 
 
 Features like popular techniques and author ranking do not work very good. 
@@ -379,6 +414,8 @@ And we also want to extend our research to other conferences in other area.
 We want to find out the main difference between the accepted papers in different conferences, and different areas. 
 Currently, the negative samples are workshop papers which may not be representative. 
 We are considering using papers come from lower-level conferences within the same research area as the negative samples. 
+
+
 
 
 
@@ -424,7 +461,8 @@ C. V. Bearnensquash\newblock 1997.
 
 \section{Additional materials}
 Figure \ref{fig:uml} is the UML for the parsed Java Paper object.  
-Table \ref{tab:terms} is the list of polular technique terms used by term analyzer
+
+
 
 \begin{figure*}[htb]
   \centering
@@ -434,28 +472,6 @@ Table \ref{tab:terms} is the list of polular technique terms used by term analyz
 \end{figure*}
 
 
-\begin{table}
-\begin{center}
-\begin{tabular}{|c|p{4cm}|}
-\hline 
-Term & Forms\\ \hline 
-LDA	& LDA; Latent Dirichlet allocation\\ \hline 
-HMM	& HMM; HMMs; Hidden Markov model\\ \hline 
-MaxEnt	&MaxEnt; maximum entropy\\ \hline 
-MEMM &	MEMM; maximum-entropy Markov model; maximum entropy Markov model\\ \hline 
-CRF	& CRF; CRFs; Conditional random fields\\ \hline 
-NER	& NER; named-entity recognition; named entity recognition; entity identification; entity extraction\\ \hline 
-SVM	& SVM; SVMs; support vector machine; support vector machine; support vector network; support vector networks\\ \hline 
-LogisticRegression	& logistic regression \\ \hline 
-LinearRegression	&linear regression\\ \hline 
-LSI &	LSI; latent semantic indexing; SVD; singular value decomposition; LSA; latent semantic analysis\\ \hline 
-KLdivergence &	KL-divergence; KLdivergence; Kullback-Leibler divergence; Kullback Leibler divergence; information gain\\ \hline 
-MutualInformation&	mutual information;\\ \hline 
-\end{tabular}
-\end{center}
-\caption{Popular techinique terms used by term analyzer}
-\label{tab:terms}
-\end{table}
 
 
 
