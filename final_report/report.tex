@@ -189,28 +189,6 @@ The term list is shown in Table \ref{tab:terms}.
 Term analyzer uses this term list to generate a Boolean feature vector. Each value in the vector corresponds to the existence of each technique term.
 
 
-\begin{table}
-\begin{center}
-\begin{tabular}{|c|p{4cm}|}
-\hline 
-Term & Forms\\ \hline 
-LDA	& LDA; Latent Dirichlet allocation\\ \hline 
-HMM	& HMM; HMMs; Hidden Markov model\\ \hline 
-MaxEnt	&MaxEnt; maximum entropy\\ \hline 
-MEMM &	MEMM; maximum-entropy Markov model; maximum entropy Markov model\\ \hline 
-CRF	& CRF; CRFs; Conditional random fields\\ \hline 
-NER	& NER; named-entity recognition; named entity recognition; entity identification; entity extraction\\ \hline 
-SVM	& SVM; SVMs; support vector machine; support vector machine; support vector network; support vector networks\\ \hline 
-LogisticRegression	& logistic regression \\ \hline 
-LinearRegression	&linear regression\\ \hline 
-LSI &	LSI; latent semantic indexing; SVD; singular value decomposition; LSA; latent semantic analysis\\ \hline 
-KLdivergence &	KL-divergence; KLdivergence; Kullback-Leibler divergence; Kullback Leibler divergence; information gain\\ \hline 
-MutualInformation&	mutual information;\\ \hline 
-\end{tabular}
-\end{center}
-\caption{Popular techinique terms used by term analyzer}
-\label{tab:terms}
-\end{table}
 
 
 
@@ -445,13 +423,39 @@ C. V. Bearnensquash\newblock 1997.
 \appendix
 
 \section{Additional materials}
-See the Figure \ref{fig:uml} for the parsed Java Paper object.  
+Figure \ref{fig:uml} is the UML for the parsed Java Paper object.  
+Table \ref{tab:terms} is the list of polular technique terms used by term analyzer
+
 \begin{figure*}[htb]
   \centering
 	 	 \includegraphics[width=0.7\textwidth]{materials/paper_uml.png}
 		\caption{UML for the parsed Java Paper object}
 		\label{fig:uml}
 \end{figure*}
+
+
+\begin{table}
+\begin{center}
+\begin{tabular}{|c|p{4cm}|}
+\hline 
+Term & Forms\\ \hline 
+LDA	& LDA; Latent Dirichlet allocation\\ \hline 
+HMM	& HMM; HMMs; Hidden Markov model\\ \hline 
+MaxEnt	&MaxEnt; maximum entropy\\ \hline 
+MEMM &	MEMM; maximum-entropy Markov model; maximum entropy Markov model\\ \hline 
+CRF	& CRF; CRFs; Conditional random fields\\ \hline 
+NER	& NER; named-entity recognition; named entity recognition; entity identification; entity extraction\\ \hline 
+SVM	& SVM; SVMs; support vector machine; support vector machine; support vector network; support vector networks\\ \hline 
+LogisticRegression	& logistic regression \\ \hline 
+LinearRegression	&linear regression\\ \hline 
+LSI &	LSI; latent semantic indexing; SVD; singular value decomposition; LSA; latent semantic analysis\\ \hline 
+KLdivergence &	KL-divergence; KLdivergence; Kullback-Leibler divergence; Kullback Leibler divergence; information gain\\ \hline 
+MutualInformation&	mutual information;\\ \hline 
+\end{tabular}
+\end{center}
+\caption{Popular techinique terms used by term analyzer}
+\label{tab:terms}
+\end{table}
 
 
 
