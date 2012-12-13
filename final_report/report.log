@@ -1,8 +1,8 @@
-This is XeTeX, Version 3.1415926-2.4-0.9998 (TeX Live 2012) (format=xelatex 2012.6.30)  12 DEC 2012 19:52
+This is XeTeX, Version 3.1415926-2.4-0.9998 (TeX Live 2012) (format=xelatex 2012.6.30)  12 DEC 2012 22:16
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
-**report
+**report.tex
 (./report.tex
 LaTeX2e <2011/06/27>
 Babel <v3.8m> and hyphenation patterns for english, dumylang, nohyphenation, ge
@@ -76,11 +76,7 @@ Package: appendix 2009/09/02 v1.2b extra appendix facilities
 \c@@ppsavesec=\count89
 \c@@ppsaveapp=\count90
 )
-(./report.aux
-
-LaTeX Warning: Label `tab:statistics' multiply defined.
-
-)
+(./report.aux)
 \openout1 = `report.aux'.
 
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 30.
@@ -119,12 +115,7 @@ LaTeX Font Info:    Try loading font information for OT1+pcr on input line 31.
 (/usr/local/texlive/2012/texmf-dist/tex/latex/psnfss/ot1pcr.fd
 File: ot1pcr.fd 2001/06/04 font definitions for OT1/pcr.
 )
-Missing character: There is no “ in font ptmr7t!
-Missing character: There is no ” in font ptmr7t!
-Missing character: There is no “ in font ptmr7t!
-Missing character: There is no ” in font ptmr7t!
-
-Underfull \hbox (badness 1314) in paragraph at lines 61--62
+Underfull \hbox (badness 1314) in paragraph at lines 61--67
 \OT1/ptm/m/n/10.95 Predicting has been stud-ied in Ma-chine Learn-
  []
 
@@ -135,167 +126,160 @@ Underfull \hbox (badness 1314) in paragraph at lines 61--62
 
 ]
 LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <10.95> on input line 85.
+(Font)              <10.95> on input line 100.
 LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <10.95> not available
-(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 99.
+(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 114.
 File: materials/architecture.eps Graphic file (type eps)
  <materials/architecture.eps>
-LaTeX Font Info:    Try loading font information for OMS+ptm on input line 123.
+LaTeX Font Info:    Try loading font information for OMS+ptm on input line 138.
 
 
 (/usr/local/texlive/2012/texmf-dist/tex/latex/psnfss/omsptm.fd
 File: omsptm.fd 
 )
 LaTeX Font Info:    Font shape `OMS/ptm/m/n' in size <10.95> not available
-(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 123.
+(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 138.
 
-Underfull \hbox (badness 1067) in paragraph at lines 123--125
+Underfull \hbox (badness 1067) in paragraph at lines 138--140
 \OT1/ptm/m/n/10.95 num-ber of ta-bles/formulas/figures per page,
  []
 
 
-Underfull \hbox (badness 2418) in paragraph at lines 123--125
+Underfull \hbox (badness 2418) in paragraph at lines 138--140
 \OT1/ptm/m/n/10.95 max num-ber of ta-bles/formulas/figures per
  []
 
-Missing character: There is no ’ in font ptmr7t!
-Missing character: There is no ’ in font ptmr7t!
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <9> on input line 142.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <5> on input line 142.
+
+Overfull \hbox (6.26534pt too wide) in paragraph at lines 142--142
+[][]\OT1/ptm/m/n/9 http://academic.research.microsoft.com/RankList?entitytype
+ []
+
 Missing character: There is no – in font ptmb7t!
 [2]
+LaTeX Font Info:    Try loading font information for OML+ptm on input line 166.
+
+ (/usr/local/texlive/2012/texmf-dist/tex/latex/psnfss/omlptm.fd
+File: omlptm.fd 
+)
+LaTeX Font Info:    Font shape `OML/ptm/m/n' in size <10.95> not available
+(Font)              Font shape `OML/cmm/m/it' tried instead on input line 166.
 Missing character: There is no … in font ptmr7t!
-Missing character: There is no ’ in font ptmr7t!
 
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
-
-Underfull \hbox (badness 1077) in paragraph at lines 156--157
+Underfull \hbox (badness 1077) in paragraph at lines 171--172
 \OT1/ptm/m/n/10.95 Ex-trac-tor. Meta-data Ex-trac-tor uses reg-u-lar ex-
  []
 
-Missing character: There is no ’ in font ptmr7t!
-Missing character: There is no ’ in font ptmr7t!
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
  [3]
-Underfull \hbox (badness 1365) in paragraph at lines 167--169
+Underfull \hbox (badness 1365) in paragraph at lines 182--184
 []\OT1/ptm/b/n/10.95 Author ranker \OT1/ptm/m/n/10.95 Au-thor ranker ex-tracts 
 top
  []
 
 
-Underfull \hbox (badness 1917) in paragraph at lines 180--180
+Underfull \hbox (badness 1917) in paragraph at lines 198--198
 []\OT1/ptm/m/n/10.95 HMM; HMMs; Hid-den
  []
 
 
-Underfull \hbox (badness 2261) in paragraph at lines 181--181
+Underfull \hbox (badness 2261) in paragraph at lines 199--199
 []\OT1/ptm/m/n/10.95 MaxEnt; max-i-mum en-
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 182--182
+Underfull \hbox (badness 10000) in paragraph at lines 200--200
 []\OT1/ptm/m/n/10.95 MEMM; maximum-
  []
 
 
-Underfull \hbox (badness 2970) in paragraph at lines 182--182
+Underfull \hbox (badness 2970) in paragraph at lines 200--200
 \OT1/ptm/m/n/10.95 entropy Markov model;
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 182--182
+Underfull \hbox (badness 10000) in paragraph at lines 200--200
 \OT1/ptm/m/n/10.95 max-i-mum en-tropy
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 184--184
+Underfull \hbox (badness 10000) in paragraph at lines 202--202
 []\OT1/ptm/m/n/10.95 NER; named-entity
  []
 
 
-Underfull \hbox (badness 2644) in paragraph at lines 184--184
+Underfull \hbox (badness 2644) in paragraph at lines 202--202
 \OT1/ptm/m/n/10.95 recog-ni-tion; named en-
  []
 
 
-Underfull \hbox (badness 5756) in paragraph at lines 184--184
+Underfull \hbox (badness 5756) in paragraph at lines 202--202
 \OT1/ptm/m/n/10.95 tity recog-ni-tion; en-tity
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 184--184
+Underfull \hbox (badness 10000) in paragraph at lines 202--202
 \OT1/ptm/m/n/10.95 iden-ti-fi-ca-tion; en-tity
  []
 
 
-Underfull \hbox (badness 7963) in paragraph at lines 185--185
+Underfull \hbox (badness 7963) in paragraph at lines 203--203
 []\OT1/ptm/m/n/10.95 SVM; SVMs; sup-port
  []
 
 
-Underfull \hbox (badness 1221) in paragraph at lines 185--185
+Underfull \hbox (badness 1221) in paragraph at lines 203--203
 \OT1/ptm/m/n/10.95 vec-tor net-work; sup-port
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 188--188
+Underfull \hbox (badness 10000) in paragraph at lines 206--206
 []\OT1/ptm/m/n/10.95 LSI; la-tent se-man-tic
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 188--188
+Underfull \hbox (badness 10000) in paragraph at lines 206--206
 \OT1/ptm/m/n/10.95 value de-com-po-si-tion;
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 188--188
+Underfull \hbox (badness 10000) in paragraph at lines 206--206
 \OT1/ptm/m/n/10.95 LSA; la-tent se-man-tic
  []
 
 
-Underfull \hbox (badness 2538) in paragraph at lines 189--189
+Underfull \hbox (badness 2538) in paragraph at lines 207--207
 \OT1/ptm/m/n/10.95 gence; Kullback-Leibler
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 189--189
+Underfull \hbox (badness 10000) in paragraph at lines 207--207
 \OT1/ptm/m/n/10.95 di-ver-gence; Kull-back
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 189--189
+Underfull \hbox (badness 10000) in paragraph at lines 207--207
 \OT1/ptm/m/n/10.95 Leibler di-ver-gence;
  []
 
 [4]
-Underfull \hbox (badness 10000) in paragraph at lines 262--262
+Underfull \hbox (badness 10000) in paragraph at lines 280--280
 []\OT1/ptm/m/n/10.95 Popular
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 263--263
+Underfull \hbox (badness 10000) in paragraph at lines 281--281
 []\OT1/ptm/m/n/10.95 Author
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 264--264
+Underfull \hbox (badness 10000) in paragraph at lines 282--282
 []\OT1/ptm/m/n/10.95 Sentence
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 293--293
-[]\OT1/ptm/m/n/10.95 Sentence
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 294--294
-[]\OT1/ptm/m/n/10.95 Metadata
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 294--294
-\OT1/ptm/m/n/10.95 &LDA&
  []
 
 [5]
@@ -314,40 +298,67 @@ Underfull \hbox (badness 10000) in paragraph at lines 312--312
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 328--328
+Underfull \hbox (badness 10000) in paragraph at lines 329--329
 []\OT1/ptm/m/n/10.95 Sentence
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 329--329
+Underfull \hbox (badness 10000) in paragraph at lines 330--330
 []\OT1/ptm/m/n/10.95 Metadata
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 329--329
+Underfull \hbox (badness 10000) in paragraph at lines 330--330
 \OT1/ptm/m/n/10.95 &LDA&
  []
 
-Missing character: There is no ’ in font ptmr7t!
+
+Underfull \hbox (badness 10000) in paragraph at lines 346--346
+[]\OT1/ptm/m/n/10.95 Sentence
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 347--347
+[]\OT1/ptm/m/n/10.95 Metadata
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 347--347
+\OT1/ptm/m/n/10.95 &LDA&
+ []
+
 [6]
+Underfull \hbox (badness 10000) in paragraph at lines 416--420
+[]\OT1/ptm/m/n/10 L. Hard-esty  2012.  \OT1/ptm/m/it/10 Pre-dict-ing
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 416--420
+\OT1/ptm/m/it/10 what top-ics will trend on Twit-ter
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 416--420
+\OT1/ptm/m/n/10 http://web.mit.edu/newsoffice/2012/predicting-
+ []
+
+
+Underfull \hbox (badness 1448) in paragraph at lines 422--426
+[]\OT1/ptm/m/n/10 T. Hof-mann Prob-a-bilis-tic La-tent Se-man-tic In-dex-ing.
+ []
+
 File: materials/paper_uml.png Graphic file (type QTm)
- <use  "materials/paper_uml.png" >
+<use  "materials/paper_uml.png" >
 File: materials/workload.eps Graphic file (type eps)
- <materials/workload.eps> [7
-
-] [8]
-(./report.aux)
-
-LaTeX Warning: There were multiply-defined labels.
-
- ) 
+ <materials/workload.eps> [7] [8]
+(./report.aux) ) 
 Here is how much of TeX's memory you used:
- 829 strings out of 494004
- 11020 string characters out of 3150890
- 66811 words of memory out of 3000000
- 4114 multiletter control sequences out of 15000+200000
- 11733 words of font info for 39 fonts, out of 3000000 for 9000
+ 869 strings out of 494004
+ 11549 string characters out of 3150890
+ 67811 words of memory out of 3000000
+ 4145 multiletter control sequences out of 15000+200000
+ 14926 words of font info for 48 fonts, out of 3000000 for 9000
  1144 hyphenation exceptions out of 8191
- 25i,9n,19p,759b,303s stack positions out of 5000i,500n,10000p,200000b,50000s
+ 25i,9n,19p,836b,303s stack positions out of 5000i,500n,10000p,200000b,50000s
 
 Output written on report.pdf (8 pages).
