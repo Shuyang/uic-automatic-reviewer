@@ -30,15 +30,31 @@
 \begin{document}
 \maketitle
 \begin{abstract}
-	//TODO
+In this work, we focus on the novel problem of predicting whether a paper will be accepted or rejected by a conference.
+We proposed a framework for this predicting problem that consider the metadata of the paper as well as the context of the paper.
+We evaluate the proposed approach using the ACL conference data set.
+Empirical evluation shows that the proposed approach can outperform baseline by up to 10\% for the predicting task.
+
 \end{abstract}
 
 \section{Introduction}
 After submitted a paper to a conference, you, as the author of the paper, usually are most interested in whether your paper will be accepted or not. However, it is the decision made by the reviewers of conference. A question arises here is that “can we predict the result?” or more specifically, “can we find the criteria of a certain conference?” In this paper, we introduce Automatic Reviewer, which may give you the answers, even before you submit the paper to the conference. 
 
 This paper studies the following two problems: 1. What statistical features of papers are correlated to the decision of the conference? 2. To what extent can an automatic program predict whether a paper will be accepted or not?
+To the best of our knowledge, we are the first to study these problems in the NLP area.
 
-We extract several features, which range from paper metadata to paper topics. We use supervised learning algorithm (SVM) to learn our system model, and use cross-fold validation to evaluate our method. 
+We proposed a model for solving this problem.
+The model first parses the paper and then extract useful features from the paper.
+The features considered by the model is various, which range from paper metadata to paper topics. 
+After generating the features, 
+we use supervised learning algorithm (SVM) to learn our system model, 
+and evaluate it on the real data set.
+
+Through empirical study, 
+we find that the proposed approach can outperform all-positive baseline by up to 10\%,
+and the topic of the paper, the metadata, and the complexity of sentences in the paper are three most useful predictor for the problem.
+
+
 
 \section{Related Work}
 
@@ -66,7 +82,7 @@ The statistics of dataset is listed in Table \ref{tab:statistics}
 
 \begin{table}
 \begin{center}
-\begin{tabular}{|c|cl|c|c|}
+\begin{tabular}{|c|c|c|c|}
 \hline 
 Year & Positive &	Negative & Total\\ \hline 
 2007 & 99  &	179 & 278\\ \hline	
@@ -213,13 +229,13 @@ and report the precision, reacll and F-score for the classier using each single 
 
 As shown in the Table \ref{tab:feature_eval},
 LDA Topic feature and sentence complexity feature are two best predictors for this problem.
-Both of they can construct a classifier that is better that the all-positive baseline.
+Each of they can construct a classifier that is better that the all-positive baseline.
 Each of the metadata feature (number of pictures/formulas/tables on each page),
 when is used alone, is a weak predictor.
 But when we consider all the features from metadata together,
 we get a classifier that is significantly outperforms the all-positive baseline.
 Terms in title and popular techniques are two other weak predictors,
-but they can still make alone a classifier with higher precision than the baseline,
+but they can still make a classifier with higher precision than the baseline,
 which means when they are used together with other features, they can contribute to a better classifier.
 The author ranking feature is the weakest predictor among all the features we consider.
 
@@ -230,11 +246,11 @@ different from the workshop papers in the complexity of sentences and topic of t
 comparing with those of workshop papers.
 (3) The ranking of authors of a paper does not have influence on whether the paper 
 is an ACL conference full papers or not, 
-which may result from the double-blind reviewing of ACL2012. 
+which may result from the double-blind reviewing of ACL 2012. 
 
 \begin{table}
 \begin{center}
-\begin{tabular}{|p{2cm}|cl|c|c|}
+\begin{tabular}{|p{2cm}|c|c|c|}
 \hline 
 & \bf Precision & \bf Recall & \bf F-score \\ \hline
 \#Pictures & 63.6 & 68.5 & 65.8 \\ \hline
@@ -256,11 +272,11 @@ All Positive	& 58.4	& 100.0	& 73.7\\\hline
 
 
 \subsection{Evaluation on Different Data Sets}
-We also evaluate the proposed approach on different data sets.
+In this part, we evaluate the proposed approach on different data sets.
 We collect the ACL conference and workshop papers on the years 2012, 2010 and 2007,
 and evaluate our approach by conducting cross-validation on each of the three data sets.
 
-For each dataset we compare the evaluation result of the classifier learned by all the features with the all-positive basline.
+For each dataset we compare the evaluation result of the classifier learned by all the features with the all-positive baseline.
 Since metadata feature, LDA topic feature and sentence complexity feature are three most useful features, as discussed in Section \ref{sec:feature_eval}
 , we also list the result of the classifer learned from each of the three features as well as the one learned from three of them. 
 Table \ref{tab:2012} \ref{tab:2010} and \ref{tab:2007} show the resulf of ACL 2012, 2010 and 2007 datasets respectively.
@@ -269,7 +285,7 @@ Table \ref{tab:2012} \ref{tab:2010} and \ref{tab:2007} show the resulf of ACL 20
 
 \begin{table}
 \begin{center}
-\begin{tabular}{|p{2cm}|cl|c|c|}
+\begin{tabular}{|p{2cm}|c|c|c|}
 \hline 
 & \bf Precision & \bf Recall & \bf F-score \\ \hline
 Metadata	& 74.8	& 82.9	& 78.6\\ \hline
@@ -287,7 +303,7 @@ All Positive	& 58.4	& 100.0	& 73.7\\\hline
 
 \begin{table}
 \begin{center}
-\begin{tabular}{|p{2cm}|cl|c|c|}
+\begin{tabular}{|p{2cm}|c|c|c|}
 \hline 
 & \bf Precision & \bf Recall & \bf F-score \\ \hline
 Metadata	&70.1&68.8&69.4\\ \hline
@@ -324,11 +340,11 @@ As shown in these tables,
 the proposed approach performs best on the ACL 2012 data set,
 and can get slightly better performance than the baseline on the ACL 2010 and 2007 data set.
 
-On the ACL 2012 data set, the feautres "Metadata", "LDA topic" and "Sentence Complexity" 
+On the ACL 2012 data set, the feautres ``Metadata",``LDA topic" and ``Sentence Complexity" 
 all have better F-score than the baseline.
 When three of them considered together, the F-score is significantly better then the baseline.
 The F-score of the classifier using all features is slightly lower than the three-best-features classifier,
-but still outperforms the baseline with 10\%.
+but still outperforms the baseline by 10\%.
 
 On the ACL 2010 data set, each of the three features is not as strong predictor as it is on the ACL 2012 data set.
 But when we create a classifier use all of the three of them, 
@@ -342,17 +358,20 @@ Other features are not as good that the sentence complexity feature,
 when consider all the features together, the result is not as good as the one using only the sentence complexity feature,
 but it is still better than the baseline.
 
-As we have discussed, the result of evaluation is different on each dataset, because features may work well on one dataset, 
+As we have shown above, the results of evaluation are different on each dataset, because features may work well on one dataset, 
 but not so well on another dataset.
-It is still not clear to us why each feature may have different performance on different data set.
-It may because of that each year the ACL conference has different set of workshops comes alone with it.
+It is still not clear to us why features have different performance on different data set.
+It may because of the cretiria of reviewing gradually changes as time goes by, 
+but may also be explained by the fact that each year the ACL conference has different set of workshops comes alone with it.
 
 
 \subsection{Conclusion and Future Work} 
 From the result of evaluation, we can see that the proposed model can predict whether a paper is accepted or not with good accuracy. 
-The metadata, sentence complexity and the topic distribution learned by LDA model are the best features.
-This result proved our assumption that certain topics are more favored by certain conference. 
+The metadata, sentence complexity and the topic distribution learned by LDA model are the three best features.
+This result proved our assumption that certain topics are more favored by certain conference,
+and the complexity of the sentences also influence whether it will be accepted or not.
 Also, tables number is the best of all three metadata, which indicates that the reviewers of paper are more willing to see the well structured result of research rather than plain text.
+
 
 Features like popular techniques and author ranking do not work very good. 
 This phenomena indicates that the quality of ACL conference is very high, the papers are thoroughly studied before accepting/rejecting, and the conference cares more about the content of paper rather than whether the techniques used are popular or not. 
