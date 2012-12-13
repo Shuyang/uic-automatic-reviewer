@@ -42,7 +42,7 @@ We extract several features, which range from paper metadata to paper topics. We
 
 \section{Related Work}
 
-Predicting has been studied in Machine Learning/Data Mining area for many years [1]. Great successes have been made in areas range from e-commerce to economics by applying such predicting techniques. With the growing popularity of social networking, researchers are now trying to predict the trend by analyzing the topics of posts in the social networking [2]. Topic models of document like PLSI(Probabilistic latent semantic indexing) and LDA (Latent Dirichlet Allocation) has been studied in [3] [4] respectively.However, as far as we know, no similar study has been done in predicting conference paper acceptance. The only related study focus on the visual structure of conference papers [5]. 
+Predicting has been studied in Machine Learning/Data Mining area for many years [1]. Great successes have been made in areas range from e-commerce to economics by applying such predicting techniques. With the growing popularity of social networking, researchers are now trying to predict the trend by analyzing the topics of posts in the social networking [2]. Topic models of document like PLSI(Probabilistic Latent Semantic Indexing) and LDA (Latent Dirichlet Allocation) has been studied in [3] [4] respectively.However, as far as we know, no similar study has been done in predicting conference paper acceptance. The only related study focus on the visual structure of conference papers [5]. 
 % [1] Bing Liu (2011), Web Data Mining: Exploring Hyperlinks, Contents, and Usage Data, Second Edition. Springer
 % [2] Predicting what topics will trend on Twitter, A new algorithm predicts which Twitter topics will trend hours in advance and offers a new technique for analyzing data that fluctuate over time. http://web.mit.edu/newsoffice/2012/predicting-twitter-trending-topics-1101.html
 % [3] Hofmann, Thomas. Probabilistic Latent Semantic Indexing. Proceedings of the Twenty-Second Annual International SIGIR Conference, 1999.
@@ -137,7 +137,7 @@ and use the frequency of all the possible values of complexity as a feature vect
 
 There are three sub-components in the paper parser: Apache Tika , Metadata Extractor, and Title \& Author Extractor. 
 
-The original papers which downloaded from ACL web-site are first sent to Apache Tika which is a PDF file parser. It can parse PDF file into HTML-like structured data. The paper is parsed into several <page> tags which contain <p> tags that denote the raw paragraphs in the original paper. 
+The original papers which downloaded from ACL web-site are first sent to Apache Tika which is a PDF file parser. It can parse PDF file into HTML-like structured data. The paper is parsed into several \textless page\textgreater tags which contain \textless p\textgreater tags that denote the raw paragraphs in the original paper. 
 
 Because the parsing is not very accurate, the raw paragraphs contain all the texts in the paper, including the page foot, like ``Proceedings of …'', ``BioNLP 20...''. After all these noise paragraphs are discarded by regular expression matching, the first raw paragraph is considered as the candidate title. The paragraph starts with ``abstract'' is the abstract paragraph. If there’s no paragraph starts with ``abstract'', the first paragraph which contains more than 300 English letters is considered as the abstract paragraph. 
 We consider all the paragraphs between title and abstract as raw author info which contains author names, affiliations, and email addresses. All paragraphs after the key-word ``reference'' or ``references'' are considered as paper references. The other paragraphs between abstract and references are considered as content paragraphs. 
@@ -235,7 +235,7 @@ different from the workshop papers in the complexity of sentences and topic of t
 comparing with those of workshop papers.
 (3) The ranking of authors of a paper does not have influence on whether the paper 
 is an ACL conference full papers or not, 
-which may result from the double-blind reviewing of ACL2012. 
+which may result from the double-blind reviewing of ACL 2012. 
 
 \begin{table}
 \begin{center}
