@@ -26,6 +26,8 @@ public interface Constants {
 		 */
 		int NUMBER_OF_AUTHORS_TO_RETRIEVE = 2000;
 
+		int NO_RANK_VALUE = NUMBER_OF_AUTHORS_TO_RETRIEVE + 10;
+
 		/**
 		 * Lucene search score threshold, only result has score above or equal
 		 * to this score will be considered as matched result and be returned.
@@ -55,5 +57,9 @@ public interface Constants {
 		int LDA_PREDICTING_BURN_IN = 100;
 		int LDA_PREDICTING_NUMBER_OF_ITERATIONS = 2000;
 
+	}
+
+	interface SentenceComplexity {
+		int MAX_COMPLEXITY = 40;
 	}
 }

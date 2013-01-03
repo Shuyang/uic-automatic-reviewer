@@ -6,38 +6,28 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import cc.mallet.topics.ParallelTopicModel;
-
-import edu.uic.cs.automatic_reviewer.common.Constants;
-import edu.uic.cs.automatic_reviewer.feature.term.FashionTechniques;
-import edu.uic.cs.automatic_reviewer.feature.topic.TopicPredictor;
-import edu.uic.cs.automatic_reviewer.input.Paper;
-import edu.uic.cs.automatic_reviewer.input.PaperCache;
-import edu.uic.cs.automatic_reviewer.misc.SerializationHelper;
 import libsvm.svm_node;
+import edu.uic.cs.automatic_reviewer.feature.term.FashionTechniques;
+import edu.uic.cs.automatic_reviewer.input.Paper;
 
 public class FashionTechniquesFeature {
 	FashionTechniques fashionTechniques;
 	HashMap<String, Integer> termIndex;
-	
-	
-	
+
 	public FashionTechniquesFeature() {
 		fashionTechniques = new FashionTechniques();
 		termIndex = new HashMap<String, Integer>();
 		int i = 0;
-		for(String s:fashionTechniques.getAllFashionTechniques().keySet()){
+		for (String s : fashionTechniques.getAllFashionTechniques().keySet()) {
 			termIndex.put(s, i++);
 		}
-		
+
 	}
 
-
-	public int getFeatureSize(){
+	public int getFeatureSize() {
 		return termIndex.size();
 	}
-	
-	
+
 	public ArrayList<ArrayList<svm_node>> extractFancyTermsFeature(
 			List<Paper> papers, int offset) {
 		ArrayList<ArrayList<svm_node>> features = new ArrayList<ArrayList<svm_node>>();
@@ -50,12 +40,13 @@ public class FashionTechniquesFeature {
 			ArrayList<svm_node> feature_i = new ArrayList<svm_node>();
 			features.add(feature_i);
 
-			for (Entry<String,Boolean> entry: techniquesMentionedInPaper.entrySet()) {
+			for (Entry<String, Boolean> entry : techniquesMentionedInPaper
+					.entrySet()) {
 				svm_node node = new svm_node();
 				node.index = termIndex.get(entry.getKey()) + offset;
-				if (entry.getValue()) {	
+				if (entry.getValue()) {
 					node.value = 1;
-				}else{
+				} else {
 					node.value = 0;
 				}
 				feature_i.add(node);

@@ -18,12 +18,14 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
 
 import edu.uic.cs.automatic_reviewer.common.AbstractWordOperations;
+import edu.uic.cs.automatic_reviewer.feature.Feature;
 import edu.uic.cs.automatic_reviewer.input.Paper;
 import edu.uic.cs.automatic_reviewer.input.PaperCache;
 import edu.uic.cs.automatic_reviewer.misc.Assert;
 import edu.uic.cs.automatic_reviewer.misc.AutomaticReviewerException;
 
-public class FashionTechniques extends AbstractWordOperations {
+public class FashionTechniques extends AbstractWordOperations implements
+		Feature {
 
 	private static final Properties TECHNIQUES = new Properties();
 	static {
@@ -37,10 +39,10 @@ public class FashionTechniques extends AbstractWordOperations {
 		}
 	}
 
-	private static Map<String, Set<String>> TECHNIQUE_ALTERNATIVE_NAMES = null;
+	private static TreeMap<String, Set<String>> TECHNIQUE_ALTERNATIVE_NAMES = null;
 	private static Map<String, Set<Pattern>> TECHNIQUE_ALTERNATIVE_NAME_PATTERNS = null;
 
-	public Map<String, Set<String>> getAllFashionTechniques() {
+	public TreeMap<String, Set<String>> getAllFashionTechniques() {
 		if (TECHNIQUE_ALTERNATIVE_NAMES == null) {
 			synchronized (FashionTechniques.class) {
 				if (TECHNIQUE_ALTERNATIVE_NAMES == null) {
@@ -53,8 +55,8 @@ public class FashionTechniques extends AbstractWordOperations {
 		return TECHNIQUE_ALTERNATIVE_NAMES;
 	}
 
-	private Map<String, Set<String>> parseTechniquesAlternativeNames() {
-		Map<String, Set<String>> techniquesAlternativeNames = new TreeMap<String, Set<String>>();
+	private TreeMap<String, Set<String>> parseTechniquesAlternativeNames() {
+		TreeMap<String, Set<String>> techniquesAlternativeNames = new TreeMap<String, Set<String>>();
 
 		for (String name : TECHNIQUES.stringPropertyNames()) {
 			String alternativeNamesString = TECHNIQUES.getProperty(name);
@@ -114,8 +116,8 @@ public class FashionTechniques extends AbstractWordOperations {
 		return Pattern.compile(patternString, Pattern.CASE_INSENSITIVE);
 	}
 
-	public Map<String, Integer> techniqueFrequenciesInPaper(Paper paper) {
-		Map<String, Integer> result = new TreeMap<String, Integer>();
+	public TreeMap<String, Integer> techniqueFrequenciesInPaper(Paper paper) {
+		TreeMap<String, Integer> result = new TreeMap<String, Integer>();
 		// initialize the result frequencies
 		for (String techName : getAllFashionTechniquePatterns().keySet()) {
 			result.put(techName, Integer.valueOf(0));
@@ -199,8 +201,8 @@ public class FashionTechniques extends AbstractWordOperations {
 	// return containsAny(paragraph, alternativeNames, true);
 	// }
 
-	public Map<String, Boolean> techniquesMentionedInPaper(Paper paper) {
-		Map<String, Boolean> result = new TreeMap<String, Boolean>();
+	public TreeMap<String, Boolean> techniquesMentionedInPaper(Paper paper) {
+		TreeMap<String, Boolean> result = new TreeMap<String, Boolean>();
 		Map<String, Integer> frequency = techniqueFrequenciesInPaper(paper);
 		for (Entry<String, Integer> entry : frequency.entrySet()) {
 			result.put(entry.getKey(), entry.getValue().intValue() > 0 ? true
@@ -260,5 +262,29 @@ public class FashionTechniques extends AbstractWordOperations {
 		for (Entry<String, Integer> entry : paperCountByTerm.entrySet()) {
 			System.out.println(entry);
 		}
+	}
+
+	@Override
+	public double[] getInstanceValues(Paper paper) {
+
+		TreeMap<String, Integer> techniqueFrequencies = techniqueFrequenciesInPaper(paper);
+		double[] result = new double[techniqueFrequencies.size()];
+
+		int index = 0;
+		for (Integer frequency : techniqueFrequencies.values()) {
+			result[index++] = frequency.doubleValue();
+		}
+
+		return result;
+	}
+
+	@Override
+	public String getName() {
+		return "TECH_TERM";
+	}
+
+	@Override
+	public int getNumberOfSubFeatures() {
+		return TECHNIQUES.size();
 	}
 }

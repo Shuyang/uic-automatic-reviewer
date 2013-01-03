@@ -15,8 +15,8 @@ import edu.uic.cs.automatic_reviewer.misc.SerializationHelper;
 import libsvm.svm_node;
 
 public class TopicFeature {
-	private static final String MODEL_CACHE_FILE = "data/model/LDAModel_2007.cache";
-	private static final String FEATURE_CACHE_FILE = "data/model/LDAFeatures_2007.cache";
+	private static final String MODEL_CACHE_FILE = "data/model/LDAModel_2012.cache";
+	private static final String FEATURE_CACHE_FILE = "data/model/LDAFeatures_2012.cache";
 
 
 	TopicPredictor predictor;
@@ -37,7 +37,8 @@ public class TopicFeature {
 			double[] result = predictor.predictPaper(p,model);
 
 			ArrayList<Double> feature_i = new ArrayList<Double>();
-			paperFeatureCache.put(p.getTitle(),feature_i);
+			// use paper name is better than title, since title may be missing
+			paperFeatureCache.put(p.getMetadata().getPaperFileName()/*getTitle()*/,feature_i);
 			for (int j = 0; j < Constants.Topic.NUMBER_OF_TOPICS ; ++j) {
 				feature_i.add(result[j]);
 			}
@@ -66,8 +67,8 @@ public class TopicFeature {
 			Paper p = papers.get(i);
 
 
-			if(paperFeatureCache.containsKey(p.getTitle())){
-				 ArrayList<Double> paperFeature =  paperFeatureCache.get(p.getTitle());
+			if(paperFeatureCache.containsKey(p.getMetadata().getPaperFileName()/*getTitle()*/)){
+				 ArrayList<Double> paperFeature =  paperFeatureCache.get(p.getMetadata().getPaperFileName()/*getTitle()*/);
 				 ArrayList<svm_node> feature_i = new ArrayList<svm_node>();
 					features.add(feature_i);
 					for (int j = 0; j < m ; ++j) {
@@ -98,9 +99,8 @@ public class TopicFeature {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		// TODO Auto-generated method stub
 		TopicFeature tf = new TopicFeature();
-		List<Paper> papers = PaperCache.getInstance().getPapers(2010);
+		List<Paper> papers = PaperCache.getInstance().getPapers(2012);
 		tf.learnAndSaveModel(papers);
 
 	}

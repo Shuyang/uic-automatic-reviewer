@@ -13,7 +13,7 @@ import edu.uic.cs.automatic_reviewer.common.Constants;
 import edu.uic.cs.automatic_reviewer.input.Paper;
 
 public class TFIDFFeature extends AbstractWordOperations {
-	//private HashMap<Integer, Double> id_idf;
+	// private HashMap<Integer, Double> id_idf;
 	private HashMap<String, Double> term_idf;
 
 	public int getNumOfTerms() {
@@ -27,7 +27,7 @@ public class TFIDFFeature extends AbstractWordOperations {
 		HashMap<String, Double> df = new HashMap<String, Double>();
 		for (Paper p : papers) {
 
-			if(p.getAbstract()!= null){
+			if (p.getTitle() != null) {
 				List<String> termList = porterStemmingAnalyzeUsingDefaultStopWords(p
 						.getTitle());
 				HashSet<String> termSet = new HashSet<String>();
@@ -42,13 +42,12 @@ public class TFIDFFeature extends AbstractWordOperations {
 					}
 				}
 				System.out.println(p.getTitle());
-			}else{
-				System.out.println("no title" +p.getTitle());
+			} else {
+				System.out.println("no title" + p.getTitle());
 				System.out.println(p.getMetadata());
 			}
 		}
 		int docNum = papers.size();
-
 
 		term_idf = new HashMap<String, Double>();
 		for (Map.Entry<String, Double> entry : df.entrySet()) {
@@ -70,22 +69,21 @@ public class TFIDFFeature extends AbstractWordOperations {
 			int offset) {
 		int n = papers.size();
 		int m = term_idf.size();
-		//System.out.println(n + " " + m);
+		// System.out.println(n + " " + m);
 		ArrayList<ArrayList<svm_node>> features = new ArrayList<ArrayList<svm_node>>();
 
 		for (int i = 0; i < n; ++i) {
 			Paper p = papers.get(i);
 
+			HashMap<String, Integer> termCount = new HashMap<String, Integer>();
 
-			HashMap<String,Integer> termCount = new HashMap<String,Integer>();
-
-			if(p.getTitle()!= null){
+			if (p.getTitle() != null) {
 				List<String> termList = porterStemmingAnalyzeUsingDefaultStopWords(p
 						.getTitle());
 
-				for(String s: termList){
-					if(termCount.containsKey(s))
-						termCount.put(s, termCount.get(s)+1);
+				for (String s : termList) {
+					if (termCount.containsKey(s))
+						termCount.put(s, termCount.get(s) + 1);
 					else
 						termCount.put(s, 1);
 				}
@@ -94,18 +92,16 @@ public class TFIDFFeature extends AbstractWordOperations {
 			ArrayList<svm_node> feature_i = new ArrayList<svm_node>();
 			features.add(feature_i);
 
-			//System.out.println(termCount.size() + "##");
+			// System.out.println(termCount.size() + "##");
 			int j = 0;
-			for(Entry<String,Double> entry:term_idf.entrySet()){
+			for (Entry<String, Double> entry : term_idf.entrySet()) {
 				svm_node node = new svm_node();
 				node.index = (j++) + offset;
 
-
-
-				if(termCount.containsKey(entry.getKey())){
-					node.value = entry.getValue()*termCount.get(entry.getKey());
-				}
-				else
+				if (termCount.containsKey(entry.getKey())) {
+					node.value = entry.getValue()
+							* termCount.get(entry.getKey());
+				} else
 					node.value = 0;
 				feature_i.add(node);
 

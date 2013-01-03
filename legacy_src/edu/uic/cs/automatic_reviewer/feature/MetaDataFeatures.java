@@ -27,11 +27,11 @@ public class MetaDataFeatures {
 			features.add(feature_i);
 
 			for (int j = 0; j < m; ++j) {
-				Integer num = pageMap.get(j);
+				// page start with "1"!
+				Integer num = pageMap.get(j + 1);
 
-				if(num == null)
+				if (num == null)
 					num = 0;
-
 
 				svm_node node = new svm_node();
 				node.index = j + offset;

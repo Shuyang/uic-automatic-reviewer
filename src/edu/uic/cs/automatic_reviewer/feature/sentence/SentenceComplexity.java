@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.TreeMap;
 
 import org.apache.log4j.Logger;
@@ -11,6 +12,8 @@ import org.apache.log4j.Logger;
 import com.db4o.ObjectSet;
 
 import edu.stanford.nlp.trees.Tree;
+import edu.uic.cs.automatic_reviewer.common.Constants;
+import edu.uic.cs.automatic_reviewer.feature.Feature;
 import edu.uic.cs.automatic_reviewer.feature.sentence.SentenceAnalyzer.ParsedPaper;
 import edu.uic.cs.automatic_reviewer.input.Paper;
 import edu.uic.cs.automatic_reviewer.input.PaperCache;
@@ -18,7 +21,8 @@ import edu.uic.cs.automatic_reviewer.misc.Assert;
 import edu.uic.cs.automatic_reviewer.misc.LogHelper;
 import edu.uic.cs.automatic_reviewer.misc.SerializationHelper;
 
-public class SentenceComplexity {
+public class SentenceComplexity implements Constants.SentenceComplexity,
+		Feature {
 
 	private static final Logger LOGGER = Logger
 			.getLogger(SentenceComplexity.class);
@@ -140,6 +144,39 @@ public class SentenceComplexity {
 			System.out.println(paper.getMetadata().getPaperFileName() + " | "
 					+ complexity);
 		}
+	}
+
+	@Override
+	public double[] getInstanceValues(Paper paper) {
+		TreeMap<Integer, Integer> sentenceNumberByComplexity = measurePaperSentenceComplexity(paper);
+
+		double[] result = new double[MAX_COMPLEXITY];
+		for (Entry<Integer, Integer> frequencyByComplexity : sentenceNumberByComplexity
+				.entrySet()) {
+			int complexity = frequencyByComplexity.getKey();
+			int frequency = frequencyByComplexity.getValue();
+
+			if (complexity < MAX_COMPLEXITY) {
+				result[complexity] += frequency;
+			} else {
+				LOGGER.warn("Paper [" + paper.getMetadata().getPaperFileName()
+						+ "] has sentence with complexity >= " + MAX_COMPLEXITY);
+				result[result.length - 1] += frequency;
+			}
+
+		}
+
+		return result;
+	}
+
+	@Override
+	public String getName() {
+		return "SENT_COMP";
+	}
+
+	@Override
+	public int getNumberOfSubFeatures() {
+		return MAX_COMPLEXITY;
 	}
 
 }

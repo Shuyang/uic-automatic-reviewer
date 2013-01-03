@@ -34,13 +34,15 @@ import org.apache.lucene.util.Version;
 
 import edu.uic.cs.automatic_reviewer.common.AbstractWordOperations;
 import edu.uic.cs.automatic_reviewer.common.Constants;
+import edu.uic.cs.automatic_reviewer.feature.Feature;
+import edu.uic.cs.automatic_reviewer.input.Paper;
 import edu.uic.cs.automatic_reviewer.input.Paper.Author;
 import edu.uic.cs.automatic_reviewer.misc.Assert;
 import edu.uic.cs.automatic_reviewer.misc.AutomaticReviewerException;
 import edu.uic.cs.automatic_reviewer.misc.LogHelper;
 
 public class AuthorRanking extends AbstractWordOperations implements
-		Constants.Ranking {
+		Constants.Ranking, Feature {
 
 	private static final Logger LOGGER = LogHelper
 			.getLogger(AuthorRanking.class);
@@ -159,13 +161,13 @@ public class AuthorRanking extends AbstractWordOperations implements
 
 			if (topDocs.totalHits == 0) {
 				LOGGER.info("No record for " + author);
-				return 0;
+				return NO_RANK_VALUE;
 			}
 
-			LOGGER.info("Score for " + author + " is ["
+			LOGGER.debug("Score for " + author + " is ["
 					+ topDocs.scoreDocs[0].score + "]");
 			if (topDocs.scoreDocs[0].score < SCORE_THRESHOLD) {
-				return 0;
+				return NO_RANK_VALUE;
 			}
 
 			document = indexSearcher.doc(topDocs.scoreDocs[0].doc);
@@ -176,6 +178,34 @@ public class AuthorRanking extends AbstractWordOperations implements
 
 		String rankString = document.get(FIELD_NAME__RANK);
 		return Integer.parseInt(rankString);
+	}
+
+	@Override
+	public double[] getInstanceValues(Paper paper) {
+
+		List<Author> authors = paper.getAuthors();
+		if (authors == null || authors.isEmpty()) {
+			return new double[] { NO_RANK_VALUE };
+		}
+
+		int highestRank = NO_RANK_VALUE;
+		for (Author author : authors) {
+			int rank = getRank(author);
+
+			// the smaller the better
+			highestRank = Math.min(highestRank, rank);
+		}
+		return new double[] { highestRank };
+	}
+
+	@Override
+	public String getName() {
+		return "MAX_RANK";
+	}
+
+	@Override
+	public int getNumberOfSubFeatures() {
+		return 1;
 	}
 
 }
