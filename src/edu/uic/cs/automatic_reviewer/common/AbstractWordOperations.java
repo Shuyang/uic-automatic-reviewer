@@ -195,6 +195,7 @@ public abstract class AbstractWordOperations {
 	}
 
 	protected boolean isStopWord(String word) {
+		word = word.toLowerCase();
 		return StandardAnalyzer.STOP_WORDS_SET.contains(word);
 	}
 

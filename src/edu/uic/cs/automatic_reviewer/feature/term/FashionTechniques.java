@@ -2,7 +2,8 @@ package edu.uic.cs.automatic_reviewer.feature.term;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashMap;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -10,12 +11,16 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
+import java.util.TreeMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
 
 import edu.uic.cs.automatic_reviewer.common.AbstractWordOperations;
 import edu.uic.cs.automatic_reviewer.input.Paper;
 import edu.uic.cs.automatic_reviewer.input.PaperCache;
+import edu.uic.cs.automatic_reviewer.misc.Assert;
 import edu.uic.cs.automatic_reviewer.misc.AutomaticReviewerException;
 
 public class FashionTechniques extends AbstractWordOperations {
@@ -32,22 +37,24 @@ public class FashionTechniques extends AbstractWordOperations {
 		}
 	}
 
-	private Map<String, Set<String>> techniquesAlternativeNames = null;
+	private static Map<String, Set<String>> TECHNIQUE_ALTERNATIVE_NAMES = null;
+	private static Map<String, Set<Pattern>> TECHNIQUE_ALTERNATIVE_NAME_PATTERNS = null;
 
 	public Map<String, Set<String>> getAllFashionTechniques() {
-		if (techniquesAlternativeNames == null) {
-			synchronized (this) {
-				if (techniquesAlternativeNames == null) {
-					techniquesAlternativeNames = parseTechniquesAlternativeNames();
+		if (TECHNIQUE_ALTERNATIVE_NAMES == null) {
+			synchronized (FashionTechniques.class) {
+				if (TECHNIQUE_ALTERNATIVE_NAMES == null) {
+					TECHNIQUE_ALTERNATIVE_NAMES = parseTechniquesAlternativeNames();
 				}
 			}
 		}
 
-		return techniquesAlternativeNames;
+		Assert.notEmpty(TECHNIQUE_ALTERNATIVE_NAMES);
+		return TECHNIQUE_ALTERNATIVE_NAMES;
 	}
 
 	private Map<String, Set<String>> parseTechniquesAlternativeNames() {
-		Map<String, Set<String>> techniquesAlternativeNames = new HashMap<String, Set<String>>();
+		Map<String, Set<String>> techniquesAlternativeNames = new TreeMap<String, Set<String>>();
 
 		for (String name : TECHNIQUES.stringPropertyNames()) {
 			String alternativeNamesString = TECHNIQUES.getProperty(name);
@@ -68,44 +75,139 @@ public class FashionTechniques extends AbstractWordOperations {
 		return techniquesAlternativeNames;
 	}
 
-	public Map<String, Boolean> techniquesMentionedInPaper(Paper paper) {
-		Map<String, Boolean> result = new HashMap<String, Boolean>();
-
-		techName: for (Entry<String, Set<String>> entry : getAllFashionTechniques()
-				.entrySet()) {
-
-			String name = entry.getKey();
-
-			Set<String> alternativeNames = new HashSet<String>(entry.getValue()
-					.size());
-			for (String alterName : entry.getValue()) {
-				// make sure each term be considered as words rather than part
-				// of a term
-				alternativeNames.add(" " + alterName + " ");
-			}
-
-			// /////////////////////////////////////////////////////////////////
-			String abstractParagraph = paper.getAbstract();
-			if (findMentionOfTechnique(abstractParagraph, alternativeNames)) {
-				result.put(name, true);
-				continue techName;
-			}
-			for (String paragraph : paper.getContentParagraphs()) {
-				if (findMentionOfTechnique(paragraph, alternativeNames)) {
-					result.put(name, true);
-					continue techName;
+	private Map<String, Set<Pattern>> getAllFashionTechniquePatterns() {
+		if (TECHNIQUE_ALTERNATIVE_NAME_PATTERNS == null) {
+			synchronized (FashionTechniques.class) {
+				if (TECHNIQUE_ALTERNATIVE_NAME_PATTERNS == null) {
+					TECHNIQUE_ALTERNATIVE_NAME_PATTERNS = parseTechniquesAlternativeNamePatterns();
 				}
 			}
+		}
 
-			result.put(name, false);
+		Assert.notEmpty(TECHNIQUE_ALTERNATIVE_NAME_PATTERNS);
+		return TECHNIQUE_ALTERNATIVE_NAME_PATTERNS;
+	}
+
+	private Map<String, Set<Pattern>> parseTechniquesAlternativeNamePatterns() {
+		Map<String, Set<Pattern>> result = new TreeMap<String, Set<Pattern>>();
+
+		for (Entry<String, Set<String>> entry : getAllFashionTechniques()
+				.entrySet()) {
+			String techName = entry.getKey();
+			Set<String> alternativeNames = entry.getValue();
+			Set<Pattern> patterns = new HashSet<Pattern>(
+					alternativeNames.size());
+
+			for (String alternativeName : alternativeNames) {
+				Pattern pattern = createMatchPattern(alternativeName);
+				patterns.add(pattern);
+			}
+
+			result.put(techName, patterns);
 		}
 
 		return result;
 	}
 
-	private boolean findMentionOfTechnique(String paragraph,
-			Set<String> alternativeNames) {
-		return containsAny(paragraph, alternativeNames, true);
+	private Pattern createMatchPattern(String term) {
+		String patternString = "\\b" + term.replace(".", "\\.") + "(\\b|\\s)";
+		return Pattern.compile(patternString, Pattern.CASE_INSENSITIVE);
+	}
+
+	public Map<String, Integer> techniqueFrequenciesInPaper(Paper paper) {
+		Map<String, Integer> result = new TreeMap<String, Integer>();
+		// initialize the result frequencies
+		for (String techName : getAllFashionTechniquePatterns().keySet()) {
+			result.put(techName, Integer.valueOf(0));
+		}
+
+		for (Entry<String, Set<Pattern>> entry : getAllFashionTechniquePatterns()
+				.entrySet()) {
+			String techName = entry.getKey();
+			Set<Pattern> alternativeNamePatterns = entry.getValue();
+
+			// /////////////////////////////////////////////////////////////////
+			int count = 0;
+
+			String abstractParagraph = paper.getAbstract();
+			count += countMentions(abstractParagraph, alternativeNamePatterns);
+
+			for (String paragraph : paper.getContentParagraphs()) {
+				count += countMentions(paragraph, alternativeNamePatterns);
+			}
+
+			result.put(techName, count);
+		}
+
+		return result;
+	}
+
+	private int countMentions(String paragraph,
+			Set<Pattern> alternativeNamePatterns) {
+		if (paragraph == null) {
+			return 0;
+		}
+
+		int result = 0;
+		for (Pattern pattern : alternativeNamePatterns) {
+			Matcher matcher = pattern.matcher(paragraph);
+			while (matcher.find()) {
+				result++;
+			}
+		}
+		return result;
+	}
+
+	// public Map<String, Boolean> techniquesMentionedInPaper(Paper paper) {
+	// Map<String, Boolean> result = new TreeMap<String, Boolean>();
+	//
+	// techName: for (Entry<String, Set<String>> entry :
+	// getAllFashionTechniques()
+	// .entrySet()) {
+	//
+	// String name = entry.getKey();
+	//
+	// Set<String> alternativeNames = new HashSet<String>(entry.getValue()
+	// .size());
+	// for (String alterName : entry.getValue()) {
+	// // make sure each term be considered as words rather than part
+	// // of a term
+	// alternativeNames.add(" " + alterName + " ");
+	// }
+	//
+	// // /////////////////////////////////////////////////////////////////
+	// String abstractParagraph = paper.getAbstract();
+	// if (findMentionOfTechnique(abstractParagraph, alternativeNames)) {
+	// result.put(name, true);
+	// continue techName;
+	// }
+	// for (String paragraph : paper.getContentParagraphs()) {
+	// if (findMentionOfTechnique(paragraph, alternativeNames)) {
+	// result.put(name, true);
+	// continue techName;
+	// }
+	// }
+	//
+	// result.put(name, false);
+	// }
+	//
+	// return result;
+	// }
+	//
+	// private boolean findMentionOfTechnique(String paragraph,
+	// Set<String> alternativeNames) {
+	// return containsAny(paragraph, alternativeNames, true);
+	// }
+
+	public Map<String, Boolean> techniquesMentionedInPaper(Paper paper) {
+		Map<String, Boolean> result = new TreeMap<String, Boolean>();
+		Map<String, Integer> frequency = techniqueFrequenciesInPaper(paper);
+		for (Entry<String, Integer> entry : frequency.entrySet()) {
+			result.put(entry.getKey(), entry.getValue().intValue() > 0 ? true
+					: false);
+		}
+
+		return result;
 	}
 
 	public static void main(String[] args) {
@@ -118,20 +220,45 @@ public class FashionTechniques extends AbstractWordOperations {
 		// }
 
 		FashionTechniques fashionTechniques = new FashionTechniques();
-		List<Paper> papers = PaperCache.getInstance().getPapers(2012);
+		List<Paper> papers = PaperCache.getInstance().getAllPapers();
+		Collections.sort(papers, new Comparator<Paper>() {
+			@Override
+			public int compare(Paper o1, Paper o2) {
+				return o1.getMetadata().getPaperFileName()
+						.compareTo(o2.getMetadata().getPaperFileName());
+			}
+		});
+
+		Map<String, Integer> paperCountByTerm = new TreeMap<String, Integer>();
 		for (Paper paper : papers) {
 			Map<String, Boolean> techniquesMentionedInPaper = fashionTechniques
 					.techniquesMentionedInPaper(paper);
+			Map<String, Integer> techniqueFrequenciesInPaper = fashionTechniques
+					.techniqueFrequenciesInPaper(paper);
+
 			System.out.print(paper.getMetadata().getPaperFileName() + " | ");
 			for (Entry<String, Boolean> entry : techniquesMentionedInPaper
 					.entrySet()) {
 				if (entry.getValue()) {
-					System.out.print(entry.getKey() + ", ");
+					Integer count = paperCountByTerm.get(entry.getKey());
+					paperCountByTerm.put(entry.getKey(), (count == null) ? 1
+							: (count + 1));
+
+					System.out.print(entry.getKey() + "["
+							+ techniqueFrequenciesInPaper.get(entry.getKey())
+							+ "], ");
 				}
 			}
-
 			System.out.println();
+
+			// Map<String, Integer> techniqueFrequenciesInPaper =
+			// fashionTechniques
+			// .techniqueFrequenciesInPaper(paper);
+			// System.out.println(techniqueFrequenciesInPaper);
 		}
 
+		for (Entry<String, Integer> entry : paperCountByTerm.entrySet()) {
+			System.out.println(entry);
+		}
 	}
 }
