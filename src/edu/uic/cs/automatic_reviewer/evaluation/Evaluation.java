@@ -196,6 +196,6 @@ public class Evaluation {
 		double fMeasure = evaluation.fMeasure(0);
 		System.out.println("precision: " + precision);
 		System.out.println("recall: " + recall);
-		System.out.println("fMeasure" + fMeasure);
+		System.out.println("fMeasure: " + fMeasure);
 	}
 }
