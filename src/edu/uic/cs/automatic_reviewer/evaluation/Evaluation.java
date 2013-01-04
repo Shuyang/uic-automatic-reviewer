@@ -33,7 +33,7 @@ public class Evaluation {
 
 	private static final int MIN_ACCEPTED_PAPER_PAGE_NUMBER = 8;
 
-	private static final int YEAR = 2010;
+	private static final int YEAR = 2012;
 
 	private static Feature[] gatherAllFeatures() {
 

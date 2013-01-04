@@ -2,7 +2,9 @@ package edu.uic.cs.automatic_reviewer.feature.ranking;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,6 +39,7 @@ import edu.uic.cs.automatic_reviewer.common.Constants;
 import edu.uic.cs.automatic_reviewer.feature.Feature;
 import edu.uic.cs.automatic_reviewer.input.Paper;
 import edu.uic.cs.automatic_reviewer.input.Paper.Author;
+import edu.uic.cs.automatic_reviewer.input.PaperCache;
 import edu.uic.cs.automatic_reviewer.misc.Assert;
 import edu.uic.cs.automatic_reviewer.misc.AutomaticReviewerException;
 import edu.uic.cs.automatic_reviewer.misc.LogHelper;
@@ -58,7 +61,7 @@ public class AuthorRanking extends AbstractWordOperations implements
 
 	private IndexSearcher indexSearcher;
 
-	// singleton
+	// singleton make sure only one IndexReader created
 	private AuthorRanking() {
 		try {
 			IndexReader indexReader = IndexReader.open(FSDirectory
@@ -70,30 +73,37 @@ public class AuthorRanking extends AbstractWordOperations implements
 
 	}
 
-	public static AuthorRanking getInstance() {
+	// private static float THRESHOLD = 0;
+
+	public static AuthorRanking getInstance(/* float threshold */) {
+		// THRESHOLD = threshold;
 		return INSTANCE;
 	}
 
 	public static void main(String[] args) throws Exception {
 
-		// AuthorRanking.getInstance().printAllAuthors();
-		// System.out.println("=================================================");
-		//
-		// List<Paper> papers = PaperCache.getInstance().getAllPapers();
-		// Collections.sort(papers, new Comparator<Paper>() {
-		// @Override
-		// public int compare(Paper o1, Paper o2) {
-		// return o1.getMetadata().getPaperFileName()
-		// .compareTo(o2.getMetadata().getPaperFileName());
-		// }
-		// });
-		// for (Paper paper : papers) {
-		// System.out.println(paper.getMetadata().getPaperFileName()
-		// + "\t"
-		// + Arrays.toString(AuthorRanking.getInstance()
-		// .getInstanceValues(paper)));
-		// }
+		AuthorRanking.getInstance().printAllAuthors();
+		System.out.println("=================================================");
 
+		List<Paper> papers = PaperCache.getInstance().getAllPapers();
+		Collections.sort(papers, new Comparator<Paper>() {
+			@Override
+			public int compare(Paper o1, Paper o2) {
+				return o1.getMetadata().getPaperFileName()
+						.compareTo(o2.getMetadata().getPaperFileName());
+			}
+		});
+
+		for (Paper paper : papers) {
+			System.out.println(paper.getMetadata().getPaperFileName()
+					+ "\t"
+					+ Arrays.toString(AuthorRanking.getInstance()
+							.getInstanceValues(paper)));
+		}
+
+	}
+
+	public void createIndex() {
 		Assert.isTrue(false,
 				"Comment this line if you want to create a new index");
 
@@ -101,7 +111,11 @@ public class AuthorRanking extends AbstractWordOperations implements
 		List<Author> authors = crawler
 				.crawlAuthors(NUMBER_OF_AUTHORS_TO_RETRIEVE);
 
-		wirteIndex(authors);
+		try {
+			wirteIndex(authors);
+		} catch (Exception e) {
+			throw new AutomaticReviewerException(e);
+		}
 	}
 
 	private static void wirteIndex(List<Author> authors) throws Exception {
@@ -155,13 +169,12 @@ public class AuthorRanking extends AbstractWordOperations implements
 			Document document = indexSearcher.doc(i);
 			String rankString = document.get(FIELD_NAME__RANK);
 			String name = document.get(FIELD_NAME__NAME);
-
-			System.out.println(name + "\t" + rankString);
+			String organization = document.get(FIELD_NAME__ORGANIZATION);
+			System.out.println(rankString + "\t" + name + "\t" + organization);
 		}
 	}
 
-	public int getRank(Author author) {
-
+	private Document retrieveRecord(Author author) {
 		BooleanQuery query = new BooleanQuery();
 
 		List<String> nameParts = standardAnalyzeWithoutRemovingStopWords(
@@ -189,13 +202,13 @@ public class AuthorRanking extends AbstractWordOperations implements
 
 			if (topDocs.totalHits == 0) {
 				LOGGER.info("No record for " + author);
-				return NO_RANK_VALUE;
+				return null;
 			}
 
 			LOGGER.debug("Score for " + author + " is ["
 					+ topDocs.scoreDocs[0].score + "]");
 			if (topDocs.scoreDocs[0].score < SCORE_THRESHOLD) {
-				return NO_RANK_VALUE;
+				return null;
 			}
 
 			document = indexSearcher.doc(topDocs.scoreDocs[0].doc);
@@ -204,8 +217,41 @@ public class AuthorRanking extends AbstractWordOperations implements
 			throw new AutomaticReviewerException(e);
 		}
 
+		return document;
+	}
+
+	public int getRank(Author author) {
+		Document document = retrieveRecord(author);
+		if (document == null) {
+			return NO_RANK_VALUE;
+		}
+
 		String rankString = document.get(FIELD_NAME__RANK);
 		return Integer.parseInt(rankString);
+	}
+
+	/**
+	 * For test
+	 */
+	String getName(Author author) {
+		Document document = retrieveRecord(author);
+		if (document == null) {
+			return null;
+		}
+
+		return document.get(FIELD_NAME__NAME);
+	}
+
+	/**
+	 * For test
+	 */
+	String getOrganization(Author author) {
+		Document document = retrieveRecord(author);
+		if (document == null) {
+			return null;
+		}
+
+		return document.get(FIELD_NAME__ORGANIZATION);
 	}
 
 	@Override

@@ -32,7 +32,7 @@ public interface Constants {
 		 * Lucene search score threshold, only result has score above or equal
 		 * to this score will be considered as matched result and be returned.
 		 */
-		float SCORE_THRESHOLD = 3.5f;
+		float SCORE_THRESHOLD = 2.3f;
 	}
 
 	interface Feature {
