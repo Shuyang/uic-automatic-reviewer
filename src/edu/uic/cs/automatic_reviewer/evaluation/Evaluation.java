@@ -37,11 +37,17 @@ public class Evaluation {
 
 	private static Feature[] gatherAllFeatures() {
 
-		return new Feature[] { new NumberOfFiguresPerPage(),
-				new NumberOfFormulasPerPage(), new NumberOfTablesPerPage(),
-				new TitleTFIDF(), new TopicDistribution(YEAR),
-				new FashionTechniques(), AuthorRanking.getInstance(),
-				new SentenceComplexity() };
+		return new Feature[] {
+				// features
+				new NumberOfFiguresPerPage(), //
+				new NumberOfFormulasPerPage(), //
+				new NumberOfTablesPerPage(), //
+				new TitleTFIDF(), //
+				new TopicDistribution(YEAR), //
+				new FashionTechniques(), //
+				AuthorRanking.getInstance(), //
+				new SentenceComplexity() //
+		};
 	}
 
 	private static Classifier getClassifier(Instances data) {
@@ -76,6 +82,8 @@ public class Evaluation {
 			System.out.println(index + "\t" + data.instance(index));
 		}
 		System.out.println("=================================================");
+		System.out.println(data.toString());
+		System.out.println(data.toSummaryString());
 
 		Classifier classifier = getClassifier(data);
 		runEvaluation(classifier, data);
@@ -112,7 +120,7 @@ public class Evaluation {
 	}
 
 	private static void addInstance(Instances dataSet, FastVector featureDefs,
-			Paper paper, Boolean isPositive) {
+			Paper paper, Boolean theClass) {
 
 		Instance instance = new Instance(featureDefs.size());
 
@@ -126,7 +134,7 @@ public class Evaluation {
 
 		// the final one is the class
 		instance.setValue((Attribute) featureDefs.elementAt(index++),
-				isPositive.toString());
+				theClass.toString());
 		Assert.isTrue(index == featureDefs.size());
 
 		dataSet.add(instance);
@@ -162,43 +170,32 @@ public class Evaluation {
 		return dataSet;
 	}
 
-	private static void runEvaluation(Classifier classifier, Instances data)
+	private static void runEvaluation(Classifier classifier, Instances dataset)
 			throws Exception {
-		// randomize data
-		int seed = 10;
+
+		int seed = 1; // randomize data
 		int folds = 10;
 
-		Random rand = new Random(seed);
-		Instances randData = new Instances(data);
-		randData.randomize(rand);
-		if (randData.classAttribute().isNominal()) {
-			randData.stratify(folds);
-		}
-
 		// perform cross-validation
-		weka.classifiers.Evaluation eval = new weka.classifiers.Evaluation(
-				randData);
-
-		for (int n = 0; n < folds; n++) {
-			Instances train = randData.trainCV(folds, n);
-			Instances test = randData.testCV(folds, n);
-
-			// build and evaluate classifier
-			Classifier clsCopy = Classifier.makeCopy(classifier);
-			clsCopy.buildClassifier(train);
-			eval.evaluateModel(clsCopy, test);
-		}
+		weka.classifiers.Evaluation evaluation = new weka.classifiers.Evaluation(
+				dataset);
+		evaluation.crossValidateModel(classifier, dataset, folds, new Random(
+				seed));
 
 		// output evaluation
 		System.out.println();
 		System.out.println("=== Setup ===");
 		System.out.println("Classifier: " + classifier.getClass().getName()
 				+ " " + Utils.joinOptions(classifier.getOptions()));
-		System.out.println("Dataset: " + data.relationName());
-		System.out.println("Folds: " + folds);
-		System.out.println("Seed: " + seed);
 		System.out.println();
-		System.out.println(eval.toSummaryString("=== " + folds
+		System.out.println(evaluation.toSummaryString("=== " + folds
 				+ "-fold Cross-validation ===", true));
+		System.out.println(evaluation.toMatrixString());
+		double precision = evaluation.precision(0);
+		double recall = evaluation.recall(0);
+		double fMeasure = evaluation.fMeasure(0);
+		System.out.println("precision: " + precision);
+		System.out.println("recall: " + recall);
+		System.out.println("fMeasure" + fMeasure);
 	}
 }

@@ -50,7 +50,8 @@ public class TitleTFIDF extends AbstractWordOperations implements Feature {
 	public double[] getInstanceValues(Paper paper) {
 		String title = paper.getTitle();
 		if (title == null || title.trim().isEmpty()) {
-			return new double[] { 0 };
+			// missing data
+			return new double[] { Double.NaN };
 		}
 
 		List<String> terms = porterStemmingAnalyzeUsingDefaultStopWords(title);
@@ -74,7 +75,7 @@ public class TitleTFIDF extends AbstractWordOperations implements Feature {
 
 	@Override
 	public String getName() {
-		return "TITLE";
+		return "TITLE_TFIDF";
 	}
 
 	@Override
