@@ -26,13 +26,13 @@ public interface Constants {
 		 */
 		int NUMBER_OF_AUTHORS_TO_RETRIEVE = 2000;
 
-		int NO_RANK_VALUE = NUMBER_OF_AUTHORS_TO_RETRIEVE + 10;
+		int NO_RANK_VALUE = Integer.MAX_VALUE;
 
 		/**
 		 * Lucene search score threshold, only result has score above or equal
 		 * to this score will be considered as matched result and be returned.
 		 */
-		float SCORE_THRESHOLD = 7.0f;
+		float SCORE_THRESHOLD = 3.5f;
 	}
 
 	interface Feature {

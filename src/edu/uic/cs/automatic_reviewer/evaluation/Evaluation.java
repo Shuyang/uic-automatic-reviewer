@@ -4,9 +4,7 @@ import java.util.List;
 import java.util.Random;
 
 import weka.classifiers.Classifier;
-import weka.classifiers.bayes.NaiveBayes;
 import weka.classifiers.functions.LibSVM;
-import weka.classifiers.trees.J48;
 import weka.core.Attribute;
 import weka.core.FastVector;
 import weka.core.Instance;
@@ -35,18 +33,57 @@ public class Evaluation {
 
 	private static final int MIN_ACCEPTED_PAPER_PAGE_NUMBER = 8;
 
-	private static Feature[] gatherAllFeatures() {
+	private static final int YEAR = 2010;
 
-		List<Paper> papersToTrainLDAModel = PaperCache.getInstance()
-				.getAllPapers();
+	private static Feature[] gatherAllFeatures() {
 
 		return new Feature[] { new NumberOfFiguresPerPage(),
 				new NumberOfFormulasPerPage(), new NumberOfTablesPerPage(),
-				/*new TitleTFIDF(), new TopicDistribution(papersToTrainLDAModel),
+				new TitleTFIDF(), new TopicDistribution(YEAR),
 				new FashionTechniques(), AuthorRanking.getInstance(),
-				new SentenceComplexity() */};
+				new SentenceComplexity() };
 	}
 
+	private static Classifier getClassifier(Instances data) {
+
+		LibSVM classifier = new LibSVM();
+
+		classifier.setSVMType(new SelectedTag(LibSVM.SVMTYPE_NU_SVC,
+				LibSVM.TAGS_SVMTYPE));
+		classifier.setKernelType(new SelectedTag(LibSVM.KERNELTYPE_RBF,
+				LibSVM.TAGS_KERNELTYPE));
+		classifier.setDegree(3);
+		classifier.setGamma(1.0 / (data.numAttributes() - 1));
+		classifier.setCoef0(0);
+		classifier.setNu(0.5);
+		classifier.setCacheSize(5000);
+		classifier.setCost(500);
+		classifier.setEps(1e-3);
+		classifier.setLoss(0.1);
+		classifier.setShrinking(true);
+		classifier.setProbabilityEstimates(false);
+		classifier.setWeights("");
+
+		return classifier;
+	}
+
+	public static void main(String[] args) throws Exception {
+
+		Instances data = createDataset();
+
+		System.out.println("=================================================");
+		for (int index = 0; index < data.numInstances(); index++) {
+			System.out.println(index + "\t" + data.instance(index));
+		}
+		System.out.println("=================================================");
+
+		Classifier classifier = getClassifier(data);
+		runEvaluation(classifier, data);
+	}
+
+	// DO NOT MODIFIY THE CODE BELOW, UNLESS YOU KNOW WHAT EXACTLY THEY ARE!
+	// /////////////////////////////////////////////////////////////////////////
+	// /////////////////////////////////////////////////////////////////////////
 	private static FastVector defineFeatures() {
 
 		FastVector features = new FastVector();
@@ -95,11 +132,11 @@ public class Evaluation {
 		dataSet.add(instance);
 	}
 
-	private static Instances createDataset(int year) {
+	private static Instances createDataset() {
 
-		List<Paper> positivePapers = PaperCache.getInstance().getPapers(year,
+		List<Paper> positivePapers = PaperCache.getInstance().getPapers(YEAR,
 				PaperPublishType.LongPaper);
-		List<Paper> negativePapers = PaperCache.getInstance().getPapers(year,
+		List<Paper> negativePapers = PaperCache.getInstance().getPapers(YEAR,
 				PaperPublishType.WorkshopPaper,
 				PaperPublishType.StudentWorkshopPaper);
 
@@ -133,7 +170,7 @@ public class Evaluation {
 
 		Random rand = new Random(seed);
 		Instances randData = new Instances(data);
-//		randData.randomize(rand);
+		randData.randomize(rand);
 		if (randData.classAttribute().isNominal()) {
 			randData.stratify(folds);
 		}
@@ -163,41 +200,5 @@ public class Evaluation {
 		System.out.println();
 		System.out.println(eval.toSummaryString("=== " + folds
 				+ "-fold Cross-validation ===", true));
-	}
-
-	public static void main(String[] args) throws Exception {
-
-		Instances data = createDataset(2012);
-
-		System.out.println("=================================================");
-		for (int index = 0; index < data.numInstances(); index++) {
-			System.out.println(index + "\t" + data.instance(index));
-		}
-		System.out.println("=================================================");
-
-		Classifier classifier = /* new J48(); */getClassifier(data);
-		runEvaluation(classifier, data);
-	}
-
-	private static Classifier getClassifier(Instances data) {
-		LibSVM classifier = new LibSVM();
-
-		classifier.setSVMType(new SelectedTag(LibSVM.SVMTYPE_NU_SVC,
-				LibSVM.TAGS_SVMTYPE));
-		classifier.setKernelType(new SelectedTag(LibSVM.KERNELTYPE_RBF,
-				LibSVM.TAGS_KERNELTYPE));
-		classifier.setDegree(3);
-		classifier.setGamma(1.0 / (data.numAttributes() - 1));
-		classifier.setCoef0(0);
-		classifier.setNu(0.5);
-		classifier.setCacheSize(5000);
-		classifier.setCost(500);
-		classifier.setEps(1e-3);
-		classifier.setLoss(0.1);
-		classifier.setShrinking(true);
-		classifier.setProbabilityEstimates(false);
-		classifier.setWeights("");
-
-		return classifier;
 	}
 }

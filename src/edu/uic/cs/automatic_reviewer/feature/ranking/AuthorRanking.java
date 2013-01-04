@@ -76,6 +76,24 @@ public class AuthorRanking extends AbstractWordOperations implements
 
 	public static void main(String[] args) throws Exception {
 
+		// AuthorRanking.getInstance().printAllAuthors();
+		// System.out.println("=================================================");
+		//
+		// List<Paper> papers = PaperCache.getInstance().getAllPapers();
+		// Collections.sort(papers, new Comparator<Paper>() {
+		// @Override
+		// public int compare(Paper o1, Paper o2) {
+		// return o1.getMetadata().getPaperFileName()
+		// .compareTo(o2.getMetadata().getPaperFileName());
+		// }
+		// });
+		// for (Paper paper : papers) {
+		// System.out.println(paper.getMetadata().getPaperFileName()
+		// + "\t"
+		// + Arrays.toString(AuthorRanking.getInstance()
+		// .getInstanceValues(paper)));
+		// }
+
 		Assert.isTrue(false,
 				"Comment this line if you want to create a new index");
 
@@ -132,6 +150,16 @@ public class AuthorRanking extends AbstractWordOperations implements
 		}
 	}
 
+	public void printAllAuthors() throws Exception {
+		for (int i = 0; i < indexSearcher.maxDoc(); i++) {
+			Document document = indexSearcher.doc(i);
+			String rankString = document.get(FIELD_NAME__RANK);
+			String name = document.get(FIELD_NAME__NAME);
+
+			System.out.println(name + "\t" + rankString);
+		}
+	}
+
 	public int getRank(Author author) {
 
 		BooleanQuery query = new BooleanQuery();
@@ -185,7 +213,7 @@ public class AuthorRanking extends AbstractWordOperations implements
 
 		List<Author> authors = paper.getAuthors();
 		if (authors == null || authors.isEmpty()) {
-			return new double[] { NO_RANK_VALUE };
+			return new double[] { Double.NaN };
 		}
 
 		int highestRank = NO_RANK_VALUE;
@@ -194,6 +222,10 @@ public class AuthorRanking extends AbstractWordOperations implements
 
 			// the smaller the better
 			highestRank = Math.min(highestRank, rank);
+		}
+
+		if (highestRank == NO_RANK_VALUE) {
+			return new double[] { Double.NaN };
 		}
 		return new double[] { highestRank };
 	}
