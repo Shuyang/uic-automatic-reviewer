@@ -25,10 +25,10 @@ public class TopicDistribution implements Feature {
 
 	private TopicPredictor topicPredictor = new TopicPredictor();
 
-	private ParallelTopicModel model;
+	private volatile ParallelTopicModel model;
 	private String modelCacheFile;
 
-	private Map<String, double[]> paperTopicDistribution;
+	private volatile Map<String, double[]> paperTopicDistribution;
 	private String paperTopicDistributionCacheFile;
 
 	private int year;

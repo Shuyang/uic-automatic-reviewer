@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -116,8 +117,19 @@ public class FashionTechniques extends AbstractWordOperations implements
 		return Pattern.compile(patternString, Pattern.CASE_INSENSITIVE);
 	}
 
+	// in memory cache
+	private static final Map<String, TreeMap<String, Integer>> TECHNIQUE_FREQUENCIES_CACHE = new HashMap<String, TreeMap<String, Integer>>();
+
 	public TreeMap<String, Integer> techniqueFrequenciesInPaper(Paper paper) {
-		TreeMap<String, Integer> result = new TreeMap<String, Integer>();
+
+		String paperName = paper.getMetadata().getPaperFileName();
+		TreeMap<String, Integer> result = TECHNIQUE_FREQUENCIES_CACHE
+				.get(paperName);
+		if (result != null) {
+			return result;
+		}
+
+		result = new TreeMap<String, Integer>();
 		// initialize the result frequencies
 		for (String techName : getAllFashionTechniquePatterns().keySet()) {
 			result.put(techName, Integer.valueOf(0));
@@ -140,6 +152,8 @@ public class FashionTechniques extends AbstractWordOperations implements
 
 			result.put(techName, count);
 		}
+
+		TECHNIQUE_FREQUENCIES_CACHE.put(paperName, result);
 
 		return result;
 	}

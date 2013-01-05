@@ -13,6 +13,8 @@ import weka.core.Instance;
 import weka.core.Instances;
 import weka.core.SelectedTag;
 import weka.core.Utils;
+import weka.filters.Filter;
+import weka.filters.unsupervised.attribute.Normalize;
 import edu.uic.cs.automatic_reviewer.feature.Feature;
 import edu.uic.cs.automatic_reviewer.feature.FeatureDefinition;
 import edu.uic.cs.automatic_reviewer.feature.InstanceCreator;
@@ -29,6 +31,7 @@ import edu.uic.cs.automatic_reviewer.input.Paper;
 import edu.uic.cs.automatic_reviewer.input.PaperCache;
 import edu.uic.cs.automatic_reviewer.input.PaperPublishType;
 import edu.uic.cs.automatic_reviewer.misc.Assert;
+import edu.uic.cs.automatic_reviewer.misc.AutomaticReviewerException;
 import edu.uic.cs.automatic_reviewer.misc.LogHelper;
 
 public class Evaluation {
@@ -63,19 +66,11 @@ public class Evaluation {
 
 		classifier.setSVMType(new SelectedTag(LibSVM.SVMTYPE_NU_SVC,
 				LibSVM.TAGS_SVMTYPE));
-		classifier.setKernelType(new SelectedTag(LibSVM.KERNELTYPE_RBF,
-				LibSVM.TAGS_KERNELTYPE));
-		classifier.setDegree(3);
-		classifier.setGamma(1.0 / (data.numAttributes() - 1));
-		classifier.setCoef0(0);
-		classifier.setNu(0.5);
-		classifier.setCacheSize(5000);
-		classifier.setCost(500);
-		classifier.setEps(1e-3);
-		classifier.setLoss(0.1);
-		classifier.setShrinking(true);
-		classifier.setProbabilityEstimates(false);
-		classifier.setWeights("");
+		// classifier.setKernelType(new
+		// SelectedTag(LibSVM.KERNELTYPE_POLYNOMIAL,
+		// LibSVM.TAGS_KERNELTYPE));
+		// classifier.setNu(0.5);
+		// classifier.setCost(500);
 
 		return classifier;
 	}
@@ -176,6 +171,17 @@ public class Evaluation {
 				continue;
 			}
 			addInstance(dataSet, featureDefs, paper, Boolean.FALSE);
+		}
+
+		// normalize [-1, 1]
+		Normalize normalize = new Normalize();
+		normalize.setScale(2.0);
+		normalize.setTranslation(-1.0);
+		try {
+			normalize.setInputFormat(dataSet);
+			dataSet = Filter.useFilter(dataSet, normalize);
+		} catch (Exception e) {
+			throw new AutomaticReviewerException(e);
 		}
 
 		return dataSet;
