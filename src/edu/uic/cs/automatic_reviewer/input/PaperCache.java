@@ -87,13 +87,45 @@ public class PaperCache {
 		return result;
 	}
 
-	public List<Paper> getAllPapers() {
+	// public List<Paper> getAllPapers() {
+	// Map<Integer, Map<PaperPublishType, List<Paper>>> cachedPapersByYear =
+	// getCachedPapersByYear();
+	//
+	// List<Paper> result = new ArrayList<Paper>();
+	// for (Map<PaperPublishType, List<Paper>> papersOfYearByType :
+	// cachedPapersByYear
+	// .values()) {
+	// for (List<Paper> papersOfYear : papersOfYearByType.values()) {
+	// result.addAll(papersOfYear);
+	// }
+	// }
+	//
+	// return result;
+	// }
+
+	public List<Paper> getAllPapers(PaperPublishType... paperPublishTypes) {
+		if (paperPublishTypes == null || paperPublishTypes.length == 0) {
+			paperPublishTypes = PaperPublishType.values();
+		}
+
+		Set<PaperPublishType> types = new TreeSet<PaperPublishType>();
+		for (PaperPublishType type : paperPublishTypes) {
+			types.add(type);
+		}
+
 		Map<Integer, Map<PaperPublishType, List<Paper>>> cachedPapersByYear = getCachedPapersByYear();
 
 		List<Paper> result = new ArrayList<Paper>();
 		for (Map<PaperPublishType, List<Paper>> papersOfYearByType : cachedPapersByYear
 				.values()) {
-			for (List<Paper> papersOfYear : papersOfYearByType.values()) {
+			for (Entry<PaperPublishType, List<Paper>> entry : papersOfYearByType
+					.entrySet()) {
+				PaperPublishType type = entry.getKey();
+				if (!types.contains(type)) {
+					continue;
+				}
+
+				List<Paper> papersOfYear = entry.getValue();
 				result.addAll(papersOfYear);
 			}
 		}

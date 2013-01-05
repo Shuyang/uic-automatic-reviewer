@@ -31,13 +31,40 @@ public class TopicDistribution implements Feature {
 	private volatile Map<String, double[]> paperTopicDistribution;
 	private String paperTopicDistributionCacheFile;
 
-	private int year;
+	public static enum Year {
 
-	public TopicDistribution(int year) {
+		_2007(2007), _2010(2010), _2012(2012), _All(0);
+
+		private final int year;
+
+		private Year(int year) {
+			this.year = year;
+		}
+
+		public int getYear() {
+			return year;
+		}
+
+		@Override
+		public String toString() {
+			if (this == _All) {
+				return "all";
+			}
+			return "" + year;
+		}
+	}
+
+	private Year year;
+
+	public TopicDistribution(Year year) {
 		this.year = year;
-		modelCacheFile = _MODEL_CACHE_FILE.replace("$YEAR$", "" + year);
+		initialize();
+	}
+
+	protected void initialize() {
+		modelCacheFile = _MODEL_CACHE_FILE.replace("$YEAR$", year.toString());
 		paperTopicDistributionCacheFile = _PAPER_TOPIC_DISTRIBUTION_CACHE_FILE
-				.replace("$YEAR$", "" + year);
+				.replace("$YEAR$", year.toString());
 
 		if (model == null) {
 			synchronized (this) {
@@ -56,8 +83,14 @@ public class TopicDistribution implements Feature {
 
 	private void trainAndCacheTopicModel() {
 
-		List<Paper> papersToTrainModel = PaperCache.getInstance().getPapers(
-				year);
+		List<Paper> papersToTrainModel = null;
+
+		if (year.equals(Year._All)) {
+			papersToTrainModel = PaperCache.getInstance().getAllPapers();
+		} else {
+			papersToTrainModel = PaperCache.getInstance().getPapers(
+					year.getYear());
+		}
 
 		LOGGER.info(LogHelper.LOG_LAYER_ONE_BEGIN
 				+ "Train topic model using papers of year [" + year + "]...");
@@ -106,7 +139,12 @@ public class TopicDistribution implements Feature {
 	}
 
 	private void cachePaperTopicDistribution() {
-		List<Paper> papers = PaperCache.getInstance().getPapers(year);
+		List<Paper> papers = null;
+		if (year.equals(Year._All)) {
+			papers = PaperCache.getInstance().getAllPapers();
+		} else {
+			papers = PaperCache.getInstance().getPapers(year.getYear());
+		}
 
 		LOGGER.info(LogHelper.LOG_LAYER_ONE_BEGIN
 				+ "cache topic distribution of papers of year [" + year

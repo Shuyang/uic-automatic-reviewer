@@ -29,6 +29,7 @@ import edu.uic.cs.automatic_reviewer.feature.term.AbstractTFIDF;
 import edu.uic.cs.automatic_reviewer.feature.term.FashionTechniques;
 import edu.uic.cs.automatic_reviewer.feature.term.TitleTFIDF;
 import edu.uic.cs.automatic_reviewer.feature.topic.TopicDistribution;
+import edu.uic.cs.automatic_reviewer.feature.topic.TopicDistribution.Year;
 import edu.uic.cs.automatic_reviewer.input.Paper;
 import edu.uic.cs.automatic_reviewer.input.PaperCache;
 import edu.uic.cs.automatic_reviewer.input.PaperPublishType;
@@ -39,7 +40,7 @@ public class FeaturesTuner {
 
 	private static final int MIN_ACCEPTED_PAPER_PAGE_NUMBER = 8;
 
-	private static final int YEAR = 2012;
+	private static final Year YEAR = Year._2012;
 
 	private static Feature[] gatherAllFeatures() {
 
@@ -191,11 +192,22 @@ public class FeaturesTuner {
 
 	private static Instances createDataset(List<Feature> features) {
 
-		List<Paper> positivePapers = PaperCache.getInstance().getPapers(YEAR,
-				PaperPublishType.LongPaper);
-		List<Paper> negativePapers = PaperCache.getInstance().getPapers(YEAR,
-				PaperPublishType.WorkshopPaper,
-				PaperPublishType.StudentWorkshopPaper);
+		List<Paper> positivePapers;
+		List<Paper> negativePapers;
+
+		if (YEAR.equals(Year._All)) {
+			positivePapers = PaperCache.getInstance().getAllPapers(
+					PaperPublishType.LongPaper);
+			negativePapers = PaperCache.getInstance().getAllPapers(
+					PaperPublishType.WorkshopPaper,
+					PaperPublishType.StudentWorkshopPaper);
+		} else {
+			positivePapers = PaperCache.getInstance().getPapers(YEAR.getYear(),
+					PaperPublishType.LongPaper);
+			negativePapers = PaperCache.getInstance().getPapers(YEAR.getYear(),
+					PaperPublishType.WorkshopPaper,
+					PaperPublishType.StudentWorkshopPaper);
+		}
 
 		FastVector featureDefs = defineFeatures(features);
 
