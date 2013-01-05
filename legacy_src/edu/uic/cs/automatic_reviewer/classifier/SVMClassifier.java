@@ -93,12 +93,17 @@ public class SVMClassifier {
 		// FeatureType.LDATopic,FeatureType.FashionTerms,FeatureType.AuthorMaxRank);
 		// List<FeatureType> types = Arrays.asList(FeatureType.AuthorMaxRank);
 
-		List<FeatureType> types = Arrays.asList(FeatureType.NumOfFiguresByPage,
-				FeatureType.NumOfFormulasByPage, FeatureType.NumOfTablesByPage,
-				FeatureType.AuthorMaxRank,
-				// FeatureType.TFIDF,
-				FeatureType.FashionTerms, FeatureType.LDATopic,
-				FeatureType.ComplexityDirectly);
+		List<FeatureType> types = Arrays.asList(
+		//
+				FeatureType.NumOfFiguresByPage, //
+				FeatureType.NumOfFormulasByPage, //
+				FeatureType.NumOfTablesByPage, //
+				FeatureType.AuthorMaxRank, //
+				FeatureType.TFIDF, //
+				FeatureType.FashionTerms, //
+				FeatureType.LDATopic, //
+				FeatureType.ComplexityDirectly //
+				);
 
 		// List<FeatureType> types =
 		// Arrays.asList(FeatureType.ComplexityDirectly);

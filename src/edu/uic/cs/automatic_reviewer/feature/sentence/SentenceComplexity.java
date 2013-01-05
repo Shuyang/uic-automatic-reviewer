@@ -1,5 +1,6 @@
 package edu.uic.cs.automatic_reviewer.feature.sentence;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -76,7 +77,7 @@ public class SentenceComplexity implements Constants.SentenceComplexity,
 			TreeMap<Integer, Integer> frequencyByComplexity) {
 		Integer frequency = frequencyByComplexity.get(complexity);
 		frequencyByComplexity.put(complexity, (frequency == null) ? 1
-				: frequency + 1);
+				: (frequency + 1));
 	}
 
 	private void cacheAllPaperComplexities() {
@@ -137,12 +138,14 @@ public class SentenceComplexity implements Constants.SentenceComplexity,
 
 		List<Paper> papers = PaperCache.getInstance().getAllPapers();
 		System.out.println(papers.size() + " papers. ");
-		for (Paper paper : papers) {
 
-			TreeMap<Integer, Integer> complexity = sentenceComplexity
-					.measurePaperSentenceComplexity(paper);
-			System.out.println(paper.getMetadata().getPaperFileName() + " | "
-					+ complexity);
+		int num = sentenceComplexity.getNumberOfSubFeatures();
+		for (Paper paper : papers) {
+			double[] complexity = sentenceComplexity.getInstanceValues(paper);
+			Assert.isTrue(num == complexity.length);
+
+			System.out.println(paper.getMetadata().getPaperFileName() + "\t"
+					+ Arrays.toString(complexity));
 		}
 	}
 
@@ -171,7 +174,7 @@ public class SentenceComplexity implements Constants.SentenceComplexity,
 
 	@Override
 	public String getName() {
-		return "SENT_COMP";
+		return "SEN_COMPX";
 	}
 
 	@Override

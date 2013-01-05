@@ -148,8 +148,8 @@ public class TechniqueTermsExtractor extends AbstractWordOperations {
 
 				// System.out.println(techniqueTerm);
 				Integer count = countByTerms.get(techniqueTerm);
-				countByTerms
-						.put(techniqueTerm, (count == null) ? 1 : count + 1);
+				countByTerms.put(techniqueTerm, (count == null) ? 1
+						: (count + 1));
 
 				String contentSentence = entry.getValue();
 				List<String> contentSentences = contentSentencesByTerms
@@ -247,7 +247,7 @@ public class TechniqueTermsExtractor extends AbstractWordOperations {
 			Integer count = countByFrequency.get(termWithFrequency
 					.getFrequency());
 			countByFrequency.put(termWithFrequency.getFrequency(),
-					(count == null) ? 1 : count + 1);
+					(count == null) ? 1 : (count + 1));
 		}
 
 		System.out.println(countByFrequency);
