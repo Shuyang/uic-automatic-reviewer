@@ -185,10 +185,11 @@ public class Evaluation {
 			addInstance(dataSet, featureDefs, paper, Boolean.FALSE);
 		}
 
-		// normalize [-1, 1]
+		// normalize [0, 1]
 		Normalize normalize = new Normalize();
-		normalize.setScale(2.0);
-		normalize.setTranslation(-1.0);
+		// un-comment below for normalize [-1, 1]
+		// normalize.setScale(2.0);
+		// normalize.setTranslation(-1.0);
 		try {
 			normalize.setInputFormat(dataSet);
 			dataSet = Filter.useFilter(dataSet, normalize);
