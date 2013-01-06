@@ -1,6 +1,5 @@
 package edu.uic.cs.automatic_reviewer.feature;
 
-
 public interface FeatureDefinition {
 
 	// /**
@@ -25,6 +24,8 @@ public interface FeatureDefinition {
 	 * @return
 	 */
 	String getName();
+
+	String[] getSubFeatureNames();
 
 	/**
 	 * If this feature is composite, this number will be greater than 1; the

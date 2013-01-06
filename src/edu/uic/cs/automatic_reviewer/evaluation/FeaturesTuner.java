@@ -72,7 +72,7 @@ public class FeaturesTuner {
 
 			System.out.println("Using " + featureNames);
 			Instances data = createDataset(features);
-			Classifier classifier = getClassifier(data);
+			Classifier classifier = getClassifier();
 			double[] result = runEvaluation(classifier, data);
 
 			resultByFeatures.put(featureNames.toString(), result);
@@ -117,9 +117,9 @@ public class FeaturesTuner {
 		System.out.println(evaluation.toSummaryString("=== " + folds
 				+ "-fold Cross-validation ===", true));
 		System.out.println(evaluation.toMatrixString());
-		double precision = evaluation.precision(0);
-		double recall = evaluation.recall(0);
-		double fMeasure = evaluation.fMeasure(0);
+		double precision = evaluation.weightedPrecision();
+		double recall = evaluation.weightedRecall();
+		double fMeasure = evaluation.weightedFMeasure();
 		System.out.println("precision: " + precision);
 		System.out.println("recall: " + recall);
 		System.out.println("fMeasure: " + fMeasure);
@@ -127,7 +127,7 @@ public class FeaturesTuner {
 		return new double[] { precision, recall, fMeasure };
 	}
 
-	private static Classifier getClassifier(Instances data) {
+	private static Classifier getClassifier() {
 
 		LibSVM classifier = new LibSVM();
 
@@ -147,16 +147,13 @@ public class FeaturesTuner {
 		FastVector result = new FastVector();
 
 		for (FeatureDefinition definition : featuresToUse) {
-			String name = definition.getName();
+			String[] names = definition.getSubFeatureNames();
 			int numOfSubFeatures = definition.getNumberOfSubFeatures();
-			Assert.isTrue(numOfSubFeatures >= 1);
+			Assert.isTrue(numOfSubFeatures >= 1
+					&& numOfSubFeatures == names.length);
 
-			if (numOfSubFeatures == 1) {
-				result.addElement(new Attribute(name));
-			} else {
-				for (int index = 0; index < numOfSubFeatures; index++) {
-					result.addElement(new Attribute(name + "_" + index));
-				}
+			for (int index = 0; index < numOfSubFeatures; index++) {
+				result.addElement(new Attribute(names[index]));
 			}
 		}
 

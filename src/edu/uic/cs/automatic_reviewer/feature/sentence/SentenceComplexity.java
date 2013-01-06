@@ -173,13 +173,24 @@ public class SentenceComplexity implements Constants.SentenceComplexity,
 	}
 
 	@Override
-	public String getName() {
-		return "SEN_COMPX";
+	public int getNumberOfSubFeatures() {
+		return MAX_COMPLEXITY;
 	}
 
 	@Override
-	public int getNumberOfSubFeatures() {
-		return MAX_COMPLEXITY;
+	public String[] getSubFeatureNames() {
+
+		String[] result = new String[MAX_COMPLEXITY];
+		for (int index = 0; index < MAX_COMPLEXITY; index++) {
+			result[index] = getName() + "_" + index;
+		}
+
+		return result;
+	}
+
+	@Override
+	public String getName() {
+		return "SEN_COMPX";
 	}
 
 }

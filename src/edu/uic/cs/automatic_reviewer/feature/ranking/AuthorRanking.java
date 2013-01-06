@@ -277,13 +277,18 @@ public class AuthorRanking extends AbstractWordOperations implements
 	}
 
 	@Override
-	public String getName() {
-		return "MAX_RANK";
+	public int getNumberOfSubFeatures() {
+		return 1;
 	}
 
 	@Override
-	public int getNumberOfSubFeatures() {
-		return 1;
+	public String[] getSubFeatureNames() {
+		return new String[] { getName() };
+	}
+
+	@Override
+	public String getName() {
+		return "MAX_RANK";
 	}
 
 }

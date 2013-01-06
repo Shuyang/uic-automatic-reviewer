@@ -2,6 +2,7 @@ package edu.uic.cs.automatic_reviewer.feature.term;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -293,12 +294,25 @@ public class FashionTechniques extends AbstractWordOperations implements
 	}
 
 	@Override
-	public String getName() {
-		return "TECH_TERM";
+	public int getNumberOfSubFeatures() {
+		return TECHNIQUES.size();
 	}
 
 	@Override
-	public int getNumberOfSubFeatures() {
-		return TECHNIQUES.size();
+	public String[] getSubFeatureNames() {
+		Collection<String> names = getAllFashionTechniques().keySet();
+		String[] result = new String[names.size()];
+
+		int index = 0;
+		for (String name : names) {
+			result[index++] = getName() + "_" + name;
+		}
+
+		return result;
+	}
+
+	@Override
+	public String getName() {
+		return "TECH_TERM";
 	}
 }

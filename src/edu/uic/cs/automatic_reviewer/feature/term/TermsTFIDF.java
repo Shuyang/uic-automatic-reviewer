@@ -80,4 +80,9 @@ abstract class TermsTFIDF extends AbstractWordOperations implements Feature {
 		return 1;
 	}
 
+	@Override
+	public String[] getSubFeatureNames() {
+		return new String[] { getName() };
+	}
+
 }

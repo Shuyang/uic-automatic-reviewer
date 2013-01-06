@@ -8,6 +8,7 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 
 import cc.mallet.topics.ParallelTopicModel;
+import edu.uic.cs.automatic_reviewer.common.Constants;
 import edu.uic.cs.automatic_reviewer.feature.Feature;
 import edu.uic.cs.automatic_reviewer.input.Paper;
 import edu.uic.cs.automatic_reviewer.input.PaperCache;
@@ -15,7 +16,7 @@ import edu.uic.cs.automatic_reviewer.misc.Assert;
 import edu.uic.cs.automatic_reviewer.misc.LogHelper;
 import edu.uic.cs.automatic_reviewer.misc.SerializationHelper;
 
-public class TopicDistribution implements Feature {
+public class TopicDistribution implements Feature, Constants.Topic {
 
 	private static final Logger LOGGER = LogHelper
 			.getLogger(TopicDistribution.class);
@@ -108,11 +109,6 @@ public class TopicDistribution implements Feature {
 	}
 
 	@Override
-	public String getName() {
-		return "LDA_TOPIC";
-	}
-
-	@Override
 	public int getNumberOfSubFeatures() {
 		return TopicPredictor.NUMBER_OF_TOPICS;
 	}
@@ -168,5 +164,19 @@ public class TopicDistribution implements Feature {
 		LOGGER.info(LogHelper.LOG_LAYER_ONE_END
 				+ "cache topic distribution of papers of year [" + year
 				+ "]... Done.");
+	}
+
+	@Override
+	public String[] getSubFeatureNames() {
+		String[] result = new String[NUMBER_OF_TOPICS];
+		for (int index = 0; index < NUMBER_OF_TOPICS; index++) {
+			result[index] = getName() + "_" + index;
+		}
+		return result;
+	}
+
+	@Override
+	public String getName() {
+		return "LDA_TOPIC";
 	}
 }

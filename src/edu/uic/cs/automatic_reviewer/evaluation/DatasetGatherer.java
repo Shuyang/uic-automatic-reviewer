@@ -1,20 +1,14 @@
 package edu.uic.cs.automatic_reviewer.evaluation;
 
+import java.io.File;
 import java.util.List;
-import java.util.Random;
 
-import org.apache.log4j.Logger;
+import org.apache.commons.io.FileUtils;
 
-import weka.classifiers.Classifier;
-import weka.classifiers.functions.LibSVM;
 import weka.core.Attribute;
 import weka.core.FastVector;
 import weka.core.Instance;
 import weka.core.Instances;
-import weka.core.SelectedTag;
-import weka.core.Utils;
-import weka.filters.Filter;
-import weka.filters.unsupervised.attribute.Normalize;
 import edu.uic.cs.automatic_reviewer.feature.Feature;
 import edu.uic.cs.automatic_reviewer.feature.FeatureDefinition;
 import edu.uic.cs.automatic_reviewer.feature.InstanceCreator;
@@ -32,14 +26,10 @@ import edu.uic.cs.automatic_reviewer.input.Paper;
 import edu.uic.cs.automatic_reviewer.input.PaperCache;
 import edu.uic.cs.automatic_reviewer.input.PaperPublishType;
 import edu.uic.cs.automatic_reviewer.misc.Assert;
-import edu.uic.cs.automatic_reviewer.misc.AutomaticReviewerException;
-import edu.uic.cs.automatic_reviewer.misc.LogHelper;
 
-public class Evaluation {
+public class DatasetGatherer {
 
-	private static final Logger LOGGER = LogHelper.getLogger(Evaluation.class);
-
-	private static final Year YEAR = Year._2012;
+	private static final Year YEAR = Year._All;
 
 	private static final Feature[] FEATURES = gatherAllFeatures();
 
@@ -61,39 +51,24 @@ public class Evaluation {
 		};
 	}
 
-	private static Classifier getClassifier(Instances data) {
-
-		LibSVM classifier = new LibSVM();
-
-		classifier.setSVMType(new SelectedTag(LibSVM.SVMTYPE_NU_SVC,
-				LibSVM.TAGS_SVMTYPE));
-		// classifier.setKernelType(new
-		// SelectedTag(LibSVM.KERNELTYPE_POLYNOMIAL,
-		// LibSVM.TAGS_KERNELTYPE));
-		// classifier.setNu(0.5);
-		// classifier.setCost(500);
-
-		return classifier;
-	}
-
 	public static void main(String[] args) throws Exception {
+
+		Assert.isTrue(false,
+				"Comment this line if you want to gather dataset into files! ");
 
 		Instances data = createDataset();
 
-		if (LOGGER.isInfoEnabled()) {
-			System.out
-					.println("=================================================");
-			for (int index = 0; index < data.numInstances(); index++) {
-				System.out.println(index + "\t" + data.instance(index));
-			}
-			System.out
-					.println("=================================================");
-			System.out.println(data.toString());
-			System.out.println(data.toSummaryString());
-		}
+		String arffContent = data.toString();
+		String outputFileName = getOutputFileName();
+		FileUtils.writeStringToFile(new File(outputFileName), arffContent);
 
-		Classifier classifier = getClassifier(data);
-		runEvaluation(classifier, data);
+		System.out.println("Output dataset to: " + outputFileName);
+	}
+
+	private static String getOutputFileName() {
+		StringBuilder sb = new StringBuilder("dataset/dataset");
+		sb.append(YEAR.name()).append(".arff");
+		return sb.toString();
 	}
 
 	// DO NOT MODIFIY THE CODE BELOW, UNLESS YOU KNOW WHAT EXACTLY THEY ARE!
@@ -101,19 +76,16 @@ public class Evaluation {
 	// /////////////////////////////////////////////////////////////////////////
 	private static FastVector defineFeatures() {
 
-		FastVector features = new FastVector();
+		FastVector result = new FastVector();
 
 		for (FeatureDefinition definition : FEATURES) {
-			String name = definition.getName();
+			String[] names = definition.getSubFeatureNames();
 			int numOfSubFeatures = definition.getNumberOfSubFeatures();
-			Assert.isTrue(numOfSubFeatures >= 1);
+			Assert.isTrue(numOfSubFeatures >= 1
+					&& numOfSubFeatures == names.length);
 
-			if (numOfSubFeatures == 1) {
-				features.addElement(new Attribute(name));
-			} else {
-				for (int index = 0; index < numOfSubFeatures; index++) {
-					features.addElement(new Attribute(name + "_" + index));
-				}
+			for (int index = 0; index < numOfSubFeatures; index++) {
+				result.addElement(new Attribute(names[index]));
 			}
 		}
 
@@ -121,9 +93,9 @@ public class Evaluation {
 		FastVector fvClassVal = new FastVector(2);
 		fvClassVal.addElement(Boolean.TRUE.toString());
 		fvClassVal.addElement(Boolean.FALSE.toString());
-		features.addElement(new Attribute("CLASS", fvClassVal));
+		result.addElement(new Attribute("CLASS", fvClassVal));
 
-		return features;
+		return result;
 	}
 
 	private static void addInstance(Instances dataSet, FastVector featureDefs,
@@ -168,8 +140,8 @@ public class Evaluation {
 
 		FastVector featureDefs = defineFeatures();
 
-		Instances dataSet = new Instances("DATA_SET", featureDefs,
-				positivePapers.size() + negativePapers.size());
+		Instances dataSet = new Instances("DATA_SET" + YEAR.name(),
+				featureDefs, positivePapers.size() + negativePapers.size());
 		// Set class index
 		dataSet.setClassIndex(featureDefs.size() - 1);
 
@@ -185,47 +157,7 @@ public class Evaluation {
 			addInstance(dataSet, featureDefs, paper, Boolean.FALSE);
 		}
 
-		// normalize [0, 1]
-		Normalize normalize = new Normalize();
-		// un-comment below for normalize [-1, 1]
-		// normalize.setScale(2.0);
-		// normalize.setTranslation(-1.0);
-		try {
-			normalize.setInputFormat(dataSet);
-			dataSet = Filter.useFilter(dataSet, normalize);
-		} catch (Exception e) {
-			throw new AutomaticReviewerException(e);
-		}
-
 		return dataSet;
 	}
 
-	private static void runEvaluation(Classifier classifier, Instances dataset)
-			throws Exception {
-
-		int seed = 1; // randomize data
-		int folds = 10;
-
-		// perform cross-validation
-		weka.classifiers.Evaluation evaluation = new weka.classifiers.Evaluation(
-				dataset);
-		evaluation.crossValidateModel(classifier, dataset, folds, new Random(
-				seed));
-
-		// output evaluation
-		System.out.println();
-		System.out.println("=== Setup ===");
-		System.out.println("Classifier: " + classifier.getClass().getName()
-				+ " " + Utils.joinOptions(classifier.getOptions()));
-		System.out.println();
-		System.out.println(evaluation.toSummaryString("=== " + folds
-				+ "-fold Cross-validation ===", true));
-		System.out.println(evaluation.toMatrixString());
-		double precision = evaluation.precision(0);
-		double recall = evaluation.recall(0);
-		double fMeasure = evaluation.fMeasure(0);
-		System.out.println("precision: " + precision);
-		System.out.println("recall: " + recall);
-		System.out.println("fMeasure: " + fMeasure);
-	}
 }

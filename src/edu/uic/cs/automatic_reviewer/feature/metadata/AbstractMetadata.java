@@ -34,6 +34,15 @@ abstract class AbstractMetadata implements Feature, Constants.Feature {
 		return result;
 	}
 
+	@Override
+	public String[] getSubFeatureNames() {
+		String[] result = new String[MAX_NUMBER_OF_PAGES_PER_PAPER];
+		for (int page = 1; page <= MAX_NUMBER_OF_PAGES_PER_PAPER; page++) {
+			result[page - 1] = getName() + "_ON_P_" + page;
+		}
+		return result;
+	}
+
 	abstract protected Map<Integer, Integer> getMetadataCountByPage(
 			Metadata metadata);
 }
