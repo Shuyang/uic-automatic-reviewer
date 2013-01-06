@@ -152,19 +152,30 @@ public class SentenceComplexity implements Constants.SentenceComplexity,
 	@Override
 	public double[] getInstanceValues(Paper paper) {
 		TreeMap<Integer, Integer> sentenceNumberByComplexity = measurePaperSentenceComplexity(paper);
-
 		double[] result = new double[MAX_COMPLEXITY];
+
+		int totalSentenceNumber = 0; // count total number
+		for (Integer number : sentenceNumberByComplexity.values()) {
+			totalSentenceNumber += number;
+		}
+		if (totalSentenceNumber == 0) {
+			LOGGER.warn("NO sentences retrieved for paper ["
+					+ paper.getMetadata().getPaperFileName() + "]");
+			Arrays.fill(result, Double.NaN);
+			return result;
+		}
+
 		for (Entry<Integer, Integer> frequencyByComplexity : sentenceNumberByComplexity
 				.entrySet()) {
 			int complexity = frequencyByComplexity.getKey();
-			int frequency = frequencyByComplexity.getValue();
+			double frequency = frequencyByComplexity.getValue().doubleValue();
 
 			if (complexity < MAX_COMPLEXITY) {
-				result[complexity] += frequency;
+				result[complexity] += (frequency / totalSentenceNumber);
 			} else {
 				LOGGER.warn("Paper [" + paper.getMetadata().getPaperFileName()
 						+ "] has sentence with complexity >= " + MAX_COMPLEXITY);
-				result[result.length - 1] += frequency;
+				result[result.length - 1] += (frequency / totalSentenceNumber);
 			}
 
 		}
