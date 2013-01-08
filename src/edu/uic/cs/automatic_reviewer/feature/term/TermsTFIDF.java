@@ -7,12 +7,17 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.apache.log4j.Logger;
+
 import edu.uic.cs.automatic_reviewer.common.AbstractWordOperations;
 import edu.uic.cs.automatic_reviewer.feature.Feature;
 import edu.uic.cs.automatic_reviewer.input.Paper;
 import edu.uic.cs.automatic_reviewer.input.PaperCache;
+import edu.uic.cs.automatic_reviewer.misc.LogHelper;
 
 abstract class TermsTFIDF extends AbstractWordOperations implements Feature {
+
+	private static final Logger LOGGER = LogHelper.getLogger(TermsTFIDF.class);
 
 	private Map<String, Double> idfByTerm;
 
@@ -66,8 +71,16 @@ abstract class TermsTFIDF extends AbstractWordOperations implements Feature {
 		double maxTFIDF = 0;
 		for (Entry<String, Integer> entry : tfByTerm.entrySet()) {
 			String term = entry.getKey();
+			Double idf = idfByTerm.get(term);
+			if (idf == null) {
+				LOGGER.info("No term ["
+						+ term
+						+ "] exists in call training data, it must be a prediction instance. ");
+				continue;
+			}
+
 			double tf = entry.getValue().doubleValue();
-			double tfidf = tf * idfByTerm.get(term);
+			double tfidf = tf * idf.doubleValue();
 
 			maxTFIDF = Math.max(tfidf, maxTFIDF);
 		}

@@ -148,7 +148,7 @@ public class TopicDistribution implements Feature, Constants.Topic {
 
 		paperTopicDistribution = new HashMap<String, double[]>();
 		for (Paper paper : papers) {
-			double[] topic = topicPredictor.predictPaper(paper, model);
+			double[] topic = predictTopicDistribution(paper);
 			paperTopicDistribution.put(paper.getMetadata().getPaperFileName(),
 					topic);
 
@@ -164,6 +164,16 @@ public class TopicDistribution implements Feature, Constants.Topic {
 		LOGGER.info(LogHelper.LOG_LAYER_ONE_END
 				+ "cache topic distribution of papers of year [" + year
 				+ "]... Done.");
+	}
+
+	protected double[] predictTopicDistribution(Paper paper) {
+		double[] topic = topicPredictor.predictPaper(paper, model);
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info(paper.getMetadata().getPaperFileName() + "\t"
+					+ Arrays.toString(topic));
+		}
+
+		return topic;
 	}
 
 	@Override
