@@ -4,6 +4,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.TreeMap;
 
 import weka.core.Instance;
 import weka.core.Instances;
@@ -13,21 +16,33 @@ import edu.uic.cs.automatic_reviewer.misc.AutomaticReviewerException;
 
 public class SentenceComplexityAnalyser {
 
-	private static final String FILE_NAME = "dataset_replaced_missing_normalized_best_SEN_COMPX_2012.arff";
+	private static final Map<Integer, String> FILE_NAME_BY_YEAR;
+	static {
+		FILE_NAME_BY_YEAR = new TreeMap<Integer, String>();
+		FILE_NAME_BY_YEAR.put(2007, "dataset_sen_normalized_2007.arff");
+		FILE_NAME_BY_YEAR.put(2010, "dataset_sen_normalized_2010.arff");
+		FILE_NAME_BY_YEAR.put(2012, "dataset_sen_normalized_2012.arff");
+	}
 
 	private Instances instances;
 
 	public static void main(String[] args) {
-		SentenceComplexityAnalyser analyser = new SentenceComplexityAnalyser();
-		System.out.println(analyser.measureSSE(true));
-		System.out.println(analyser.measureSSE(false));
+		for (Entry<Integer, String> fileNameByYear : FILE_NAME_BY_YEAR
+				.entrySet()) {
+			System.out.println(fileNameByYear.getKey());
+			SentenceComplexityAnalyser analyser = new SentenceComplexityAnalyser(
+					fileNameByYear.getValue());
+			System.out.println("POS: " + analyser.measureSSE(true));
+			System.out.println("NEG: " + analyser.measureSSE(false));
+			System.out.println("========================================");
+		}
 	}
 
-	public SentenceComplexityAnalyser() {
+	public SentenceComplexityAnalyser(String fileName) {
 		ArffLoader arffLoader = new ArffLoader();
 		try {
 			arffLoader.setSource(SentenceComplexityAnalyser.class
-					.getResourceAsStream(FILE_NAME));
+					.getResourceAsStream(fileName));
 			instances = arffLoader.getDataSet();
 		} catch (IOException e) {
 			throw new AutomaticReviewerException(e);
@@ -43,7 +58,7 @@ public class SentenceComplexityAnalyser {
 		int num = -1;
 		for (List<Double> eachComplexity : complexityList) {
 			Collections.sort(eachComplexity);
-			System.out.println(eachComplexity);
+			// System.out.println(eachComplexity);
 
 			if (num == -1) {
 				num = eachComplexity.size();
