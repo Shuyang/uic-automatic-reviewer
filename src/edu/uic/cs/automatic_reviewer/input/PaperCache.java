@@ -146,6 +146,36 @@ public class PaperCache {
 		return result;
 	}
 
+	@SuppressWarnings("unused")
+	private void addNewPapersToCache(int year) {
+
+		Map<Integer, Map<PaperPublishType, List<Paper>>> cachedPapersByYear = getCachedPapersByYear();
+		Map<PaperPublishType, List<Paper>> papersOfYear = cachedPapersByYear
+				.get(year);
+		Assert.isNull(papersOfYear);
+
+		File newYearFolder = new File(PAPER_FOLDER + File.separator + year);
+		Assert.isTrue(newYearFolder.isDirectory() && newYearFolder.exists());
+
+		papersOfYear = new HashMap<PaperPublishType, List<Paper>>();
+		LOGGER.warn(LogHelper.LOG_LAYER_ONE_BEGIN
+				+ "Adding new papers in year [" + papersOfYear + "]...");
+
+		cachedPapersByYear.put(year, papersOfYear);
+
+		for (File child : newYearFolder.listFiles()) {
+			readAndParseAllPapers(child, cachedPapersByYear, papersOfYear);
+		}
+
+		LOGGER.warn(LogHelper.LOG_LAYER_ONE_END + "Adding new papers in year ["
+				+ papersOfYear + "]... Done.");
+
+		// remove old one
+		removeCache();
+		// create new one
+		SerializationHelper.serialize(cachedPapersByYear, PAPER_CACHE_FILE);
+	}
+
 	private void readAndParseAllPapers(File file,
 			Map<Integer, Map<PaperPublishType, List<Paper>>> result,
 			Map<PaperPublishType, List<Paper>> papersOfYear) {
@@ -187,6 +217,8 @@ public class PaperCache {
 			} else if (fileName.startsWith("W")) {
 				parseAndStorePaper(file, papersOfYear,
 						PaperPublishType.WorkshopPaper);
+			} else {
+				Assert.isTrue(false);
 			}
 		}
 	}
@@ -237,31 +269,33 @@ public class PaperCache {
 	}
 
 	public static void main(String[] args) {
-		Map<PaperPublishType, List<Paper>> result = PaperCache.getInstance()
-				.getPapersByPublishTypeForYear(2012);
-		System.out.println(2012);
 
-		for (Entry<PaperPublishType, List<Paper>> papersByType : result
-				.entrySet()) {
-			for (Paper paper : papersByType.getValue()) {
-				System.out.println(papersByType.getKey() + " "
-						+ paper.getMetadata().getPaperFileName());
-			}
-		}
+		// PaperCache.getInstance().addNewPapersToCache(2011);
 
-		System.out.println("===========================================");
-
-		List<Paper> result2 = PaperCache.getInstance().getPapers(2007,
-				PaperPublishType.LongPaper,
-				PaperPublishType.StudentWorkshopPaper);
-		for (Paper paper : result2) {
-			System.out.println(paper.getMetadata().getPaperFileName());
-		}
-
+		// Map<PaperPublishType, List<Paper>> result = PaperCache.getInstance()
+		// .getPapersByPublishTypeForYear(2012);
+		// System.out.println(2012);
+		//
+		// for (Entry<PaperPublishType, List<Paper>> papersByType : result
+		// .entrySet()) {
+		// for (Paper paper : papersByType.getValue()) {
+		// System.out.println(papersByType.getKey() + " "
+		// + paper.getMetadata().getPaperFileName());
+		// }
+		// }
+		//
+		// System.out.println("===========================================");
+		//
+		// List<Paper> result2 = PaperCache.getInstance().getPapers(2007,
+		// PaperPublishType.LongPaper,
+		// PaperPublishType.StudentWorkshopPaper);
+		// for (Paper paper : result2) {
+		// System.out.println(paper.getMetadata().getPaperFileName());
+		// }
+		//
 		for (Paper paper : PaperCache.getInstance().getAllPapers()) {
 			System.out.println(paper.getMetadata().getPaperFileName());
 		}
-		// PaperCache.getInstance().removeCache();
 
 	}
 }

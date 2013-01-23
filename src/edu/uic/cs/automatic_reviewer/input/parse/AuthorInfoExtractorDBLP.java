@@ -161,6 +161,7 @@ public class AuthorInfoExtractorDBLP extends AuthorInfoExtractorRegex implements
 		Map<String, Integer> usedMaxIndexForTerm = new HashMap<String, Integer>();
 
 		for (String rawInfo : rawAuthorInfos) {
+			rawInfo = rawInfo.replace("*", "");
 			String[] terms = rawInfo.split("\\s+");
 
 			for (String term : terms) {
