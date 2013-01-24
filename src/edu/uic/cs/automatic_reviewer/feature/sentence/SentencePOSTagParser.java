@@ -8,8 +8,6 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
-import com.db4o.ObjectSet;
-
 import edu.stanford.nlp.ling.TaggedWord;
 import edu.stanford.nlp.trees.Tree;
 import edu.uic.cs.automatic_reviewer.feature.sentence.SentenceAnalyzer.ParsedPaper;
@@ -76,8 +74,7 @@ public class SentencePOSTagParser {
 			analyzer = new SentenceAnalyzer();
 		}
 
-		ObjectSet<ParsedPaper> allStoredPapers = analyzer
-				.retrieveAllParsedPapers();
+		List<ParsedPaper> allStoredPapers = analyzer.retrieveAllParsedPapers();
 		cachedSentencePOSTagsByPaperName = new HashMap<String, List<List<TaggedWord>>>(
 				allStoredPapers.size());
 

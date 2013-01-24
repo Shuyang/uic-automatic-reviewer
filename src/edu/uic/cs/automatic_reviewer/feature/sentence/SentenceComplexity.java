@@ -10,8 +10,6 @@ import java.util.TreeMap;
 
 import org.apache.log4j.Logger;
 
-import com.db4o.ObjectSet;
-
 import edu.stanford.nlp.trees.Tree;
 import edu.uic.cs.automatic_reviewer.common.Constants;
 import edu.uic.cs.automatic_reviewer.feature.Feature;
@@ -85,8 +83,7 @@ public class SentenceComplexity implements Constants.SentenceComplexity,
 			analyzer = new SentenceAnalyzer();
 		}
 
-		ObjectSet<ParsedPaper> allStoredPapers = analyzer
-				.retrieveAllParsedPapers();
+		List<ParsedPaper> allStoredPapers = analyzer.retrieveAllParsedPapers();
 		cachedComplexityByPaperName = new HashMap<String, TreeMap<Integer, Integer>>(
 				allStoredPapers.size());
 

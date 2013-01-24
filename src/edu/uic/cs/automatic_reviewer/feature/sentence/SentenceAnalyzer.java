@@ -4,7 +4,11 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Formatter;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -30,9 +34,9 @@ class SentenceAnalyzer {
 	private static final Logger LOGGER = LogHelper
 			.getLogger(SentenceAnalyzer.class);
 
-	private static final String DB4OFILENAME = "object_db/paper_parse_tree.db4o";
-	private static final ObjectContainer DB = Db4oEmbedded
-			.openFile(DB4OFILENAME);
+	private static final String _DB4OFILENAME = "object_db/paper_parse_tree_$YEAR$.db4o";
+	private static final Map<Integer, ObjectContainer> DB_BY_YEAR = openObjectDBs(
+			2007, 2010, 2011, 2012);
 
 	private static final int DOCUMENT_PARSING_THREAD_POOL_SIZE = Runtime
 			.getRuntime().availableProcessors() + 1;
@@ -108,8 +112,24 @@ class SentenceAnalyzer {
 		return parsedPaperInDB.getContentSentenceTrees();
 	}
 
-	ObjectSet<ParsedPaper> retrieveAllParsedPapers() {
-		ObjectSet<ParsedPaper> result = DB.query(ParsedPaper.class);
+	private static Map<Integer, ObjectContainer> openObjectDBs(int... years) {
+
+		Map<Integer, ObjectContainer> result = new TreeMap<Integer, ObjectContainer>();
+
+		for (Integer year : years) {
+			String dbName = _DB4OFILENAME.replace("$YEAR$", year.toString());
+			ObjectContainer db = Db4oEmbedded.openFile(dbName);
+			result.put(year, db);
+		}
+
+		return result;
+	}
+
+	List<ParsedPaper> retrieveAllParsedPapers() {
+		List<ParsedPaper> result = new ArrayList<ParsedPaper>();
+		for (ObjectContainer db : DB_BY_YEAR.values()) {
+			result.addAll(db.query(ParsedPaper.class));
+		}
 		return result;
 	}
 
@@ -133,21 +153,26 @@ class SentenceAnalyzer {
 
 	private ParsedPaper retrieveParsedPaperFromDB(Paper paper) {
 		final String paperFileName = paper.getMetadata().getPaperFileName();
-
-		// ObjectSet<ParsedPaper> result = DB.queryByExample(new ParsedPaper(
-		// paperFileName));
-		ObjectSet<ParsedPaper> result = DB.query(new Predicate<ParsedPaper>() {
+		Predicate<ParsedPaper> queryFilterCondition = new Predicate<ParsedPaper>() {
 			private static final long serialVersionUID = 1L;
 
 			@Override
 			public boolean match(ParsedPaper candidate) {
 				return paperFileName.equals(candidate.getPaperFileName());
 			}
-		});
+		};
+
+		ObjectSet<ParsedPaper> result = null;
+		for (ObjectContainer db : DB_BY_YEAR.values()) {
+			result = db.query(queryFilterCondition);
+			if (result != null && !result.isEmpty()) {
+				break;
+			}
+		}
 
 		if (result == null || result.isEmpty()) {
-			LOGGER.warn("No parse-tree stored in Database[" + DB4OFILENAME
-					+ "] for Paper[" + paperFileName
+			LOGGER.warn("No parse-tree stored in Object-Database for Paper["
+					+ paperFileName
 					+ "]. Check if you have indexed all the papers.");
 			return null;
 		}
@@ -158,16 +183,18 @@ class SentenceAnalyzer {
 
 	}
 
-	private void parseAndStoreAllPapers(List<Paper> papers) {
+	private void parseAndStoreAllPapers(int year) {
 
-		Assert.isTrue(false,
-				"Comment this line if you REALLY want to parse and store papers. ");
+		List<Paper> papers = PaperCache.getInstance().getPapers(year);
+
+		// Assert.isTrue(false,
+		// "Comment this line if you REALLY want to parse and store papers. ");
 
 		LOGGER.warn(LogHelper.LOG_LAYER_ONE_BEGIN + "Parse [" + papers.size()
 				+ "] papers...");
 		long begin = System.currentTimeMillis();
 
-		parseAndStoreAllPapersInternal(papers);
+		parseAndStoreAllPapersInternal(papers, year);
 
 		double end = System.currentTimeMillis();
 		Formatter formatter = new Formatter();
@@ -181,10 +208,13 @@ class SentenceAnalyzer {
 			Runnable {
 
 		private Paper paper;
+		private ObjectContainer db;
 
-		private ParseTreeTask(Paper paper) {
+		private ParseTreeTask(Paper paper, ObjectContainer db) {
 			Assert.notNull(paper);
+			Assert.notNull(db);
 			this.paper = paper;
+			this.db = db;
 		}
 
 		@Override
@@ -202,8 +232,8 @@ class SentenceAnalyzer {
 
 		private void storePaper(ParsedPaper paper, String paperFileName) {
 
-			DB.store(paper);
-			DB.commit();
+			db.store(paper);
+			db.commit();
 
 			LOGGER.warn("Added paper [" + paperFileName + "] into DB");
 		}
@@ -276,7 +306,15 @@ class SentenceAnalyzer {
 		}
 	}
 
-	private void parseAndStoreAllPapersInternal(List<Paper> papers) {
+	private void parseAndStoreAllPapersInternal(List<Paper> papers, int year) {
+
+		// get papers in cache now
+		List<ParsedPaper> cachedPapers = retrieveAllParsedPapers();
+		Set<String> cachedPaperFileNames = new HashSet<String>(
+				cachedPapers.size());
+		for (ParsedPaper cachedPaper : cachedPapers) {
+			cachedPaperFileNames.add(cachedPaper.getPaperFileName());
+		}
 
 		ExecutorService threadPool = Executors
 				.newFixedThreadPool(DOCUMENT_PARSING_THREAD_POOL_SIZE);
@@ -284,7 +322,15 @@ class SentenceAnalyzer {
 		List<Callable<Object>> todo = new ArrayList<Callable<Object>>(
 				papers.size());
 		for (Paper paper : papers) {
-			todo.add(Executors.callable(new ParseTreeTask(paper)));
+			if (cachedPaperFileNames.contains(paper.getMetadata()
+					.getPaperFileName())) {
+				LOGGER.warn("Paper [" + paper.getMetadata().getPaperFileName()
+						+ "] has been cached, no need to parse it again. ");
+				continue;
+			}
+
+			todo.add(Executors.callable(new ParseTreeTask(paper, DB_BY_YEAR
+					.get(year))));
 		}
 
 		try {
@@ -299,9 +345,7 @@ class SentenceAnalyzer {
 
 	public static void main(String[] args) throws Exception {
 
-		List<Paper> papers = PaperCache.getInstance().getAllPapers();
-		new SentenceAnalyzer().parseAndStoreAllPapers(papers);
-		System.out.println(papers.size());
+		new SentenceAnalyzer().parseAndStoreAllPapers(2011);
 
 		// SentenceAnalyzer analyzer = new SentenceAnalyzer();
 		// for (Paper paper : papers) {
