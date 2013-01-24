@@ -289,6 +289,8 @@ class SentenceAnalyzer {
 		}
 
 		private Tree parseSentence(String sentence, String treadName) {
+			// TODO detect the sentence is a table, and ignore it
+
 			if (LOGGER.isDebugEnabled()) {
 				LOGGER.debug("Thread[" + treadName + "] Parsing [" + sentence
 						+ "]");

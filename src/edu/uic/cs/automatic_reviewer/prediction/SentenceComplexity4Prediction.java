@@ -132,6 +132,12 @@ public class SentenceComplexity4Prediction extends SentenceComplexity {
 	}
 
 	private Tree parseSentence(String sentence) {
+		// TODO detect the sentence is a table, and ignore it
+
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("Parsing sentence [" + sentence + "]");
+		}
+
 		Tree tree = null;
 		try {
 			tree = wordOperations.getStanfordParser().apply(sentence);
