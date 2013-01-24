@@ -5,6 +5,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.TreeMap;
 
+import org.apache.commons.lang3.CharUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 import edu.stanford.nlp.parser.lexparser.LexicalizedParser;
@@ -101,7 +103,9 @@ public class SentenceComplexity4Prediction extends SentenceComplexity {
 					continue;
 				}
 				Tree sentenceTree = parseSentence(sentence);
-				treesOfParagraph.add(sentenceTree);
+				if (sentenceTree != null) {
+					treesOfParagraph.add(sentenceTree);
+				}
 			}
 			contentSentenceTrees.add(treesOfParagraph);
 		}
@@ -125,17 +129,42 @@ public class SentenceComplexity4Prediction extends SentenceComplexity {
 				continue;
 			}
 			Tree sentenceTree = parseSentence(sentence);
-			abstractParseTrees.add(sentenceTree);
+			if (sentenceTree != null) {
+				abstractParseTrees.add(sentenceTree);
+			}
 		}
 
 		return abstractParseTrees;
 	}
 
-	private Tree parseSentence(String sentence) {
-		// TODO detect the sentence is a table, and ignore it
+	private boolean isTable(String sentence) {
+		String[] lines = sentence.split("\n");
+		if ((lines.length >= 10 && !StringUtils.containsAny(sentence, ',', ';'))
+				|| isAllNonAlphanumeric(sentence)) {
+			return true;
+		}
 
+		return false;
+	}
+
+	private boolean isAllNonAlphanumeric(String sentence) {
+		for (char ch : sentence.toCharArray()) {
+			if (CharUtils.isAsciiAlphanumeric(ch)) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	private Tree parseSentence(String sentence) {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("Parsing sentence [" + sentence + "]");
+		}
+
+		if (isTable(sentence)) {
+			LOGGER.warn("Sentence is abnormal, ignore it. [" + sentence + "]");
+			return null;
 		}
 
 		Tree tree = null;

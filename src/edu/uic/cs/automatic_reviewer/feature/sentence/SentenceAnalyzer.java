@@ -13,7 +13,9 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import org.apache.commons.lang3.CharUtils;
 import org.apache.commons.lang3.SerializationUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.db4o.Db4oEmbedded;
@@ -258,7 +260,9 @@ class SentenceAnalyzer {
 						continue;
 					}
 					Tree sentenceTree = parseSentence(sentence, threadName);
-					abstractParseTrees.add(sentenceTree);
+					if (sentenceTree != null) {
+						abstractParseTrees.add(sentenceTree);
+					}
 				}
 
 				result.setAbstractParseTrees(abstractParseTrees);
@@ -276,7 +280,9 @@ class SentenceAnalyzer {
 						continue;
 					}
 					Tree sentenceTree = parseSentence(sentence, threadName);
-					treesOfParagraph.add(sentenceTree);
+					if (sentenceTree != null) {
+						treesOfParagraph.add(sentenceTree);
+					}
 				}
 				contentSentenceTrees.add(treesOfParagraph);
 			}
@@ -288,13 +294,43 @@ class SentenceAnalyzer {
 			return result;
 		}
 
-		private Tree parseSentence(String sentence, String treadName) {
-			// TODO detect the sentence is a table, and ignore it
+		@SuppressWarnings("unused")
+		private boolean isTable(String sentence) {
+			String[] lines = sentence.split("\n");
+			if ((lines.length >= 10 && !StringUtils.containsAny(sentence, ',',
+					';')) || isAllNonAlphanumeric(sentence)) {
+				return true;
+			}
 
+			return false;
+		}
+
+		private boolean isAllNonAlphanumeric(String sentence) {
+			for (char ch : sentence.toCharArray()) {
+				if (CharUtils.isAsciiAlphanumeric(ch)) {
+					return false;
+				}
+			}
+
+			return true;
+		}
+
+		private Tree parseSentence(String sentence, String treadName) {
 			if (LOGGER.isDebugEnabled()) {
 				LOGGER.debug("Thread[" + treadName + "] Parsing [" + sentence
 						+ "]");
 			}
+
+			/*
+			 * TODO may using this in the future like in
+			 * SentenceComplexity4Prediction.java
+			 */
+			// if (isTable(sentence)) {
+			// LOGGER.warn("Sentence is abnormal (maybe a table), ignore it. ["
+			// + sentence + "]");
+			// return null;
+			// }
+
 			Tree tree = null;
 			try {
 				tree = getStanfordParser().apply(sentence);
@@ -347,7 +383,7 @@ class SentenceAnalyzer {
 
 	public static void main(String[] args) throws Exception {
 
-		new SentenceAnalyzer().parseAndStoreAllPapers(2011);
+		new SentenceAnalyzer().parseAndStoreAllPapers(2012);
 
 		// SentenceAnalyzer analyzer = new SentenceAnalyzer();
 		// for (Paper paper : papers) {
