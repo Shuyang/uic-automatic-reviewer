@@ -1,5 +1,6 @@
 package edu.uic.cs.automatic_reviewer.feature.sentence;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -8,6 +9,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 
 import edu.stanford.nlp.trees.Tree;
@@ -89,29 +91,7 @@ public class SentenceComplexity implements Constants.SentenceComplexity,
 
 		for (ParsedPaper parsedPaper : allStoredPapers) {
 
-			List<Tree> abstractSentences = parsedPaper.getAbstractParseTrees();
-			List<List<Tree>> contentSentencesInParagraphs = parsedPaper
-					.getContentSentenceTrees();
-
-			// reverse order, most complex first
-			TreeMap<Integer, Integer> frequencyByComplexity = new TreeMap<Integer, Integer>(
-					Collections.reverseOrder());
-
-			if (abstractSentences != null) {
-				for (Tree sentence : abstractSentences) {
-					int complexity = measureSentence(sentence);
-					countComplexity(complexity, frequencyByComplexity);
-				}
-			}
-
-			if (contentSentencesInParagraphs != null) {
-				for (List<Tree> contentSentences : contentSentencesInParagraphs) {
-					for (Tree sentence : contentSentences) {
-						int complexity = measureSentence(sentence);
-						countComplexity(complexity, frequencyByComplexity);
-					}
-				}
-			}
+			TreeMap<Integer, Integer> frequencyByComplexity = measureFrequencyByComplexity(parsedPaper);
 
 			cachedComplexityByPaperName.put(parsedPaper.getPaperFileName(),
 					frequencyByComplexity);
@@ -125,6 +105,79 @@ public class SentenceComplexity implements Constants.SentenceComplexity,
 		SerializationHelper.serialize(cachedComplexityByPaperName,
 				COMPLEXITY_CACHE_FILE);
 
+		LOGGER.warn(LogHelper.LOG_LAYER_ONE_END
+				+ "Caching all paper complexities... Done.");
+	}
+
+	private TreeMap<Integer, Integer> measureFrequencyByComplexity(
+			ParsedPaper parsedPaper) {
+
+		List<Tree> abstractSentences = parsedPaper.getAbstractParseTrees();
+		List<List<Tree>> contentSentencesInParagraphs = parsedPaper
+				.getContentSentenceTrees();
+
+		// reverse order, most complex first
+		TreeMap<Integer, Integer> frequencyByComplexity = new TreeMap<Integer, Integer>(
+				Collections.reverseOrder());
+
+		if (abstractSentences != null) {
+			for (Tree sentence : abstractSentences) {
+				int complexity = measureSentence(sentence);
+				countComplexity(complexity, frequencyByComplexity);
+			}
+		}
+
+		if (contentSentencesInParagraphs != null) {
+			for (List<Tree> contentSentences : contentSentencesInParagraphs) {
+				for (Tree sentence : contentSentences) {
+					int complexity = measureSentence(sentence);
+					countComplexity(complexity, frequencyByComplexity);
+				}
+			}
+		}
+		return frequencyByComplexity;
+	}
+
+	@SuppressWarnings("unused")
+	private void addNewSentenceComplexitiesToCache(int year) {
+		List<Paper> papers = PaperCache.getInstance().getPapers(year);
+		// check
+		for (Paper paper : papers) {
+			TreeMap<Integer, Integer> complexities = measurePaperSentenceComplexity(paper);
+			Assert.isTrue(complexities.isEmpty());
+		}
+
+		LOGGER.warn(LogHelper.LOG_LAYER_ONE_BEGIN
+				+ "Adding new sentence complexities for papers in year ["
+				+ year + "]...");
+
+		if (analyzer == null) {
+			analyzer = new SentenceAnalyzer();
+		}
+
+		for (ParsedPaper parsedPaper : analyzer.retrieveParsedPapers(year)) {
+			TreeMap<Integer, Integer> frequencyByComplexity = measureFrequencyByComplexity(parsedPaper);
+
+			cachedComplexityByPaperName.put(parsedPaper.getPaperFileName(),
+					frequencyByComplexity);
+			LOGGER.warn("Complexity for [" + parsedPaper.getPaperFileName()
+					+ "]\t" + frequencyByComplexity);
+		}
+
+		LOGGER.warn(LogHelper.LOG_LAYER_ONE_END
+				+ "Adding new sentence complexities for papers in year ["
+				+ year + "]... Done.");
+
+		// remove old one
+		FileUtils.deleteQuietly(new File(COMPLEXITY_CACHE_FILE));
+		System.err.println("Cache file[" + COMPLEXITY_CACHE_FILE
+				+ "] has been removed.");
+
+		// re-cache the new one
+		LOGGER.warn(LogHelper.LOG_LAYER_ONE_BEGIN
+				+ "Caching all paper complexities...");
+		SerializationHelper.serialize(cachedComplexityByPaperName,
+				COMPLEXITY_CACHE_FILE);
 		LOGGER.warn(LogHelper.LOG_LAYER_ONE_END
 				+ "Caching all paper complexities... Done.");
 	}

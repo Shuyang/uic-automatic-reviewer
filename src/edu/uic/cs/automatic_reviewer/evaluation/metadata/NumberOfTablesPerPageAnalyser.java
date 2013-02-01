@@ -2,6 +2,7 @@ package edu.uic.cs.automatic_reviewer.evaluation.metadata;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import edu.uic.cs.automatic_reviewer.feature.metadata.NumberOfTablesPerPage;
@@ -16,7 +17,7 @@ public class NumberOfTablesPerPageAnalyser {
 	private NumberOfTablesPerPage numberOfTablesPerPage = new NumberOfTablesPerPage();
 
 	public static void main(String[] args) {
-		new NumberOfTablesPerPageAnalyser().run(2010);
+		new NumberOfTablesPerPageAnalyser().run(2011);
 	}
 
 	public void run(int year) {
@@ -40,6 +41,23 @@ public class NumberOfTablesPerPageAnalyser {
 
 		System.out.println(Arrays.toString(positiveResult));
 		System.out.println(Arrays.toString(negativeResult));
+
+		List<Double> tableNumPerPage = getNumOfTablePerPage(positivePapers);
+		System.out.println(tableNumPerPage);
+		tableNumPerPage = getNumOfTablePerPage(negativePapers);
+		System.out.println(tableNumPerPage);
+	}
+
+	protected List<Double> getNumOfTablePerPage(List<Paper> positivePapers) {
+		List<Double> tableNumPerPage = new ArrayList<Double>();
+		for (Paper paper : positivePapers) {
+			double numTable = paper.getMetadata().getNumOfTables();
+			double tablePerPage = numTable / paper.getNumOfPages();
+			tableNumPerPage.add(tablePerPage);
+		}
+
+		Collections.sort(tableNumPerPage);
+		return tableNumPerPage;
 	}
 
 	private double[] countAverageTableFrequencies(List<Paper> papers) {

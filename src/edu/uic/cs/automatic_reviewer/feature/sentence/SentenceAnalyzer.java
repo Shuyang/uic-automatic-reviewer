@@ -135,6 +135,11 @@ class SentenceAnalyzer {
 		return result;
 	}
 
+	List<ParsedPaper> retrieveParsedPapers(int year) {
+		ObjectContainer db = DB_BY_YEAR.get(year);
+		return db.query(ParsedPaper.class);
+	}
+
 	public List<Tree> getAbstractParseTrees(Paper paper) {
 		if (cachedPaper != null
 				&& cachedPaper.getPaperFileName().equals(

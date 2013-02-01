@@ -29,7 +29,7 @@ import edu.uic.cs.automatic_reviewer.misc.Assert;
 
 public class DatasetGatherer {
 
-	private static final Year YEAR = Year._All;
+	private static final Year YEAR = Year._2011;
 
 	private static final Feature[] FEATURES = gatherAllFeatures();
 

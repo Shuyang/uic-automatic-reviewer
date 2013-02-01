@@ -40,7 +40,7 @@ public class FeaturesTuner {
 
 	private static final int MIN_ACCEPTED_PAPER_PAGE_NUMBER = 8;
 
-	private static final Year YEAR = Year._2012;
+	private static final Year YEAR = Year._2011;
 
 	private static Feature[] gatherAllFeatures() {
 
@@ -228,8 +228,8 @@ public class FeaturesTuner {
 		// normalize [0, 1]
 		Normalize normalize = new Normalize();
 		// un-comment below for normalize [-1, 1]
-		// normalize.setScale(2.0);
-		// normalize.setTranslation(-1.0);
+		normalize.setScale(2.0);
+		normalize.setTranslation(-1.0);
 		try {
 			normalize.setInputFormat(dataSet);
 			dataSet = Filter.useFilter(dataSet, normalize);

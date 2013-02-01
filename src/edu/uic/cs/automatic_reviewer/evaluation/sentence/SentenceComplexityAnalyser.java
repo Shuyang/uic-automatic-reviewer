@@ -21,6 +21,7 @@ public class SentenceComplexityAnalyser {
 		FILE_NAME_BY_YEAR = new TreeMap<Integer, String>();
 		FILE_NAME_BY_YEAR.put(2007, "dataset_sen_normalized_2007.arff");
 		FILE_NAME_BY_YEAR.put(2010, "dataset_sen_normalized_2010.arff");
+		FILE_NAME_BY_YEAR.put(2011, "dataset_sen_normalized_2011.arff");
 		FILE_NAME_BY_YEAR.put(2012, "dataset_sen_normalized_2012.arff");
 	}
 

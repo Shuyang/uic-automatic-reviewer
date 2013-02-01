@@ -34,7 +34,7 @@ public class TopicDistribution implements Feature, Constants.Topic {
 
 	public static enum Year {
 
-		_2007(2007), _2010(2010), _2012(2012), _All(0);
+		_2007(2007), _2010(2010), _2011(2011), _2012(2012), _All(0);
 
 		private final int year;
 
@@ -62,7 +62,7 @@ public class TopicDistribution implements Feature, Constants.Topic {
 		initialize();
 	}
 
-	protected void initialize() {
+	private void initialize() {
 		modelCacheFile = _MODEL_CACHE_FILE.replace("$YEAR$", year.toString());
 		paperTopicDistributionCacheFile = _PAPER_TOPIC_DISTRIBUTION_CACHE_FILE
 				.replace("$YEAR$", year.toString());

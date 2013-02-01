@@ -1,11 +1,13 @@
 package edu.uic.cs.automatic_reviewer.feature.sentence;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 
 import edu.stanford.nlp.ling.TaggedWord;
@@ -80,28 +82,7 @@ public class SentencePOSTagParser {
 
 		for (ParsedPaper parsedPaper : allStoredPapers) {
 
-			List<Tree> abstractSentences = parsedPaper.getAbstractParseTrees();
-			List<List<Tree>> contentSentencesInParagraphs = parsedPaper
-					.getContentSentenceTrees();
-
-			List<List<TaggedWord>> sentencePOSTags = new ArrayList<List<TaggedWord>>();
-
-			if (abstractSentences != null) {
-				for (Tree sentence : abstractSentences) {
-					ArrayList<TaggedWord> taggedWords = sentence.taggedYield();
-					sentencePOSTags.add(taggedWords);
-				}
-			}
-
-			if (contentSentencesInParagraphs != null) {
-				for (List<Tree> contentSentences : contentSentencesInParagraphs) {
-					for (Tree sentence : contentSentences) {
-						ArrayList<TaggedWord> taggedWords = sentence
-								.taggedYield();
-						sentencePOSTags.add(taggedWords);
-					}
-				}
-			}
+			List<List<TaggedWord>> sentencePOSTags = getherSentencePOSTags(parsedPaper);
 
 			cachedSentencePOSTagsByPaperName.put(
 					parsedPaper.getPaperFileName(), sentencePOSTags);
@@ -118,6 +99,76 @@ public class SentencePOSTagParser {
 
 		LOGGER.warn(LogHelper.LOG_LAYER_ONE_END
 				+ "Caching all paper sentence POS tags... Done.");
+	}
+
+	private List<List<TaggedWord>> getherSentencePOSTags(ParsedPaper parsedPaper) {
+
+		List<Tree> abstractSentences = parsedPaper.getAbstractParseTrees();
+		List<List<Tree>> contentSentencesInParagraphs = parsedPaper
+				.getContentSentenceTrees();
+
+		List<List<TaggedWord>> sentencePOSTags = new ArrayList<List<TaggedWord>>();
+
+		if (abstractSentences != null) {
+			for (Tree sentence : abstractSentences) {
+				ArrayList<TaggedWord> taggedWords = sentence.taggedYield();
+				sentencePOSTags.add(taggedWords);
+			}
+		}
+
+		if (contentSentencesInParagraphs != null) {
+			for (List<Tree> contentSentences : contentSentencesInParagraphs) {
+				for (Tree sentence : contentSentences) {
+					ArrayList<TaggedWord> taggedWords = sentence.taggedYield();
+					sentencePOSTags.add(taggedWords);
+				}
+			}
+		}
+		return sentencePOSTags;
+	}
+
+	@SuppressWarnings("unused")
+	private void addNewSentencePOSTagsToCache(int year) {
+		List<Paper> papers = PaperCache.getInstance().getPapers(year);
+		// check
+		for (Paper paper : papers) {
+			List<List<TaggedWord>> posTags = getSentencePOSTags(paper);
+			Assert.isTrue(posTags.isEmpty());
+		}
+
+		LOGGER.warn(LogHelper.LOG_LAYER_ONE_BEGIN
+				+ "Adding new sentence POS tags for papers in year [" + year
+				+ "]...");
+
+		if (analyzer == null) {
+			analyzer = new SentenceAnalyzer();
+		}
+
+		for (ParsedPaper parsedPaper : analyzer.retrieveParsedPapers(year)) {
+			List<List<TaggedWord>> sentencePOSTags = getherSentencePOSTags(parsedPaper);
+
+			cachedSentencePOSTagsByPaperName.put(
+					parsedPaper.getPaperFileName(), sentencePOSTags);
+			LOGGER.warn(sentencePOSTags.size() + " sentences for ["
+					+ parsedPaper.getPaperFileName() + "]");
+		}
+
+		LOGGER.warn(LogHelper.LOG_LAYER_ONE_END
+				+ "Adding new sentence POS tags for papers in year [" + year
+				+ "]... Done.");
+
+		// remove old one
+		FileUtils.deleteQuietly(new File(SENTENCE_POS_TAG_CACHE_FILE));
+		System.err.println("Cache file[" + SENTENCE_POS_TAG_CACHE_FILE
+				+ "] has been removed.");
+
+		// re-cache the new one
+		LOGGER.warn(LogHelper.LOG_LAYER_ONE_BEGIN
+				+ "Caching sentence POS tags...");
+		SerializationHelper.serialize(cachedSentencePOSTagsByPaperName,
+				SENTENCE_POS_TAG_CACHE_FILE);
+		LOGGER.warn(LogHelper.LOG_LAYER_ONE_END
+				+ "Caching all sentence POS tags... Done.");
 	}
 
 	public static void main(String[] args) {
