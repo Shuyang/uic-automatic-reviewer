@@ -38,6 +38,20 @@ public class PaperCache {
 		return INSTANCE;
 	}
 
+	public List<Paper> getPapers(int[] years,
+			PaperPublishType... paperPublishTypes) {
+		if (years.length == 1) {
+			return getPapers(years[0], paperPublishTypes);
+		}
+
+		List<Paper> result = new ArrayList<Paper>();
+		for (int year : years) {
+			result.addAll(getPapers(year, paperPublishTypes));
+		}
+
+		return result;
+	}
+
 	/**
 	 * Get all cached papers for specified year and PaperPublishType(s). <br>
 	 * If no PaperPublishType input, all types of papers of the specified year

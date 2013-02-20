@@ -27,7 +27,7 @@ class AuthorRankingThresholdTuner {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		for (float threshold = 1; threshold <= 4; threshold += 0.1F) {
+		for (float threshold = 3; threshold <= 5; threshold += 0.1F) {
 			System.out.println("threshold : " + threshold);
 			run(threshold);
 			System.out.println("===========================================");
@@ -72,8 +72,8 @@ class AuthorRankingThresholdTuner {
 
 			List<String> namesFromIndex = new ArrayList<String>();
 			for (Author author : authors) {
-				String name = AuthorRanking.getInstance(/* threshold */)
-						.getName(author);
+				String name = AuthorRanking.getInstance(/*threshold*/).getName(
+						author);
 				namesFromIndex.add(name);
 			}
 

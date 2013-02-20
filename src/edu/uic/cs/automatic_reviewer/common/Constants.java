@@ -33,6 +33,8 @@ public interface Constants {
 		 * to this score will be considered as matched result and be returned.
 		 */
 		float SCORE_THRESHOLD = 2.3f;
+
+		float SCORE_THRESHOLD2 = 2.4f;
 	}
 
 	interface Feature {
@@ -61,5 +63,9 @@ public interface Constants {
 
 	interface SentenceComplexity {
 		int MAX_COMPLEXITY = 40;
+	}
+
+	interface Evaluation {
+		int MIN_ACCEPTED_PAPER_PAGE_NUMBER = 8;
 	}
 }

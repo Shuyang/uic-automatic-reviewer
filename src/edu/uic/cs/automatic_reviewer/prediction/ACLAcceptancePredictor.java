@@ -104,7 +104,7 @@ public class ACLAcceptancePredictor {
 
 	public static void main(String[] args) {
 		ACLAcceptancePredictor predictor = new ACLAcceptancePredictor();
-		String paperFile = "D:/Data/UIC Documents/Computer Science/CS_521/Project/paper/final/automatic_reviewer.pdf";
+		String paperFile = "D:/Data/Dropbox/Automatic_Reviewer_Paper/final_2013_02_19/automatic_reviewer.pdf";
 		boolean result = predictor.predict(paperFile);
 
 		System.out.println(result);

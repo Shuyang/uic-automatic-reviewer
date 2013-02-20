@@ -274,6 +274,7 @@ public class FashionTechniques extends AbstractWordOperations implements
 			// System.out.println(techniqueFrequenciesInPaper);
 		}
 
+		System.out.println("===============================");
 		for (Entry<String, Integer> entry : paperCountByTerm.entrySet()) {
 			System.out.println(entry);
 		}

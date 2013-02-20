@@ -21,8 +21,8 @@ public class TopicDistribution implements Feature, Constants.Topic {
 	private static final Logger LOGGER = LogHelper
 			.getLogger(TopicDistribution.class);
 
-	private static final String _MODEL_CACHE_FILE = "data/lda_model_$YEAR$.cache";
-	private static final String _PAPER_TOPIC_DISTRIBUTION_CACHE_FILE = "data/paper_topic_distribution_$YEAR$.cache";
+	private static final String _MODEL_CACHE_FILE = "data/lda_model_$TOPIC_NUM$_$YEAR$.cache";
+	private static final String _PAPER_TOPIC_DISTRIBUTION_CACHE_FILE = "data/paper_topic_distribution_$TOPIC_NUM$_$YEAR$.cache";
 
 	private TopicPredictor topicPredictor = new TopicPredictor();
 
@@ -34,16 +34,17 @@ public class TopicDistribution implements Feature, Constants.Topic {
 
 	public static enum Year {
 
-		_2007(2007), _2010(2010), _2011(2011), _2012(2012), _All(0);
+		_2007(2007), _2010(2010), _2011(2011), _2012(2012), _All(0), _2007_10(
+				2007, 2010), _2007_10_11(2007, 2010, 2011), _2010_11(2010, 2011);
 
-		private final int year;
+		private final int[] years;
 
-		private Year(int year) {
-			this.year = year;
+		private Year(int... years) {
+			this.years = years;
 		}
 
-		public int getYear() {
-			return year;
+		public int[] getYears() {
+			return years;
 		}
 
 		@Override
@@ -51,7 +52,16 @@ public class TopicDistribution implements Feature, Constants.Topic {
 			if (this == _All) {
 				return "all";
 			}
-			return "" + year;
+
+			StringBuilder toString = new StringBuilder();
+			for (int index = 0; index < years.length; index++) {
+				if (index > 0) {
+					toString.append("_");
+				}
+
+				toString.append(years[index]);
+			}
+			return toString.toString();
 		}
 	}
 
@@ -63,9 +73,11 @@ public class TopicDistribution implements Feature, Constants.Topic {
 	}
 
 	private void initialize() {
-		modelCacheFile = _MODEL_CACHE_FILE.replace("$YEAR$", year.toString());
+		modelCacheFile = _MODEL_CACHE_FILE.replace("$TOPIC_NUM$",
+				NUMBER_OF_TOPICS + "").replace("$YEAR$", year.toString());
 		paperTopicDistributionCacheFile = _PAPER_TOPIC_DISTRIBUTION_CACHE_FILE
-				.replace("$YEAR$", year.toString());
+				.replace("$TOPIC_NUM$", NUMBER_OF_TOPICS + "").replace(
+						"$YEAR$", year.toString());
 
 		if (model == null) {
 			synchronized (this) {
@@ -86,11 +98,11 @@ public class TopicDistribution implements Feature, Constants.Topic {
 
 		List<Paper> papersToTrainModel = null;
 
-		if (year.equals(Year._All)) {
+		if (year == Year._All) {
 			papersToTrainModel = PaperCache.getInstance().getAllPapers();
 		} else {
 			papersToTrainModel = PaperCache.getInstance().getPapers(
-					year.getYear());
+					year.getYears());
 		}
 
 		LOGGER.info(LogHelper.LOG_LAYER_ONE_BEGIN
@@ -136,10 +148,10 @@ public class TopicDistribution implements Feature, Constants.Topic {
 
 	private void cachePaperTopicDistribution() {
 		List<Paper> papers = null;
-		if (year.equals(Year._All)) {
+		if (year == Year._All) {
 			papers = PaperCache.getInstance().getAllPapers();
 		} else {
-			papers = PaperCache.getInstance().getPapers(year.getYear());
+			papers = PaperCache.getInstance().getPapers(year.getYears());
 		}
 
 		LOGGER.info(LogHelper.LOG_LAYER_ONE_BEGIN

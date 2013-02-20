@@ -5,15 +5,15 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import edu.uic.cs.automatic_reviewer.common.Constants;
 import edu.uic.cs.automatic_reviewer.feature.metadata.NumberOfTablesPerPage;
 import edu.uic.cs.automatic_reviewer.input.Paper;
 import edu.uic.cs.automatic_reviewer.input.PaperCache;
 import edu.uic.cs.automatic_reviewer.input.PaperPublishType;
 import edu.uic.cs.automatic_reviewer.misc.Assert;
 
-public class NumberOfTablesPerPageAnalyser {
+public class NumberOfTablesPerPageAnalyser implements Constants.Evaluation {
 
-	private int MIN_ACCEPTED_PAPER_PAGE_NUMBER = 8;
 	private NumberOfTablesPerPage numberOfTablesPerPage = new NumberOfTablesPerPage();
 
 	public static void main(String[] args) {

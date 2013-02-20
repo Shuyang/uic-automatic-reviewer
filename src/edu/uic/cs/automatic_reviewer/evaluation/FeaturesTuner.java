@@ -8,6 +8,7 @@ import java.util.Random;
 import java.util.TreeMap;
 
 import weka.classifiers.Classifier;
+import weka.classifiers.Evaluation;
 import weka.classifiers.functions.LibSVM;
 import weka.core.Attribute;
 import weka.core.FastVector;
@@ -17,6 +18,7 @@ import weka.core.SelectedTag;
 import weka.core.Utils;
 import weka.filters.Filter;
 import weka.filters.unsupervised.attribute.Normalize;
+import edu.uic.cs.automatic_reviewer.common.Constants;
 import edu.uic.cs.automatic_reviewer.feature.Feature;
 import edu.uic.cs.automatic_reviewer.feature.FeatureDefinition;
 import edu.uic.cs.automatic_reviewer.feature.InstanceCreator;
@@ -36,11 +38,9 @@ import edu.uic.cs.automatic_reviewer.input.PaperPublishType;
 import edu.uic.cs.automatic_reviewer.misc.Assert;
 import edu.uic.cs.automatic_reviewer.misc.AutomaticReviewerException;
 
-public class FeaturesTuner {
+public class FeaturesTuner implements Constants.Evaluation {
 
-	private static final int MIN_ACCEPTED_PAPER_PAGE_NUMBER = 8;
-
-	private static final Year YEAR = Year._2011;
+	private static final Year YEAR = Year._2012;
 
 	private static Feature[] gatherAllFeatures() {
 
@@ -54,7 +54,8 @@ public class FeaturesTuner {
 				new TopicDistribution(YEAR), //
 				new FashionTechniques(), //
 				AuthorRanking.getInstance(), //
-				new SentenceComplexity() //
+				new SentenceComplexity(), //
+		// new NumberOfReferences(), //
 		};
 	}
 
@@ -80,7 +81,7 @@ public class FeaturesTuner {
 			System.out
 					.println(featureNames.toString()
 							+ "\t"
-							+ +index++
+							+ index++
 							+ "/"
 							+ powerset.size()
 							+ "=================================================================\n");
@@ -90,8 +91,10 @@ public class FeaturesTuner {
 				.println("=================================================================\n");
 		for (Entry<String, double[]> entry : resultByFeatures.entrySet()) {
 			double[] result = entry.getValue();
-			System.out.printf("P: %.4f\tR: %.4f\tF: %.4f\t%s\n", result[0],
-					result[1], result[2], entry.getKey());
+			System.out.printf(
+					"P: %.4f\tR: %.4f\tF: %.4f\tC: %.4f\tI: %.4f\t%s\n",
+					result[0], result[1], result[2], result[3], result[4],
+					entry.getKey());
 		}
 
 	}
@@ -103,8 +106,7 @@ public class FeaturesTuner {
 		int folds = 10;
 
 		// perform cross-validation
-		weka.classifiers.Evaluation evaluation = new weka.classifiers.Evaluation(
-				dataset);
+		Evaluation evaluation = new Evaluation(dataset);
 		evaluation.crossValidateModel(classifier, dataset, folds, new Random(
 				seed));
 
@@ -124,7 +126,10 @@ public class FeaturesTuner {
 		System.out.println("recall: " + recall);
 		System.out.println("fMeasure: " + fMeasure);
 
-		return new double[] { precision, recall, fMeasure };
+		double correct = evaluation.correct();
+		double incorrect = evaluation.incorrect();
+
+		return new double[] { precision, recall, fMeasure, correct, incorrect };
 	}
 
 	private static Classifier getClassifier() {
@@ -199,10 +204,10 @@ public class FeaturesTuner {
 					PaperPublishType.WorkshopPaper,
 					PaperPublishType.StudentWorkshopPaper);
 		} else {
-			positivePapers = PaperCache.getInstance().getPapers(YEAR.getYear(),
-					PaperPublishType.LongPaper);
-			negativePapers = PaperCache.getInstance().getPapers(YEAR.getYear(),
-					PaperPublishType.WorkshopPaper,
+			positivePapers = PaperCache.getInstance().getPapers(
+					YEAR.getYears(), PaperPublishType.LongPaper);
+			negativePapers = PaperCache.getInstance().getPapers(
+					YEAR.getYears(), PaperPublishType.WorkshopPaper,
 					PaperPublishType.StudentWorkshopPaper);
 		}
 
@@ -228,8 +233,9 @@ public class FeaturesTuner {
 		// normalize [0, 1]
 		Normalize normalize = new Normalize();
 		// un-comment below for normalize [-1, 1]
-		normalize.setScale(2.0);
-		normalize.setTranslation(-1.0);
+		// normalize.setScale(2.0);
+		// normalize.setTranslation(-1.0);
+
 		try {
 			normalize.setInputFormat(dataSet);
 			dataSet = Filter.useFilter(dataSet, normalize);

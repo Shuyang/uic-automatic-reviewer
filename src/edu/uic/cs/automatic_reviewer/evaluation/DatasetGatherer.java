@@ -9,6 +9,7 @@ import weka.core.Attribute;
 import weka.core.FastVector;
 import weka.core.Instance;
 import weka.core.Instances;
+import edu.uic.cs.automatic_reviewer.common.Constants;
 import edu.uic.cs.automatic_reviewer.feature.Feature;
 import edu.uic.cs.automatic_reviewer.feature.FeatureDefinition;
 import edu.uic.cs.automatic_reviewer.feature.InstanceCreator;
@@ -27,13 +28,11 @@ import edu.uic.cs.automatic_reviewer.input.PaperCache;
 import edu.uic.cs.automatic_reviewer.input.PaperPublishType;
 import edu.uic.cs.automatic_reviewer.misc.Assert;
 
-public class DatasetGatherer {
+public class DatasetGatherer implements Constants.Evaluation {
 
 	private static final Year YEAR = Year._2011;
 
 	private static final Feature[] FEATURES = gatherAllFeatures();
-
-	private static final int MIN_ACCEPTED_PAPER_PAGE_NUMBER = 8;
 
 	private static Feature[] gatherAllFeatures() {
 
@@ -131,10 +130,10 @@ public class DatasetGatherer {
 					PaperPublishType.WorkshopPaper,
 					PaperPublishType.StudentWorkshopPaper);
 		} else {
-			positivePapers = PaperCache.getInstance().getPapers(YEAR.getYear(),
-					PaperPublishType.LongPaper);
-			negativePapers = PaperCache.getInstance().getPapers(YEAR.getYear(),
-					PaperPublishType.WorkshopPaper,
+			positivePapers = PaperCache.getInstance().getPapers(
+					YEAR.getYears(), PaperPublishType.LongPaper);
+			negativePapers = PaperCache.getInstance().getPapers(
+					YEAR.getYears(), PaperPublishType.WorkshopPaper,
 					PaperPublishType.StudentWorkshopPaper);
 		}
 

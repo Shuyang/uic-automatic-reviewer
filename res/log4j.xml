@@ -20,7 +20,7 @@
 
 
 	<logger name="edu.uic.cs.automatic_reviewer" additivity="false">
-		<level value="debug" />
+		<level value="info" />
 		<appender-ref ref="console" />
 		<appender-ref ref="file" />
 	</logger>
