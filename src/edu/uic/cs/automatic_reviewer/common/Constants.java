@@ -46,7 +46,7 @@ public interface Constants {
 
 	interface Topic {
 
-		int NUMBER_OF_TOPICS = 20;
+		int NUMBER_OF_TOPICS = 50;
 
 		double LDA_TRAINING_ALPHA_SUM = 1.0;
 		double LDA_TRAINING_BETA = 0.01;

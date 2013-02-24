@@ -9,16 +9,13 @@ import weka.core.Attribute;
 import weka.core.FastVector;
 import weka.core.Instance;
 import weka.core.Instances;
+import weka.filters.Filter;
+import weka.filters.unsupervised.attribute.Normalize;
 import edu.uic.cs.automatic_reviewer.common.Constants;
 import edu.uic.cs.automatic_reviewer.feature.Feature;
 import edu.uic.cs.automatic_reviewer.feature.FeatureDefinition;
 import edu.uic.cs.automatic_reviewer.feature.InstanceCreator;
-import edu.uic.cs.automatic_reviewer.feature.metadata.NumberOfFiguresPerPage;
-import edu.uic.cs.automatic_reviewer.feature.metadata.NumberOfFormulasPerPage;
 import edu.uic.cs.automatic_reviewer.feature.metadata.NumberOfTablesPerPage;
-import edu.uic.cs.automatic_reviewer.feature.ranking.AuthorRanking;
-import edu.uic.cs.automatic_reviewer.feature.sentence.SentenceComplexity;
-import edu.uic.cs.automatic_reviewer.feature.term.AbstractTFIDF;
 import edu.uic.cs.automatic_reviewer.feature.term.FashionTechniques;
 import edu.uic.cs.automatic_reviewer.feature.term.TitleTFIDF;
 import edu.uic.cs.automatic_reviewer.feature.topic.TopicDistribution;
@@ -27,10 +24,11 @@ import edu.uic.cs.automatic_reviewer.input.Paper;
 import edu.uic.cs.automatic_reviewer.input.PaperCache;
 import edu.uic.cs.automatic_reviewer.input.PaperPublishType;
 import edu.uic.cs.automatic_reviewer.misc.Assert;
+import edu.uic.cs.automatic_reviewer.misc.AutomaticReviewerException;
 
 public class DatasetGatherer implements Constants.Evaluation {
 
-	private static final Year YEAR = Year._2011;
+	private static final Year YEAR = Year._2012;
 
 	private static final Feature[] FEATURES = gatherAllFeatures();
 
@@ -38,22 +36,22 @@ public class DatasetGatherer implements Constants.Evaluation {
 
 		return new Feature[] {
 				// features
-				new NumberOfFiguresPerPage(), //
-				new NumberOfFormulasPerPage(), //
+				// new NumberOfFiguresPerPage(), //
+				// new NumberOfFormulasPerPage(), //
 				new NumberOfTablesPerPage(), //
 				new TitleTFIDF(), //
-				new AbstractTFIDF(), //
+				// new AbstractTFIDF(), //
 				new TopicDistribution(YEAR), //
 				new FashionTechniques(), //
-				AuthorRanking.getInstance(), //
-				new SentenceComplexity() //
+		// AuthorRanking.getInstance(), //
+		// new SentenceComplexity() //
 		};
 	}
 
 	public static void main(String[] args) throws Exception {
 
-		Assert.isTrue(false,
-				"Comment this line if you want to gather dataset into files! ");
+		// Assert.isTrue(false,
+		// "Comment this line if you want to gather dataset into files! ");
 
 		Instances data = createDataset();
 
@@ -66,7 +64,7 @@ public class DatasetGatherer implements Constants.Evaluation {
 
 	private static String getOutputFileName() {
 		StringBuilder sb = new StringBuilder("dataset/dataset");
-		sb.append(YEAR.name()).append(".arff");
+		sb.append(YEAR.name()).append("_50.arff");
 		return sb.toString();
 	}
 
@@ -154,6 +152,15 @@ public class DatasetGatherer implements Constants.Evaluation {
 				continue;
 			}
 			addInstance(dataSet, featureDefs, paper, Boolean.FALSE);
+		}
+
+		Normalize normalize = new Normalize();
+
+		try {
+			normalize.setInputFormat(dataSet);
+			dataSet = Filter.useFilter(dataSet, normalize);
+		} catch (Exception e) {
+			throw new AutomaticReviewerException(e);
 		}
 
 		return dataSet;

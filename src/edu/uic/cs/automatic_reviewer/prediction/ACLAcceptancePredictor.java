@@ -14,8 +14,9 @@ import weka.core.Instances;
 import weka.core.SelectedTag;
 import weka.core.converters.ArffLoader;
 import edu.uic.cs.automatic_reviewer.feature.Feature;
-import edu.uic.cs.automatic_reviewer.feature.metadata.NumberOfFormulasPerPage;
 import edu.uic.cs.automatic_reviewer.feature.metadata.NumberOfTablesPerPage;
+import edu.uic.cs.automatic_reviewer.feature.term.FashionTechniques;
+import edu.uic.cs.automatic_reviewer.feature.term.TitleTFIDF;
 import edu.uic.cs.automatic_reviewer.feature.topic.TopicDistribution.Year;
 import edu.uic.cs.automatic_reviewer.input.Paper;
 import edu.uic.cs.automatic_reviewer.input.parse.PaperParser;
@@ -23,22 +24,24 @@ import edu.uic.cs.automatic_reviewer.misc.AutomaticReviewerException;
 
 public class ACLAcceptancePredictor {
 
-	private static final String FILE_NAME = "dataset_replaced_missing_normalized_best_2012.arff";
+	private static final String PAPER_PATH = "D:/Data/Dropbox/Automatic_Reviewer_Paper/final_2013_02_19/automatic_reviewer.pdf";
+
+	private static final String MODEL_DATASET_FILE_NAME = "dataset_2012_best_N50.arff";
 
 	private static final Feature[] FEATURES = gatherAllFeatures();
 
 	private Instances instances;
 
-	private PaperParser paperParser = new PaperParser();
+	private PaperParser paperParser = new PaperParser(false);
 
 	private static Feature[] gatherAllFeatures() {
 
 		return new Feature[] {
 				// features
-				new NumberOfFormulasPerPage(), //
 				new NumberOfTablesPerPage(), //
+				new TitleTFIDF(), //
 				new TopicDistribution4Prediction(Year._2012), //
-				new SentenceComplexity4Prediction() //
+				new FashionTechniques(), //
 		};
 	}
 
@@ -46,7 +49,7 @@ public class ACLAcceptancePredictor {
 		ArffLoader arffLoader = new ArffLoader();
 		try {
 			arffLoader.setSource(ACLAcceptancePredictor.class
-					.getResourceAsStream(FILE_NAME));
+					.getResourceAsStream(MODEL_DATASET_FILE_NAME));
 			instances = arffLoader.getDataSet();
 			instances.setClassIndex(instances.numAttributes() - 1);
 
@@ -104,10 +107,12 @@ public class ACLAcceptancePredictor {
 
 	public static void main(String[] args) {
 		ACLAcceptancePredictor predictor = new ACLAcceptancePredictor();
-		String paperFile = "D:/Data/Dropbox/Automatic_Reviewer_Paper/final_2013_02_19/automatic_reviewer.pdf";
-		boolean result = predictor.predict(paperFile);
+		boolean result = predictor.predict(PAPER_PATH);
 
+		System.out.println("*************************************************");
+		System.out.println("*************************************************");
 		System.out.println(result);
+
 	}
 
 	private FastVector defineFeatures() {

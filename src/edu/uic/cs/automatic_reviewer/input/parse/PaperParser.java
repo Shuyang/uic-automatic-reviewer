@@ -58,7 +58,7 @@ public class PaperParser /* extends AbstractWordOperations */implements
 	private PDFParser tikaParser = new PDFParser();
 	private TransformerHandler handler;
 
-	private AuthorInfoExtractor authorInfoExtractor = new AuthorInfoExtractorDBLP();
+	private final AuthorInfoExtractor authorInfoExtractor;
 
 	@SuppressWarnings("unchecked")
 	private static String[] readLines(String fileName) {
@@ -76,7 +76,12 @@ public class PaperParser /* extends AbstractWordOperations */implements
 		return lines.toArray(new String[lines.size()]);
 	}
 
-	public PaperParser() {
+	public PaperParser(boolean useDBLP) {
+		if (useDBLP) {
+			authorInfoExtractor = new AuthorInfoExtractorDBLP();
+		} else {
+			authorInfoExtractor = new AuthorInfoExtractorMetadata();
+		}
 
 		// SAX
 		SAXTransformerFactory saxTransformerFactory = (SAXTransformerFactory) SAXTransformerFactory
@@ -87,6 +92,11 @@ public class PaperParser /* extends AbstractWordOperations */implements
 			throw new AutomaticReviewerException(e);
 		}
 		handler.getTransformer().setOutputProperty(OutputKeys.METHOD, "xml");
+	}
+
+	public PaperParser() {
+		// default use DBLP
+		this(true);
 	}
 
 	public Paper parse(File file) {
